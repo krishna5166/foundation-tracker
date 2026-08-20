@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundation Tracker — AI/ML → Computer Vision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#1E2B24;
+    --board-panel:#25352C;
+    --board-panel-hi:#2C3E33;
+    --chalk:#EDEAE0;
+    --chalk-dim:#9FAFA3;
+    --chalk-dim2:#8FA096;
+    --rule:#3B4B41;
+    --yellow:#E8C468;
+    --blue:#82AECB;
+    --coral:#C1685A;
+    --green-ok:#8FBF8A;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 60%),
+      var(--board);
+    color:var(--chalk);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    padding:2.5rem 1.25rem 4rem;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+
+  /* ===== Header ===== */
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--yellow);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,4.5vw,42px);
+    line-height:1.08;
+    margin-bottom:10px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:500;color:var(--blue)}
+  .subtitle{
+    font-size:14.5px;
+    color:var(--chalk-dim2);
+    max-width:600px;
+    line-height:1.55;
+    margin-bottom:22px;
+  }
+
+  /* ===== Feedback strip ===== */
+  .feedback-card{
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--coral);
+    border-radius:4px;
+    padding:14px 18px;
+    margin-bottom:26px;
+  }
+  .feedback-card .ftitle{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--coral);
+    margin-bottom:6px;
+  }
+  .feedback-card p{
+    font-size:13.5px;
+    color:var(--chalk-dim2);
+    line-height:1.6;
+  }
+  .feedback-card b{color:var(--chalk);font-weight:600}
+
+  /* ===== Stats ===== */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:24px;
+  }
+  @media(max-width:380px){
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+  }
+  .stat-card{
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:14px 8px;
+    text-align:center;
+    min-width:0;
+  }
+  .stat-num{font-family:'Fraunces',serif;font-size:clamp(19px,5vw,26px);font-weight:600;color:var(--yellow)}
+  .stat-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--chalk-dim2);margin-top:4px;line-height:1.3}
+
+  .progress-wrap{background:var(--rule);border-radius:99px;height:6px;margin-bottom:28px;overflow:hidden}
+  .progress-fill{background:linear-gradient(90deg,var(--blue),var(--green-ok));height:100%;border-radius:99px;transition:width .4s}
+
+  /* ===== Controls ===== */
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center}
+  .search-box{
+    flex:1;min-width:200px;
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    color:var(--chalk);
+    padding:9px 13px;
+    border-radius:6px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+  }
+  .search-box:focus{outline:none;border-color:var(--blue)}
+  .search-box::placeholder{color:var(--chalk-dim2)}
+  .filter-btn{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.03em;
+    padding:7px 12px;
+    border-radius:99px;
+    border:1px solid var(--rule);
+    background:transparent;
+    color:var(--chalk-dim2);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s;
+  }
+  .filter-btn:hover{border-color:var(--blue)}
+  .filter-btn.active{background:var(--blue);color:var(--board);border-color:var(--blue);font-weight:700}
+  .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .filter-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--chalk-dim2);margin-right:2px;align-self:center}
+  .divider{height:1px;background:var(--rule);margin:18px 0 20px}
+
+  /* ===== Phase groups ===== */
+  .phase-group{margin-bottom:10px}
+  .phase-header{
+    display:flex;align-items:baseline;gap:10px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--yellow);
+    padding:10px 0 8px;
+    border-bottom:1px solid var(--rule);
+    margin-bottom:8px;
+  }
+  .phase-header .pcount{color:var(--chalk-dim2);font-weight:400;text-transform:none;letter-spacing:0}
+
+  .topic-card{
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    border-radius:8px;
+    margin-bottom:8px;
+    overflow:hidden;
+  }
+  .topic-card.hidden{display:none}
+  .topic-card.mastered{border-color:rgba(143,191,138,0.4)}
+  .topic-header{
+    display:flex;align-items:center;gap:10px;
+    padding:13px 15px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .topic-header:hover{background:var(--board-panel-hi)}
+  .ring{
+    flex-shrink:0;width:26px;height:26px;border-radius:50%;
+    border:2px solid var(--rule);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+    color:var(--chalk-dim2);
+  }
+  .ring[data-lvl="1"]{border-color:var(--coral);color:var(--coral)}
+  .ring[data-lvl="2"]{border-color:var(--blue);color:var(--blue)}
+  .ring[data-lvl="3"]{border-color:var(--green-ok);background:var(--green-ok);color:var(--board)}
+  .topic-title{flex:1;font-size:13.5px;font-weight:500}
+  .topic-title.mastered{color:var(--green-ok)}
+  .qtag{
+    font-family:'Space Mono',monospace;font-size:9px;color:var(--board);
+    background:var(--yellow);padding:2px 7px;border-radius:99px;white-space:nowrap;
+  }
+  .skilltag{
+    font-family:'Space Mono',monospace;font-size:9px;color:var(--chalk-dim2);
+    border:1px solid var(--rule);padding:2px 7px;border-radius:99px;white-space:nowrap;
+    display:none;
+  }
+  @media(min-width:640px){.skilltag{display:inline-block}}
+  .chev{color:var(--chalk-dim2);font-size:14px;transition:transform .2s;flex-shrink:0}
+
+  .topic-desc{font-size:13px;color:var(--chalk-dim2);line-height:1.6;margin-bottom:14px}
+  .tradeoff-box{
+    background:var(--board);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--blue);
+    border-radius:4px;
+    padding:10px 13px;
+    margin-bottom:14px;
+  }
+  .tradeoff-box .tlabel{
+    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    color:var(--blue);margin-bottom:5px;
+  }
+  .tradeoff-box p{font-size:12.5px;color:var(--chalk-dim2);line-height:1.6}
+
+  .ladder{display:flex;flex-direction:column;gap:6px}
+  .ladder-opt{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:6px;
+    border:1px solid var(--rule);
+    cursor:pointer;
+    font-size:12px;color:var(--chalk-dim2);
+    transition:all .12s;
+  }
+  .ladder-opt:hover{border-color:var(--chalk-dim2)}
+  .ladder-opt.selected{background:var(--board);color:var(--chalk);font-weight:500}
+  .ladder-opt.selected[data-l="1"]{border-color:var(--coral)}
+  .ladder-opt.selected[data-l="2"]{border-color:var(--blue)}
+  .ladder-opt.selected[data-l="3"]{border-color:var(--green-ok)}
+< truncated lines 224-886 >
+  saveDailyLog();
+  const btn = document.getElementById('modal-save-btn');
+  btn.textContent = 'Saved ✓';
+  btn.classList.add('saved');
+  showToast('Progress saved');
+  setTimeout(closeModal, 700);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// ===== Pomodoro timer (global, keeps running across modal opens) =====
+// Uses an absolute end timestamp rather than pure tick-counting so it stays
+// accurate even if the browser throttles setInterval in a backgrounded tab.
+let pomo = {remaining:25*60, mode:'work', running:false, timerId:null, endTime:null};
+
+function updatePomoDisplay(){
+  const timeEl = document.getElementById('pomo-time');
+  if(!timeEl) return;
+  const m = Math.floor(pomo.remaining/60).toString().padStart(2,'0');
+  const s = (pomo.remaining%60).toString().padStart(2,'0');
+  timeEl.textContent = `${m}:${s}`;
+  document.getElementById('pomo-mode').textContent = pomo.mode==='work' ? 'Work session' : 'Break';
+  document.getElementById('pomo-startpause').textContent = pomo.running ? 'Pause' : 'Start';
+}
+
+function pomoToggle(){
+  if(pomo.running){
+    clearInterval(pomo.timerId);
+    pomo.running=false;
+  } else {
+    pomo.running=true;
+    pomo.endTime = Date.now() + pomo.remaining*1000;
+    pomo.timerId=setInterval(pomoTick, 1000);
+  }
+  updatePomoDisplay();
+}
+
+function pomoTick(){
+  pomo.remaining = Math.max(0, Math.round((pomo.endTime - Date.now())/1000));
+  if(pomo.remaining<=0){
+    if(pomo.mode==='work'){
+      dailyLog.minutes += 25;
+      saveDailyLog();
+      pomo.mode='break';
+      pomo.remaining=5*60;
+      pomo.endTime = Date.now() + pomo.remaining*1000;
+      showToast('Work session complete — take a break!');
+      drawRings();
+    } else {
+      clearInterval(pomo.timerId);
+      pomo.running=false;
+      pomo.mode='work';
+      pomo.remaining=25*60;
+      pomo.endTime=null;
+      showToast('Break over — ready for another round');
+    }
+  }
+  updatePomoDisplay();
+}
+
+function pomoReset(){
+  clearInterval(pomo.timerId);
+  pomo.running=false; pomo.mode='work'; pomo.remaining=25*60; pomo.endTime=null;
+  updatePomoDisplay();
+}
+
+// ===== Activity rings =====
+function pythonCountToday(){ return dailyLog.completedIds.filter(id=>TOPICS[id] && TOPICS[id].skill==='Python').length; }
+function aimlCountToday(){ return dailyLog.completedIds.filter(id=>TOPICS[id] && TOPICS[id].skill!=='Python').length; }
+
+function drawRings(){
+  const svg = document.getElementById('rings-svg');
+  if(!svg) return;
+  const cx=70, cy=70;
+  const rings = [
+    {r:60, color:'#82AECB', prog: Math.min(dailyLog.minutes/60,1)},
+    {r:44, color:'#C1685A', prog: Math.min(pythonCountToday()/2,1)},
+    {r:28, color:'#8FBF8A', prog: Math.min(aimlCountToday()/2,1)}
+  ];
+  svg.innerHTML = rings.map(rg=>{
+    const circ = 2*Math.PI*rg.r;
+    const offset = circ*(1-rg.prog);
+    return `<circle cx="${cx}" cy="${cy}" r="${rg.r}" fill="none" stroke="#3B4B41" stroke-width="9"/>
+      <circle cx="${cx}" cy="${cy}" r="${rg.r}" fill="none" stroke="${rg.color}" stroke-width="9"
+        stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
+        transform="rotate(-90 ${cx} ${cy})" style="transition:stroke-dashoffset .4s"/>`;
+  }).join('');
+}
+
+// ===== Quizzes =====
+let currentQuizQuestions = [];
+let currentQuizPhase = null;
+let currentQuizAnswers = [];
+
+function getQuestionsForPhase(phaseName){
+  return Object.keys(QUIZ_BANK).filter(title=>{
+    const t = TOPICS.find(x=>x.title===title);
+    return t && t.phase===phaseName;
+  }).map(title=>QUIZ_BANK[title]);
+}
+function getQuestionsForToday(){
+  return Object.keys(QUIZ_BANK).filter(title=>{
+    const t = TOPICS.find(x=>x.title===title);
+    return t && dailyLog.completedIds.includes(t.id);
+  }).map(title=>QUIZ_BANK[title]);
+}
+function quizBtnId(phaseName){ return 'quizbtn-'+phaseName.replace(/[^a-zA-Z0-9]/g,''); }
+
+function openQuiz(phaseName){
+  const qs = getQuestionsForPhase(phaseName);
+  if(qs.length===0){ showToast('No quiz available for this phase yet'); return; }
+  currentQuizQuestions = qs;
+  currentQuizPhase = phaseName;
+  currentQuizAnswers = new Array(qs.length).fill(null);
+  document.getElementById('quiz-phase-label').textContent = phaseName;
+  document.getElementById('quiz-title').textContent = 'Phase check';
+  renderQuizBody();
+  document.getElementById('quiz-overlay').classList.add('open');
+}
+
+function openDailyQuiz(){
+  const qs = getQuestionsForToday();
+  if(qs.length===0){ showToast('Mark at least one topic complete today first'); return; }
+  currentQuizQuestions = qs;
+  currentQuizPhase = null;
+  currentQuizAnswers = new Array(qs.length).fill(null);
+  document.getElementById('quiz-phase-label').textContent = "Today's completed topics";
+  document.getElementById('quiz-title').textContent = "Today's check-in";
+  renderQuizBody();
+  document.getElementById('quiz-overlay').classList.add('open');
+}
+
+function closeQuiz(){
+  document.getElementById('quiz-overlay').classList.remove('open');
+}
+
+function renderQuizBody(){
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = currentQuizQuestions.map((q,qi)=>`
+    <div class="quiz-q">
+      <div class="quiz-q-text">${qi+1}. ${q.q}</div>
+      ${q.options.map((opt,oi)=>`<button class="quiz-opt" id="qopt-${qi}-${oi}" onclick="answerQuiz(${qi},${oi})">${opt}</button>`).join('')}
+    </div>`).join('') + `<button class="pomo-btn primary" style="width:100%;margin-top:6px" onclick="submitQuiz()">Submit</button><div id="quiz-result-box"></div>`;
+}
+
+function answerQuiz(qi, oi){
+  currentQuizAnswers[qi]=oi;
+  const q = currentQuizQuestions[qi];
+  document.querySelectorAll(`[id^="qopt-${qi}-"]`).forEach(btn=>btn.classList.remove('correct','incorrect'));
+  document.getElementById(`qopt-${qi}-${oi}`).classList.add(oi===q.correct?'correct':'incorrect');
+  if(oi!==q.correct) document.getElementById(`qopt-${qi}-${q.correct}`).classList.add('correct');
+}
+
+function submitQuiz(){
+  const total = currentQuizQuestions.length;
+  let score=0;
+  currentQuizQuestions.forEach((q,qi)=>{ if(currentQuizAnswers[qi]===q.correct) score++; });
+  const pass = (score/total) >= 0.7;
+  document.getElementById('quiz-result-box').innerHTML =
+    `<div class="quiz-result ${pass?'pass':'fail'}">${score}/${total} correct — ${pass?'Passed! 🎉':'Not quite — review and retry.'}</div>`;
+  if(currentQuizPhase && pass){
+    quizResults[currentQuizPhase] = {passed:true, score, total};
+    saveQuizResults();
+    const btn = document.getElementById(quizBtnId(currentQuizPhase));
+    if(btn){ btn.classList.add('passed'); btn.textContent='Phase check ✓ passed'; }
+    showToast('Phase check passed!');
+  }
+}
+
+function markPassedQuizButtons(){
+  Object.keys(quizResults).forEach(phaseName=>{
+    if(quizResults[phaseName] && quizResults[phaseName].passed){
+      const btn = document.getElementById(quizBtnId(phaseName));
+      if(btn){ btn.classList.add('passed'); btn.textContent='Phase check ✓ passed'; }
+    }
+  });
+}
+
+function init(){
+  try{ const v = localStorage.getItem('fnd-topic-levels'); if(v) state = JSON.parse(v); }catch(e){}
+  try{ const v = localStorage.getItem('fnd-daily-log:'+todayStr()); if(v) dailyLog = JSON.parse(v); }catch(e){}
+  try{ const v = localStorage.getItem('fnd-quiz-results'); if(v) quizResults = JSON.parse(v); }catch(e){}
+  render();
+  markPassedQuizButtons();
+  pullFromGist(); // fetch latest cross-device state in the background, then re-render
+}
+
+const SITE_PASSWORD = '221625';
+
+function tryUnlock(){
+  const input = document.getElementById('lock-input');
+  const err = document.getElementById('lock-error');
+  if(input.value === SITE_PASSWORD){
+    sessionStorage.setItem('fnd-unlocked', 'true');
+    document.getElementById('lock-overlay').style.display = 'none';
+    document.getElementById('main-wrap').style.display = 'block';
+    init();
+  } else {
+    err.textContent = 'Incorrect password';
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('lock-input').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') tryUnlock();
+});
+
+if(sessionStorage.getItem('fnd-unlocked') === 'true'){
+  document.getElementById('lock-overlay').style.display = 'none';
+  document.getElementById('main-wrap').style.display = 'block';
+  init();
+} else {
+  document.getElementById('lock-input').focus();
+}
+</script>
+</body>
+</html>
