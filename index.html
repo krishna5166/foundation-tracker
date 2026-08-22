@@ -8,27 +8,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --board:#1E2B24;
-    --board-panel:#25352C;
-    --board-panel-hi:#2C3E33;
-    --chalk:#EDEAE0;
-    --chalk-dim:#9FAFA3;
-    --chalk-dim2:#8FA096;
-    --rule:#3B4B41;
-    --yellow:#E8C468;
-    --blue:#82AECB;
-    --coral:#C1685A;
-    --green-ok:#8FBF8A;
+    --board:#FFFFFF;
+    --board-panel:#F6F6F3;
+    --board-panel-hi:#EDEDE9;
+    --chalk:#1E2B24;
+    --chalk-dim:#495750;
+    --chalk-dim2:#5B6B62;
+    --rule:#E0E3DD;
+    --yellow:#B8862E;
+    --blue:#3B76A0;
+    --coral:#B0473C;
+    --green-ok:#4C9650;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
   body{
-    background:
-      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 60%),
-      var(--board);
+    background:var(--board);
     color:var(--chalk);
     font-family:'Space Grotesk',sans-serif;
     min-height:100vh;
     padding:2.5rem 1.25rem 4rem;
+    zoom:1.25;
   }
   .wrap{max-width:900px;margin:0 auto}
 
@@ -66,6 +66,7 @@
     border-radius:4px;
     padding:14px 18px;
     margin-bottom:26px;
+    box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .feedback-card .ftitle{
     font-family:'Space Mono',monospace;
@@ -91,6 +92,7 @@
     padding:16px;
     flex:1;
     min-width:220px;
+    box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .tcard-title{
     font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;
@@ -130,6 +132,7 @@
     padding:14px 8px;
     text-align:center;
     min-width:0;
+    box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .stat-num{font-family:'Fraunces',serif;font-size:clamp(19px,5vw,26px);font-weight:600;color:var(--yellow)}
   .stat-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--chalk-dim2);margin-top:4px;line-height:1.3}
@@ -197,6 +200,7 @@
     border-radius:8px;
     margin-bottom:8px;
     overflow:hidden;
+    box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .topic-card.hidden{display:none}
   .topic-card.mastered{border-color:rgba(143,191,138,0.4)}
@@ -229,11 +233,8 @@
     display:none;
   }
   @media(min-width:640px){.skilltag{display:inline-block}}
-  .chev{color:var(--chalk-dim2);font-size:14px;transition:transform .2s;flex-shrink:0}
-  .chev.open{transform:rotate(180deg)}
+  .chev{color:var(--chalk-dim2);font-size:18px;flex-shrink:0}
 
-  .topic-body{display:none;border-top:1px solid var(--rule);padding:14px 15px 16px}
-  .topic-body.open{display:block}
   .topic-desc{font-size:13px;color:var(--chalk-dim2);line-height:1.6;margin-bottom:14px}
   .tradeoff-box{
     background:var(--board);
@@ -355,6 +356,40 @@
     font-size:12.5px;color:var(--chalk-dim2);border-bottom:1px solid var(--rule);
   }
   .daily-check input{accent-color:var(--blue);flex-shrink:0}
+
+  /* ===== Topic detail modal ===== */
+  .modal-box.large{
+    max-width:960px;width:92vw;max-height:90vh;
+    position:relative;display:flex;flex-direction:column;
+  }
+  .modal-close-abs{
+    position:absolute;top:14px;right:14px;
+    background:var(--board-panel);border:1px solid var(--rule);border-radius:50%;
+    width:32px;height:32px;font-size:18px;color:var(--chalk-dim2);
+    cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .modal-close-abs:hover{color:var(--chalk);border-color:var(--chalk-dim2)}
+  .topic-modal-grid{display:flex;gap:24px;overflow-y:auto;padding-right:2px}
+  .topic-modal-main{flex:1;min-width:0}
+  .topic-modal-title{
+    font-family:'Fraunces',serif;font-size:22px;font-weight:600;
+    margin-bottom:8px;padding-right:40px;
+  }
+  .topic-modal-tags{margin-bottom:14px}
+  .topic-modal-tags .skilltag{display:inline-block}
+  .topic-modal-timer{
+    width:190px;flex-shrink:0;align-self:flex-start;
+    background:var(--board);border:1px solid var(--rule);border-radius:8px;
+    padding:16px;text-align:center;
+  }
+  @media(max-width:680px){
+    .topic-modal-grid{flex-direction:column}
+    .topic-modal-timer{width:100%}
+  }
+  .topic-modal-footer{
+    display:flex;justify-content:flex-end;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--rule);
+  }
 </style>
 </head>
 <body>
@@ -386,9 +421,9 @@
       <div class="rings-wrap">
         <svg id="rings-svg" width="140" height="140" viewBox="0 0 140 140"></svg>
         <div class="rings-legend">
-          <span><span class="legend-dot" style="background:#82AECB"></span>Minutes worked (/60)</span>
-          <span><span class="legend-dot" style="background:#C1685A"></span>Python topics (/2)</span>
-          <span><span class="legend-dot" style="background:#8FBF8A"></span>AI/ML topics (/2)</span>
+          <span><span class="legend-dot" style="background:#3B76A0"></span>Minutes worked (/60)</span>
+          <span><span class="legend-dot" style="background:#B0473C"></span>Python topics (/2)</span>
+          <span><span class="legend-dot" style="background:#4C9650"></span>AI/ML topics (/2)</span>
         </div>
       </div>
     </div>
@@ -458,6 +493,32 @@
     </div>
     <div class="quiz-phase-tag" id="quiz-phase-label"></div>
     <div id="quiz-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="topic-modal-overlay">
+  <div class="modal-box large">
+    <button class="modal-close-abs" onclick="closeTopicModal()">&times;</button>
+    <div class="topic-modal-grid">
+      <div class="topic-modal-main">
+        <div class="topic-modal-title" id="modal-topic-title"></div>
+        <div class="topic-modal-tags" id="modal-topic-tags"></div>
+        <div class="topic-desc" id="modal-topic-desc"></div>
+        <div class="tradeoff-box" id="modal-topic-tradeoff">
+          <div class="tlabel">Decision & tradeoff</div>
+          <p id="modal-topic-tradeoff-text"></p>
+        </div>
+        <div class="ladder" id="modal-ladder"></div>
+      </div>
+      <div class="topic-modal-timer">
+        <div class="tcard-title">Timer</div>
+        <div class="pomo-display" id="modal-pomo-time" style="font-size:26px">25:00</div>
+        <div class="pomo-mode-label" id="modal-pomo-mode">Work session</div>
+      </div>
+    </div>
+    <div class="topic-modal-footer">
+      <button class="pomo-btn primary" onclick="saveTopicProgress()">Save progress</button>
+    </div>
   </div>
 </div>
 
@@ -661,6 +722,7 @@ function setLevel(id, lvl){
   renderTopicCard(id);
   updateStats();
   applyFilters();
+  if(currentModalTopicId === id) renderModalLadder(id);
 }
 
 function updateStats(){
@@ -707,11 +769,45 @@ function setStatusFilter(val, btn){
   applyFilters();
 }
 
-function toggleCard(id){
-  const body=document.getElementById('body'+id);
-  const chev=document.getElementById('chev'+id);
-  body.classList.toggle('open');
-  chev.classList.toggle('open');
+let currentModalTopicId = null;
+
+function openTopicModal(id){
+  currentModalTopicId = id;
+  const t = TOPICS[id];
+  document.getElementById('modal-topic-title').textContent = t.title;
+  const qtag = t.q ? `<span class="qtag">${t.q}</span>` : '';
+  const skilltag = t.skill ? `<span class="skilltag">${t.skill}</span>` : '';
+  document.getElementById('modal-topic-tags').innerHTML = qtag + skilltag;
+  document.getElementById('modal-topic-desc').textContent = t.desc;
+  const tbox = document.getElementById('modal-topic-tradeoff');
+  if(t.tradeoff){
+    tbox.style.display = 'block';
+    document.getElementById('modal-topic-tradeoff-text').textContent = t.tradeoff;
+  } else {
+    tbox.style.display = 'none';
+  }
+  renderModalLadder(id);
+  updatePomoDisplay();
+  document.getElementById('topic-modal-overlay').classList.add('open');
+}
+
+function renderModalLadder(id){
+  const lvl = levelOf(id);
+  const ladder = document.getElementById('modal-ladder');
+  ladder.innerHTML = LADDER.map(o=>`
+    <div class="ladder-opt ${o.l===lvl?'selected':''}" data-l="${o.l}" onclick="setLevel(${id},${o.l})">
+      <span class="ladder-dot"></span>${o.label}
+    </div>`).join('');
+}
+
+function closeTopicModal(){
+  document.getElementById('topic-modal-overlay').classList.remove('open');
+  currentModalTopicId = null;
+}
+
+function saveTopicProgress(){
+  showToast('Progress saved');
+  closeTopicModal();
 }
 
 function renderTopicCard(id){
@@ -724,10 +820,6 @@ function renderTopicCard(id){
   ring.textContent = lvl>=1 ? (lvl===3?'✓':lvl) : '';
   titleEl.classList.toggle('mastered', lvl===3);
   card.classList.toggle('mastered', lvl===3);
-  document.querySelectorAll('#ladder'+id+' .ladder-opt').forEach(opt=>{
-    const l = parseInt(opt.getAttribute('data-l'));
-    opt.classList.toggle('selected', l===lvl);
-  });
 }
 
 function render(){
@@ -763,24 +855,13 @@ function render(){
 
       const qtag = t.q ? `<span class="qtag">${t.q}</span>` : '';
       const skilltag = t.skill ? `<span class="skilltag">${t.skill}</span>` : '';
-      const tradeoffBox = t.tradeoff ? `<div class="tradeoff-box"><div class="tlabel">Decision & tradeoff</div><p>${t.tradeoff}</p></div>` : '';
 
       card.innerHTML = `
-        <div class="topic-header" onclick="toggleCard(${t.id})">
+        <div class="topic-header" onclick="openTopicModal(${t.id})">
           <div class="ring" id="ring${t.id}" data-lvl="0"></div>
           <div class="topic-title" id="title${t.id}">${t.title}</div>
           ${qtag}${skilltag}
-          <span class="chev" id="chev${t.id}">&#8964;</span>
-        </div>
-        <div class="topic-body" id="body${t.id}">
-          <div class="topic-desc">${t.desc}</div>
-          ${tradeoffBox}
-          <div class="ladder" id="ladder${t.id}">
-            ${LADDER.map(o=>`
-              <div class="ladder-opt" data-l="${o.l}" onclick="event.stopPropagation();setLevel(${t.id},${o.l})">
-                <span class="ladder-dot"></span>${o.label}
-              </div>`).join('')}
-          </div>
+          <span class="chev">&#8250;</span>
         </div>`;
       group.appendChild(card);
     });
@@ -885,13 +966,20 @@ function showToast(msg){
 let pomo = {remaining:25*60, mode:'work', running:false, timerId:null, endTime:null};
 
 function updatePomoDisplay(){
-  const timeEl = document.getElementById('pomo-time');
-  if(!timeEl) return;
   const m = Math.floor(pomo.remaining/60).toString().padStart(2,'0');
   const s = (pomo.remaining%60).toString().padStart(2,'0');
-  timeEl.textContent = `${m}:${s}`;
-  document.getElementById('pomo-mode').textContent = pomo.mode==='work' ? 'Work session' : 'Break';
-  document.getElementById('pomo-startpause').textContent = pomo.running ? 'Pause' : 'Start';
+  const timeStr = `${m}:${s}`;
+  const modeStr = pomo.mode==='work' ? 'Work session' : 'Break';
+  ['pomo-time','modal-pomo-time'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = timeStr;
+  });
+  ['pomo-mode','modal-pomo-mode'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = modeStr;
+  });
+  const startBtn = document.getElementById('pomo-startpause');
+  if(startBtn) startBtn.textContent = pomo.running ? 'Pause' : 'Start';
 }
 
 function pomoToggle(){
@@ -944,14 +1032,14 @@ function drawRings(){
   if(!svg) return;
   const cx=70, cy=70;
   const rings = [
-    {r:60, color:'#82AECB', prog: Math.min(dailyLog.minutes/60,1)},
-    {r:44, color:'#C1685A', prog: Math.min(pythonCountToday()/2,1)},
-    {r:28, color:'#8FBF8A', prog: Math.min(aimlCountToday()/2,1)}
+    {r:60, color:'#3B76A0', prog: Math.min(dailyLog.minutes/60,1)},
+    {r:44, color:'#B0473C', prog: Math.min(pythonCountToday()/2,1)},
+    {r:28, color:'#4C9650', prog: Math.min(aimlCountToday()/2,1)}
   ];
   svg.innerHTML = rings.map(rg=>{
     const circ = 2*Math.PI*rg.r;
     const offset = circ*(1-rg.prog);
-    return `<circle cx="${cx}" cy="${cy}" r="${rg.r}" fill="none" stroke="#3B4B41" stroke-width="9"/>
+    return `<circle cx="${cx}" cy="${cy}" r="${rg.r}" fill="none" stroke="#E0E3DD" stroke-width="9"/>
       <circle cx="${cx}" cy="${cy}" r="${rg.r}" fill="none" stroke="${rg.color}" stroke-width="9"
         stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
         transform="rotate(-90 ${cx} ${cy})" style="transition:stroke-dashoffset .4s"/>`;
