@@ -28,14 +28,13 @@
     font-family:'Space Grotesk',sans-serif;
     min-height:100vh;
     padding:2.5rem 1.25rem 4rem;
-    zoom:1.25;
   }
   .wrap{max-width:900px;margin:0 auto}
 
   /* ===== Header ===== */
   .eyebrow{
     font-family:'Space Mono',monospace;
-    font-size:11px;
+    font-size:13.5px;
     letter-spacing:0.14em;
     text-transform:uppercase;
     color:var(--yellow);
@@ -44,14 +43,14 @@
   h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:clamp(28px,4.5vw,42px);
+    font-size:clamp(34px,4.5vw,51px);
     line-height:1.08;
     margin-bottom:10px;
     letter-spacing:-0.01em;
   }
   h1 em{font-style:italic;font-weight:500;color:var(--blue)}
   .subtitle{
-    font-size:14.5px;
+    font-size:17.5px;
     color:var(--chalk-dim2);
     max-width:600px;
     line-height:1.55;
@@ -70,14 +69,14 @@
   }
   .feedback-card .ftitle{
     font-family:'Space Mono',monospace;
-    font-size:10.5px;
+    font-size:13px;
     letter-spacing:0.1em;
     text-transform:uppercase;
     color:var(--coral);
     margin-bottom:6px;
   }
   .feedback-card p{
-    font-size:13.5px;
+    font-size:16.5px;
     color:var(--chalk-dim2);
     line-height:1.6;
   }
@@ -95,19 +94,19 @@
     box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .tcard-title{
-    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.08em;
     text-transform:uppercase;color:var(--chalk-dim2);margin-bottom:12px;
   }
   .rings-wrap{display:flex;align-items:center;gap:14px}
-  .rings-legend{font-size:11px;color:var(--chalk-dim2);display:flex;flex-direction:column;gap:6px}
+  .rings-legend{font-size:13.5px;color:var(--chalk-dim2);display:flex;flex-direction:column;gap:6px}
   .legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-  .pomo-display{font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:var(--yellow);text-align:center;margin-bottom:2px}
-  .pomo-mode-label{text-align:center;font-size:11px;color:var(--chalk-dim2);margin-bottom:12px}
+  .pomo-display{font-family:'Fraunces',serif;font-size:39px;font-weight:600;color:var(--yellow);text-align:center;margin-bottom:2px}
+  .pomo-mode-label{text-align:center;font-size:13.5px;color:var(--chalk-dim2);margin-bottom:12px}
   .pomo-controls{display:flex;gap:8px;justify-content:center}
   .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
 
   .pomo-btn{
-    font-family:'Space Mono',monospace;font-size:11px;padding:8px 14px;border-radius:6px;
+    font-family:'Space Mono',monospace;font-size:13.5px;padding:8px 14px;border-radius:6px;
     border:1px solid var(--rule);background:transparent;color:var(--chalk-dim2);
     cursor:pointer;letter-spacing:0.03em;transition:all .15s;
   }
@@ -134,10 +133,11 @@
     min-width:0;
     box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
-  .stat-num{font-family:'Fraunces',serif;font-size:clamp(19px,5vw,26px);font-weight:600;color:var(--yellow)}
-  .stat-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--chalk-dim2);margin-top:4px;line-height:1.3}
+  .stat-num{font-family:'Fraunces',serif;font-size:clamp(23px,5vw,32px);font-weight:600;color:var(--yellow)}
+  .stat-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--chalk-dim2);margin-top:4px;line-height:1.3}
 
-  .progress-wrap{background:var(--rule);border-radius:99px;height:6px;margin-bottom:28px;overflow:hidden}
+  .progress-wrap{background:var(--rule);border-radius:99px;height:6px;margin-bottom:8px;overflow:hidden}
+  .readiness-line{font-family:'Space Mono',monospace;font-size:13px;color:var(--chalk-dim2);margin-bottom:28px}
   .progress-fill{background:linear-gradient(90deg,var(--blue),var(--green-ok));height:100%;border-radius:99px;transition:width .4s}
 
   /* ===== Controls ===== */
@@ -150,13 +150,13 @@
     padding:9px 13px;
     border-radius:6px;
     font-family:'Space Grotesk',sans-serif;
-    font-size:13px;
+    font-size:16px;
   }
   .search-box:focus{outline:none;border-color:var(--blue)}
   .search-box::placeholder{color:var(--chalk-dim2)}
   .filter-btn{
     font-family:'Space Mono',monospace;
-    font-size:10.5px;
+    font-size:13px;
     letter-spacing:0.03em;
     padding:7px 12px;
     border-radius:99px;
@@ -170,11 +170,11 @@
   .filter-btn:hover{border-color:var(--blue)}
   .filter-btn.active{background:var(--blue);color:var(--board);border-color:var(--blue);font-weight:700}
   .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-  .filter-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--chalk-dim2);margin-right:2px;align-self:center}
-  .core-hint{font-size:11px;color:var(--chalk-dim2);align-self:center;line-height:1.4}
+  .filter-label{font-family:'Space Mono',monospace;font-size:12px;color:var(--chalk-dim2);margin-right:2px;align-self:center}
+  .core-hint{font-size:13.5px;color:var(--chalk-dim2);align-self:center;line-height:1.4}
   #core-toggle-btn.active{background:var(--yellow);color:var(--board);border-color:var(--yellow);font-weight:700}
   .extended-tag{
-    font-family:'Space Mono',monospace;font-size:9px;color:var(--chalk-dim2);
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--chalk-dim2);
     border:1px dashed var(--rule);padding:2px 7px;border-radius:99px;white-space:nowrap;
   }
   .divider{height:1px;background:var(--rule);margin:18px 0 20px}
@@ -184,7 +184,7 @@
   .phase-header{
     display:flex;align-items:baseline;gap:10px;justify-content:space-between;
     font-family:'Space Mono',monospace;
-    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    font-size:13.5px;letter-spacing:0.1em;text-transform:uppercase;
     color:var(--yellow);
     padding:10px 0 8px;
     border-bottom:1px solid var(--rule);
@@ -192,7 +192,7 @@
   }
   .phase-header .pcount{color:var(--chalk-dim2);font-weight:400;text-transform:none;letter-spacing:0}
   .quiz-phase-btn{
-    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.03em;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.03em;
     padding:5px 10px;border-radius:99px;border:1px solid var(--rule);
     background:transparent;color:var(--chalk-dim2);cursor:pointer;white-space:nowrap;
     text-transform:none;
@@ -221,27 +221,27 @@
     flex-shrink:0;width:26px;height:26px;border-radius:50%;
     border:2px solid var(--rule);
     display:flex;align-items:center;justify-content:center;
-    font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+    font-family:'Space Mono',monospace;font-size:12px;font-weight:700;
     color:var(--chalk-dim2);
   }
   .ring[data-lvl="1"]{border-color:var(--coral);color:var(--coral)}
   .ring[data-lvl="2"]{border-color:var(--blue);color:var(--blue)}
   .ring[data-lvl="3"]{border-color:var(--green-ok);background:var(--green-ok);color:var(--board)}
-  .topic-title{flex:1;font-size:13.5px;font-weight:500}
+  .topic-title{flex:1;font-size:16.5px;font-weight:500}
   .topic-title.mastered{color:var(--green-ok)}
   .qtag{
-    font-family:'Space Mono',monospace;font-size:9px;color:var(--board);
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--board);
     background:var(--yellow);padding:2px 7px;border-radius:99px;white-space:nowrap;
   }
   .skilltag{
-    font-family:'Space Mono',monospace;font-size:9px;color:var(--chalk-dim2);
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--chalk-dim2);
     border:1px solid var(--rule);padding:2px 7px;border-radius:99px;white-space:nowrap;
     display:none;
   }
   @media(min-width:640px){.skilltag{display:inline-block}}
-  .chev{color:var(--chalk-dim2);font-size:18px;flex-shrink:0}
+  .chev{color:var(--chalk-dim2);font-size:22px;flex-shrink:0}
 
-  .topic-desc{font-size:13px;color:var(--chalk-dim2);line-height:1.6;margin-bottom:14px}
+  .topic-desc{font-size:16px;color:var(--chalk-dim2);line-height:1.6;margin-bottom:14px}
   .tradeoff-box{
     background:var(--board);
     border:1px solid var(--rule);
@@ -251,10 +251,10 @@
     margin-bottom:14px;
   }
   .tradeoff-box .tlabel{
-    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.09em;text-transform:uppercase;
     color:var(--blue);margin-bottom:5px;
   }
-  .tradeoff-box p{font-size:12.5px;color:var(--chalk-dim2);line-height:1.6}
+  .tradeoff-box p{font-size:15.5px;color:var(--chalk-dim2);line-height:1.6}
 
   .example-box{
     background:var(--board-panel);
@@ -265,19 +265,19 @@
     margin-bottom:14px;
   }
   .example-box .elabel{
-    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.09em;text-transform:uppercase;
     color:var(--yellow);margin-bottom:5px;
   }
-  .example-box p{font-size:12.5px;color:var(--chalk-dim2);line-height:1.6}
+  .example-box p{font-size:15.5px;color:var(--chalk-dim2);line-height:1.6}
 
   .code-box{margin-bottom:14px}
   .code-box .clabel{
-    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.09em;text-transform:uppercase;
     color:var(--green-ok);margin-bottom:5px;
   }
   .code-box pre{
     background:#1E2B24;color:#EDEAE0;border-radius:6px;padding:12px 14px;
-    overflow-x:auto;font-family:'Space Mono',monospace;font-size:12px;line-height:1.55;
+    overflow-x:auto;font-family:'Space Mono',monospace;font-size:14.5px;line-height:1.55;
   }
 
   .ladder{display:flex;flex-direction:column;gap:6px}
@@ -286,7 +286,7 @@
     padding:8px 10px;border-radius:6px;
     border:1px solid var(--rule);
     cursor:pointer;
-    font-size:12px;color:var(--chalk-dim2);
+    font-size:14.5px;color:var(--chalk-dim2);
     transition:all .12s;
   }
   .ladder-opt:hover{border-color:var(--chalk-dim2)}
@@ -306,14 +306,14 @@
     margin-bottom:12px;
   }
   .phase-project .plabel{
-    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.09em;text-transform:uppercase;
     color:var(--yellow);margin-bottom:5px;
   }
-  .phase-project p{font-size:12.5px;color:var(--chalk-dim2);line-height:1.6}
+  .phase-project p{font-size:15.5px;color:var(--chalk-dim2);line-height:1.6}
 
-  .no-results{text-align:center;padding:50px 20px;color:var(--chalk-dim2);font-size:13px}
+  .no-results{text-align:center;padding:50px 20px;color:var(--chalk-dim2);font-size:16px}
 
-  footer{margin-top:36px;text-align:center;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--chalk-dim2);line-height:1.7}
+  footer{margin-top:36px;text-align:center;font-family:'Space Mono',monospace;font-size:13px;color:var(--chalk-dim2);line-height:1.7}
 
   /* ===== Lock screen ===== */
   .lock-overlay{
@@ -326,24 +326,24 @@
     padding:28px 24px;max-width:320px;width:100%;text-align:center;
   }
   .lock-eyebrow{
-    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.12em;
     text-transform:uppercase;color:var(--yellow);margin-bottom:8px;
   }
-  .lock-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:16px}
+  .lock-title{font-family:'Fraunces',serif;font-size:24.5px;font-weight:600;margin-bottom:16px}
   .lock-input{
     width:100%;background:var(--board);border:1px solid var(--rule);color:var(--chalk);
-    padding:10px 13px;border-radius:6px;font-size:14px;margin-bottom:12px;
+    padding:10px 13px;border-radius:6px;font-size:17px;margin-bottom:12px;
     text-align:center;letter-spacing:0.2em;font-family:'Space Mono',monospace;
   }
   .lock-input:focus{outline:none;border-color:var(--blue)}
-  .lock-error{font-size:11.5px;color:var(--coral);margin-top:10px;min-height:14px}
+  .lock-error{font-size:14px;color:var(--coral);margin-top:10px;min-height:14px}
 
   /* ===== Toast ===== */
   .toast{
     position:fixed;bottom:24px;left:50%;
     transform:translateX(-50%) translateY(20px);
     background:var(--board-panel-hi);border:1px solid var(--rule);color:var(--chalk);
-    padding:10px 18px;border-radius:8px;font-size:12.5px;
+    padding:10px 18px;border-radius:8px;font-size:15.5px;
     opacity:0;pointer-events:none;transition:all .25s;z-index:300;
     white-space:nowrap;
   }
@@ -361,31 +361,53 @@
     padding:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;
   }
   .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-  .modal-header h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
-  .modal-close{background:none;border:none;color:var(--chalk-dim2);font-size:20px;cursor:pointer;line-height:1}
+  .modal-header h3{font-family:'Fraunces',serif;font-size:20.5px;font-weight:600}
+  .modal-close{background:none;border:none;color:var(--chalk-dim2);font-size:24.5px;cursor:pointer;line-height:1}
   .modal-close:hover{color:var(--chalk)}
-  .quiz-phase-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--chalk-dim2);margin-bottom:14px}
+  .quiz-phase-tag{font-family:'Space Mono',monospace;font-size:12px;color:var(--chalk-dim2);margin-bottom:14px}
 
   .quiz-q{margin-bottom:16px}
-  .quiz-q-text{font-size:13px;margin-bottom:8px;font-weight:500}
+  .quiz-q-text{font-size:16px;margin-bottom:8px;font-weight:500}
   .quiz-opt{
     display:block;width:100%;text-align:left;background:var(--board);
     border:1px solid var(--rule);color:var(--chalk-dim2);
-    padding:8px 12px;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:12.5px;
+    padding:8px 12px;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:15.5px;
     font-family:'Space Grotesk',sans-serif;
   }
   .quiz-opt:hover{border-color:var(--blue)}
+  .quiz-opt.selected{border-color:var(--blue);color:var(--chalk);font-weight:500}
   .quiz-opt.correct{border-color:var(--green-ok);color:var(--green-ok);background:rgba(143,191,138,0.1)}
   .quiz-opt.incorrect{border-color:var(--coral);color:var(--coral);background:rgba(193,104,90,0.1)}
-  .quiz-result{margin-top:12px;padding:10px 13px;border-radius:6px;font-size:13px;text-align:center;font-weight:600}
+  .quiz-result{margin-top:12px;padding:10px 13px;border-radius:6px;font-size:16px;text-align:center;font-weight:600}
   .quiz-result.pass{background:rgba(143,191,138,0.15);color:var(--green-ok)}
   .quiz-result.fail{background:rgba(193,104,90,0.15);color:var(--coral)}
 
   .daily-check{
     display:flex;align-items:center;gap:8px;padding:7px 0;
-    font-size:12.5px;color:var(--chalk-dim2);border-bottom:1px solid var(--rule);
+    font-size:15.5px;color:var(--chalk-dim2);border-bottom:1px solid var(--rule);
   }
   .daily-check input{accent-color:var(--blue);flex-shrink:0}
+
+  /* ===== Explain / Code / Diagnose verification ===== */
+  .verify-title{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--chalk-dim2);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--rule);
+  }
+  .verify-card{background:var(--board-panel);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+  .vk-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.09em;color:var(--blue);margin-bottom:6px}
+  .vk-prompt{font-size:13px;color:var(--chalk);line-height:1.6;margin-bottom:10px;white-space:pre-wrap}
+  .vk-key{
+    font-size:12.5px;color:var(--chalk-dim2);line-height:1.6;
+    background:var(--board);border-left:3px solid var(--green-ok);border-radius:4px;
+    padding:10px 12px;margin-top:10px;white-space:pre-wrap;
+  }
+  .verify-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--chalk-dim2);margin-top:10px}
+  .verify-check input{accent-color:var(--green-ok)}
+  .verified-badge{
+    font-family:'Space Mono',monospace;font-size:9.5px;color:var(--green-ok);
+    border:1px solid var(--green-ok);padding:2px 7px;border-radius:99px;white-space:nowrap;
+    display:none;
+  }
 
   /* ===== Topic detail modal ===== */
   .modal-box.large{
@@ -395,14 +417,14 @@
   .modal-close-abs{
     position:absolute;top:14px;right:14px;
     background:var(--board-panel);border:1px solid var(--rule);border-radius:50%;
-    width:32px;height:32px;font-size:18px;color:var(--chalk-dim2);
+    width:32px;height:32px;font-size:22px;color:var(--chalk-dim2);
     cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;
   }
   .modal-close-abs:hover{color:var(--chalk);border-color:var(--chalk-dim2)}
   .topic-modal-grid{display:flex;gap:24px;overflow-y:auto;padding-right:2px}
   .topic-modal-main{flex:1;min-width:0}
   .topic-modal-title{
-    font-family:'Fraunces',serif;font-size:22px;font-weight:600;
+    font-family:'Fraunces',serif;font-size:27px;font-weight:600;
     margin-bottom:8px;padding-right:40px;
   }
   .topic-modal-tags{margin-bottom:14px}
@@ -475,11 +497,12 @@
 
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">topics tracked</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can define</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can explain</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can defend live</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can explain</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can implement</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can diagnose</div></div>
   </div>
   <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+  <div class="readiness-line" id="readiness-line"></div>
 
   <div class="controls">
     <input class="search-box" id="search" type="text" placeholder="Search topics..." oninput="applyFilters()">
@@ -548,10 +571,11 @@
           <p id="modal-topic-example-text"></p>
         </div>
         <div class="code-box" id="modal-topic-code">
-          <div class="clabel">Hands-on Python</div>
+          <div class="clabel">Hands-on</div>
           <pre id="modal-topic-code-text"></pre>
         </div>
         <div class="ladder" id="modal-ladder"></div>
+        <div id="modal-verify-section"></div>
       </div>
       <div class="topic-modal-timer">
         <div class="tcard-title">Timer</div>
@@ -569,14 +593,14 @@
 
 <script>
 const LADDER = [
-  {l:1, label:"Can define it"},
-  {l:2, label:"Can explain why & how it's used"},
-  {l:3, label:"Can defend it under a curveball follow-up"}
+  {l:1, label:"Can explain it in my own words"},
+  {l:2, label:"Can implement/use it without a tutorial"},
+  {l:3, label:"Can diagnose, defend & adapt it under a curveball"}
 ];
 
 const PHASE_PROJECTS = {
   "P0 — Python + MLOps Intuition (interleaved)": "PROJECT 1 START — Fraud Detection (classical ML, end to end). The real target for this project: EDA -> clean/preprocess -> proper splits -> baseline -> logistic regression + a tree-based model -> handle imbalance -> precision/recall/F1/PR-AUC -> choose a threshold -> error analysis -> save the model -> expose /predict -> write tests -> Dockerize -> document every decision and why. Right now: load the Kaggle 'Credit Card Fraud Detection' CSV with Pandas, dedupe/parse rows using a dict/set. If you're comfortable, try a Python ML service + .NET consumer — it shows you're adding ML to your existing engineering skills, not replacing them. This dataset carries through every phase below tagged with a Fraud Detection step.",
-  "P2 — What ML Actually Is": "Fraud Detection, part 2. Split the fraud dataset into train/val/test yourself, then deliberately leak test rows into training once so you *see* the inflated score with your own eyes before fixing it properly.",
+  "P2 — What ML Actually Is": "Fraud Detection, part 2. Split the fraud dataset into train/val/test yourself. Then create a deliberately broken COPY of the experiment where validation information leaks into training, and compare the inflated metric against your properly isolated pipeline. Keep the real held-out test set untouched throughout — that set should stay psychologically sacred, never touched by this exercise.",
   "P5 — Evaluating Models": "Fraud Detection, part 3. Train a simple classifier on the (heavily imbalanced) fraud data. Compute accuracy vs. precision/recall by hand and show exactly why 99%+ accuracy here is meaningless — then pick recall or precision as your real target metric and justify it.",
   "P7 — How Models Learn": "Fraud Detection, part 4. Train a small neural net on the same data twice — once until it overfits, once with dropout/regularization added — compare loss curves side by side.",
   "P3 — Core Model Types": "Fraud Detection, part 5. Same fraud data, one logistic regression and one random forest. Compare results and write down why you'd pick one over the other.",
@@ -631,12 +655,33 @@ const TOPICS = [
   {phase:"P2 — What ML Actually Is", title:"What 'training' means", desc:"Adjusting a model's internal numbers so its predictions get closer to correct answers, repeatedly, based on data."},
   {phase:"P2 — What ML Actually Is", title:"Features & labels", desc:"Inputs the model sees (features) vs the answer it's trying to predict (label)."},
   {phase:"P2 — What ML Actually Is", title:"Train / validation / test sets", desc:"Practice problems / practice quiz / final exam.", tradeoff:"Using the same data to train and report results inflates your score artificially. The cost of a proper split is a bit less training data — worth it, because a fake-good score fails in production.", q:"Q4"},
-  {phase:"P2 — What ML Actually Is", title:"Overfitting vs underfitting", desc:"Overfitting: memorized the training data, fails on new data. Underfitting: never learned the pattern in the first place.", tradeoff:"If train and val performance are both bad → underfitting, fix by adding capacity or training longer. If train is great but val is bad → overfitting, fix by adding data, regularization, or simplifying the model.", q:"Q18"},
-  {phase:"P2 — What ML Actually Is", title:"Data leakage & bad splits", desc:"When information from outside the training set leaks in, making results look better than they'd be in reality.", q:"Q5"},
+  {phase:"P2 — What ML Actually Is", title:"Overfitting vs underfitting", desc:"Overfitting: memorized the training data, fails on new data. Underfitting: never learned the pattern in the first place.", tradeoff:"If train and val performance are both bad → underfitting, fix by adding capacity or training longer. If train is great but val is bad → overfitting, fix by adding data, regularization, or simplifying the model.", q:"Q18", verify:{
+    explain:"Explain what's actually happening inside the model when it overfits — not just the definition, the mechanism.",
+    explainKey:"A strong answer covers: the model has enough capacity to start fitting noise/idiosyncrasies specific to the training examples, rather than only the general pattern — effectively partially memorizing the training set. That's why train loss keeps improving (it's getting better at those exact examples) while validation loss gets worse (that memorized noise doesn't generalize).",
+    code:"Deliberately overfit a small model on purpose (a network with no regularization on a small dataset), then reduce it back down — show the before/after loss curves.",
+    codeKey:"Overfit: train a network with several wide layers, no dropout, no weight decay, for many epochs on a small dataset — train loss should drop far below val loss. Fix: add dropout and/or weight decay, or reduce capacity/early-stop, and rerun — the train/val gap should shrink.",
+    diagnose:"Curveball: Train loss keeps falling. Validation loss starts rising after epoch 8. What is happening? Name three things you could try, and the tradeoff of each.",
+    diagnoseKey:"Classic overfitting starting around epoch 8. Three real options: (1) Early stopping — stop near epoch 8, cheap and immediate, but may leave real learning on the table if the signal wasn't purely noise. (2) Add regularization (dropout/weight decay) — addresses the root cause, but adds a hyperparameter to tune and can underfit if overdone. (3) Get more training data or augment — genuinely improves generalization rather than just capping it, but is usually the slowest/most expensive option to act on."
+  }},
+  {phase:"P2 — What ML Actually Is", title:"Data leakage & bad splits", desc:"When information from outside the training set leaks in, making results look better than they'd be in reality.", q:"Q5", verify:{
+    explain:"In your own words: why does data leakage invalidate an evaluation, even if the accuracy number looks great?",
+    explainKey:"A strong answer covers: leakage means information from outside the legitimate training set — often the test/validation set itself, or a feature that indirectly encodes the label — influenced training. The resulting metric measures how well the model exploited that leaked signal, not how well it generalizes to genuinely new data, so it overstates real-world performance, sometimes drastically.",
+    code:"Build a scikit-learn Pipeline (StandardScaler + LogisticRegression) that provably cannot leak — the scaler must only ever see training-fold data, never test data, at any point.",
+    codeKey:"Wrap StandardScaler and the model together in sklearn.pipeline.Pipeline, then call cross_val_score(pipeline, X, y, cv=5) — because the Pipeline is refit inside each fold, the scaler is fit only on that fold's training data. Fitting a scaler on the full X before splitting is the classic leak this avoids.",
+    diagnose:"Find the leak:\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)   # fit on ALL data\nX_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\nmodel.fit(X_train, y_train)",
+    diagnoseKey:"The scaler is fit on the full dataset (fit_transform(X)) before the train/test split — so statistics from the test set (its mean/std) leaked into how the training data got scaled. Fix: split first, fit the scaler only on X_train, then use .transform() (not .fit_transform()) on X_test."
+  }},
 
   // PHASE 2 — Evaluating Models
   {phase:"P5 — Evaluating Models", title:"Accuracy and its limits", desc:"On imbalanced data (99% non-fraud, 1% fraud), a model that always says 'not fraud' gets 99% accuracy while being useless.", tradeoff:"Use plain accuracy only when classes are roughly balanced and errors cost the same. On imbalanced or high-stakes data, switch to precision/recall/F1 instead — accuracy alone will lie to you."},
-  {phase:"P5 — Evaluating Models", title:"Precision vs recall", desc:"Precision: of what you flagged positive, how many were actually positive. Recall: of all actual positives, how many did you catch.", q:"Q15"},
+  {phase:"P5 — Evaluating Models", title:"Precision vs recall", desc:"Precision: of what you flagged positive, how many were actually positive. Recall: of all actual positives, how many did you catch.", q:"Q15", verify:{
+    explain:"Explain the precision/recall tradeoff without using the words 'precision' or 'recall' in your explanation.",
+    explainKey:"A strong answer covers: of everything you flagged as positive, how much was actually positive (precision) vs of everything that was actually positive, how much did you actually catch (recall). Raising the threshold for 'positive' tends to make your flags more trustworthy but catch fewer real positives; lowering it catches more real positives but with more false alarms mixed in.",
+    code:"Given predicted probabilities and true labels, compute precision and recall at threshold 0.5, then again at 0.3. Show the actual numbers moving.",
+    codeKey:"from sklearn.metrics import precision_score, recall_score\npreds_05 = (probs >= 0.5).astype(int)\npreds_03 = (probs >= 0.3).astype(int)\nprint(precision_score(y, preds_05), recall_score(y, preds_05))\nprint(precision_score(y, preds_03), recall_score(y, preds_03))\n# lowering the threshold should raise recall and lower precision",
+    diagnose:"Curveball: Fraud prevalence is 0.1%. Your model gets precision = 0.18, recall = 0.94. False-negative fraud costs $500 on average; manual review costs $4. Your investigation team can review 500 alerts/day. What threshold change (if any) would you make, and why?",
+    diagnoseKey:"There's no single 'right' number, but a strong answer reasons through it: recall=0.94 is already high — first check whether current alert volume even exceeds 500/day at this threshold. If it does, capacity — not model quality — may be the real bottleneck, which argues for RAISING the threshold (trading some recall for a volume you can actually act on) rather than chasing more recall. Weighing $500 missed-fraud cost against $4 review cost also matters: at that ratio, reviewing more alerts is cheap relative to missing fraud, which pushes back toward keeping recall high if capacity allows it. The real answer requires doing the volume math, not just quoting the ratio."
+  }},
   {phase:"P5 — Evaluating Models", title:"When precision matters more", desc:"Spam filters — better to miss some spam than wrongly bury an important real email.", tradeoff:"Optimize for precision when a false positive is more costly than a false negative. The downside: you'll let more true positives (actual spam) slip through.", q:"Q16"},
   {phase:"P5 — Evaluating Models", title:"Fraud detection tradeoff", desc:"Usually recall-first: missing real fraud is costlier than a few false alarms.", tradeoff:"Optimize for recall when missing a positive is expensive (fraud, cancer screening). The downside: more false alarms, which costs analyst time or user trust — the right balance depends on the actual dollar/human cost of each error type.", q:"Q17"},
   {phase:"P5 — Evaluating Models", title:"Confusion matrix", desc:"The 2x2 (or NxN) table of predicted vs actual — the source every other metric is computed from."},
@@ -657,7 +702,7 @@ const TOPICS = [
 
   // PHASE 4 — Core Model Types
   {phase:"P3 — Core Model Types", title:"Linear & logistic regression", desc:"The simplest models — a straight-line fit (regression) or a straight-line decision boundary (classification)."},
-  {phase:"P3 — Core Model Types", title:"Decision trees & random forests", desc:"Splitting data by rules instead of fitting weights. Random forests combine many trees to reduce overfitting.", tradeoff:"Choose trees/forests for structured/tabular data where interpretability matters and you don't have millions of rows. Downside vs deep learning: they don't scale as well to raw images, text, or huge unstructured datasets."},
+  {phase:"P3 — Core Model Types", title:"Decision trees & random forests", desc:"Splitting data by rules instead of fitting weights. Random forests combine many trees to reduce overfitting.", tradeoff:"Choose trees/forests for structured/tabular data where interpretability matters — boosted trees in particular scale well even to very large tabular datasets. Downside vs deep learning: they don't handle raw images, text, or other unstructured data nearly as well."},
   {phase:"P3 — Core Model Types", title:"Classical ML vs deep learning", desc:"When a simple model beats a neural net (small/structured data) vs when deep learning wins (images, text, huge datasets).", tradeoff:"Reach for classical ML first on small/structured data — faster to train, easier to explain, less data-hungry. Reach for deep learning when the data is unstructured (images/audio/text) and plentiful — the cost is more compute and less interpretability."},
 
   // PHASE 5 — Computer Vision Foundations
@@ -666,13 +711,13 @@ const TOPICS = [
   {phase:"P9 — Computer Vision Foundations", title:"CNN architecture basics", desc:"Convolution layers extract features, pooling layers shrink the data, together building from edges to shapes to objects."},
   {phase:"P9 — Computer Vision Foundations", title:"Transfer learning", desc:"Starting from a model already trained on millions of images instead of training from scratch.", tradeoff:"Use transfer learning by default when you have limited labeled data — massively faster, needs far less data. Train from scratch only when your domain is very different from natural images (e.g. medical/satellite/lidar-derived imagery) where pretrained features transfer poorly."},
   {phase:"P9 — Computer Vision Foundations", title:"Data augmentation", desc:"Artificially varying training images (flips, crops, brightness) so the model generalizes instead of memorizing exact pixels.", tradeoff:"Augment when you have limited data or want robustness to real-world variation. Watch out: augmentations that don't reflect reality (e.g. flipping a stop sign so text reads backwards) can teach the model the wrong thing."},
-  {phase:"P9 — Computer Vision Foundations", title:"Camera vs lidar vs radar", desc:"Camera: rich texture/color, no depth, fails in low light. Lidar: precise 3D depth via laser point clouds, expensive, sparse at range. Radar: works in rain/fog/dark, measures velocity directly, but low resolution.", tradeoff:"No single sensor is sufficient alone for perception — camera lacks depth, lidar is sparse and pricier, radar is low-res. That's exactly why real AV/ADAS systems fuse all three: each covers the others' blind spots."},
+  {phase:"P9 — Computer Vision Foundations", title:"Camera vs lidar vs radar", desc:"Camera: rich texture/color, no depth, fails in low light. Lidar: precise 3D depth via laser point clouds, expensive, sparse at range. Radar: works in rain/fog/dark, measures velocity directly, but low resolution.", tradeoff:"No single sensor is sufficient alone for perception — camera lacks depth, lidar is sparse and pricier, radar is low-res. Many AV/ADAS systems combine multiple complementary sensors such as camera, radar, and/or lidar — not always all three, architectures vary — because each covers different failure modes of the others."},
   {phase:"P9 — Computer Vision Foundations", title:"Why sensor fusion, not one sensor", desc:"Combining camera, lidar, and radar so each sensor's weakness is covered by another's strength — e.g. radar sees through fog when camera can't.", tradeoff:"Fusing sensors costs engineering complexity (time synchronization, calibration, coordinate alignment) but buys reliability. Skipping fusion is simpler to build but leaves hard failure modes (fog, glare, low light) uncovered."},
 
   // PHASE 6 — MLOps / Deployment (deepened)
   {phase:"P11 — MLOps / Deployment Depth", title:"Quantization — what it is", desc:"Reducing the numeric precision of a model's weights (e.g. 32-bit to 8-bit numbers) to make it smaller and faster, at a small accuracy cost.", tradeoff:"Quantize when you need to run on constrained hardware (edge devices, in-vehicle compute) or need lower latency. The cost is a small, usually acceptable, accuracy drop — verify it against your actual error tolerance, not just 'a bit worse'.", q:"Q8, Q9"},
   {phase:"P11 — MLOps / Deployment Depth", title:"Quantization — a concrete example", desc:"Converting weights stored as FP32 decimals into INT8 whole numbers using a scale factor, then reversing the scale at inference time.", q:"Q10"},
-  {phase:"P11 — MLOps / Deployment Depth", title:"FP32 & precision formats", desc:"FP32 is full 32-bit precision. FP16/BF16 mixed-precision training — using lower precision for most of the math but keeping key values in FP32 — is now the common default for training, not just a deployment-time trick; INT8 is typically reserved for deployment.", tradeoff:"Mixed-precision training (FP16/BF16) is close to a free win on modern GPUs — real speedup, minimal accuracy cost, widely used by default. INT8 is a bigger step down in precision, so it's mainly a deployment-time choice once accuracy has been validated — the earlier in the pipeline you drop that much precision, the more compounding error risk you introduce.", q:"Q11"},
+  {phase:"P11 — MLOps / Deployment Depth", title:"FP32 & precision formats", desc:"FP32 is full 32-bit precision. FP16/BF16 mixed-precision training — using lower precision for most of the math but keeping key values in FP32 — is now the common default for training, not just a deployment-time trick; INT8 is typically reserved for deployment.", tradeoff:"Mixed precision is often a major speed/memory win on supported modern accelerators with little or no meaningful accuracy loss — but numerical stability and hardware support still need to be validated for your specific model, not assumed. INT8 is a bigger step down in precision, so it's mainly a deployment-time choice once accuracy has been validated — the earlier in the pipeline you drop that much precision, the more compounding error risk you introduce.", q:"Q11"},
   {phase:"P11 — MLOps / Deployment Depth", title:"Inference optimization (TensorRT-style)", desc:"Tools that take a trained model and restructure/compress it specifically for fast inference on target hardware.", tradeoff:"Worth it once latency/throughput is a hard constraint (real-time perception, on-vehicle compute). The tradeoff is usually a small accuracy dip for a large speed gain — and added deployment complexity to maintain.", q:"Q6, Q7", secondary:true},
 
   // PHASE 7 — Python/Coding Patterns
@@ -699,8 +744,8 @@ const TOPICS = [
 
   // PHASE 1 — Applied Math for ML
   {phase:"P1 — Applied Math for ML", title:"Vectors & what they represent", desc:"A vector is just an ordered list of numbers — a data point's features, a word's embedding, a pixel's RGB values. Everything a model 'sees' gets turned into vectors first.", tradeoff:"Represent things as vectors when you need a model to compare or combine them mathematically. The cost: you lose human-readable structure — a vector of 512 numbers doesn't 'mean' anything to you the way a labeled dictionary would.", example:"A fraud transaction row (amount, hour, merchant category, account age) becomes a 4-number vector like [129.50, 14, 3, 730] before any model touches it.", python:"import numpy as np\ntransaction = np.array([129.50, 14, 3, 730])\nprint(transaction.shape)  # (4,) — a vector with 4 features"},
-  {phase:"P1 — Applied Math for ML", title:"Matrix multiplication — what a layer actually computes", desc:"A neural network layer is `output = input @ weights + bias` — a matrix multiplication followed by an addition. That's the entire 'magic' at each layer, repeated many times.", tradeoff:"Matrix multiplication is why GPUs matter — it's the one operation hardware is brutally optimized for. The tradeoff: you're locked into operations that reduce to matmul; anything that doesn't (a lookup table, an if/else) has to be approximated instead.", example:"A layer taking 4 features and producing 3 outputs is a 4x3 weight matrix. Multiply your input vector by it and you get exactly those 3 outputs — no more, no less.", python:"import numpy as np\nx = np.array([1.0, 2.0, 3.0, 4.0])   # 4 input features\nW = np.random.randn(4, 3)            # 4x3 weight matrix\nb = np.zeros(3)\noutput = x @ W + b                    # this line IS a neural net layer\nprint(output.shape)  # (3,)"},
-  {phase:"P1 — Applied Math for ML", title:"Dot products & similarity", desc:"A dot product multiplies two vectors element-wise and sums the result — a single number measuring how 'aligned' two vectors are. It's the building block inside every matrix multiplication.", tradeoff:"Use dot-product/cosine similarity when comparing things represented as vectors (search, recommendations, embeddings). It only measures direction/alignment, not real-world meaning — two unrelated vectors can still score high by coincidence.", example:"Two similar product embeddings point in roughly the same direction, so their dot product is large; two unrelated products point in different directions, so it's near zero.", python:"import numpy as np\na = np.array([1, 2, 3])\nb = np.array([2, 4, 6])   # same direction as a, just scaled\nprint(np.dot(a, b))  # 28 — large, they're aligned"},
+  {phase:"P1 — Applied Math for ML", title:"Matrix multiplication — what a layer actually computes", desc:"A neural network layer is `output = input @ weights + bias` — a matrix multiplication followed by an addition. That's the entire 'magic' at each layer, repeated many times.", tradeoff:"Dense layers and many major neural-network operations ultimately rely heavily on matrix multiplication, which is why GPUs are so effective. Not every operation in an ML system is a matmul — embeddings/lookups, indexing, routing, masks, and preprocessing all show up too — but matmul dominates much of the compute in modern models.", example:"A layer taking 4 features and producing 3 outputs is a 4x3 weight matrix. Multiply your input vector by it and you get exactly those 3 outputs — no more, no less.", python:"import numpy as np\nx = np.array([1.0, 2.0, 3.0, 4.0])   # 4 input features\nW = np.random.randn(4, 3)            # 4x3 weight matrix\nb = np.zeros(3)\noutput = x @ W + b                    # this line IS a neural net layer\nprint(output.shape)  # (3,)"},
+  {phase:"P1 — Applied Math for ML", title:"Dot products & similarity", desc:"A dot product multiplies two vectors element-wise and sums the result. It's the building block inside every matrix multiplication — but it combines both alignment AND magnitude, so a long vector pointing roughly the same direction can outscore a short vector pointing exactly the same direction. Cosine similarity normalizes vector lengths first, so it isolates directional similarity alone.", tradeoff:"Use raw dot product when magnitude is meaningful (e.g. inside a matmul, where scale is part of the signal). Use cosine similarity when you specifically want direction only (comparing embeddings for meaning) — otherwise a longer vector can look 'more similar' purely because it's bigger, not because it points the same way.", example:"Two similar product embeddings point in roughly the same direction, so their dot product is large; two unrelated products point in different directions, so it's near zero.", python:"import numpy as np\na = np.array([1, 2, 3])\nb = np.array([2, 4, 6])   # same direction as a, just scaled\nprint(np.dot(a, b))  # 28 — large, they're aligned"},
   {phase:"P1 — Applied Math for ML", title:"Gradients & what gradient descent actually computes", desc:"A gradient is the direction of steepest increase of a function. Gradient descent repeatedly nudges weights a small step in the opposite direction, so the loss goes down each time.", tradeoff:"You don't hand-derive gradients for real models — autograd (PyTorch/TensorFlow) computes them automatically via the chain rule. What you still need: why a bad learning rate or badly scaled input can make that automatic gradient useless (too big overshoots, too small gets stuck).", example:"If loss decreases as weight increases, the gradient is negative, so gradient descent increases the weight — always moving downhill on the loss curve, one small step at a time.", python:"import torch\nw = torch.tensor(2.0, requires_grad=True)\nloss = (w - 5) ** 2       # minimum at w=5\nloss.backward()\nprint(w.grad)  # gradient tells you which way to move w"},
   {phase:"P1 — Applied Math for ML", title:"Probability basics: distributions & expectation", desc:"A distribution describes how likely different outcomes are. Expectation (the mean) is the long-run average outcome — often what a loss function is minimizing, in expectation, over your training data.", tradeoff:"Thinking in distributions lets you reason about uncertainty (a model's 0.6 vs 0.99 confidence mean very different things). Ignoring it and only looking at point predictions is simpler but hides how sure or unsure the model really is.", example:"A fraud model outputting 0.51 for 'is fraud' is barely more confident than a coin flip — very different from outputting 0.98, even though both round to the same label.", python:"import numpy as np\nscores = np.array([0.51, 0.98, 0.12, 0.60])\nprint(scores.mean())  # 0.5525 — average predicted probability"},
   {phase:"P1 — Applied Math for ML", title:"Bayes' intuition — why priors matter", desc:"Bayes' theorem says your belief after seeing evidence depends on both the evidence AND how likely the outcome was beforehand (the prior). A positive rare-disease test is often still probably wrong, because the disease was already unlikely.", tradeoff:"Accounting for priors is essential on imbalanced problems like fraud (rare by nature) — ignoring the prior makes you overreact to a single positive signal. The cost is complexity: you need a real base rate, not a guess, or your correction is worse than ignoring priors entirely.", example:"Even a 95%-accurate fraud detector will flag mostly innocent transactions, if fraud is only 0.1% of all transactions — there are so many more innocent transactions to false-positive on.", python:"# P(fraud | flagged) via Bayes: base rate=0.001, true positive rate=0.95, false positive rate=0.05\nprior = 0.001\ntp, fp = 0.95, 0.05\nposterior = (tp*prior) / (tp*prior + fp*(1-prior))\nprint(round(posterior, 4))  # ~0.0187 — still mostly false alarms"},
@@ -733,7 +778,7 @@ const TOPICS = [
 
   // PHASE 10 — CV Detection & Tracking Depth
   {phase:"P10 — CV Detection & Tracking Depth", title:"Object detection architectures: YOLO vs Faster R-CNN vs SSD", desc:"Detection means finding AND localizing objects (boxes), not just classifying a whole image. YOLO and SSD are single-stage (fast, one pass); Faster R-CNN is two-stage (propose regions, then classify them — slower but historically more accurate).", tradeoff:"Choose YOLO/SSD-style single-stage detectors when latency matters (real-time perception, on-vehicle compute). Choose two-stage detectors like Faster R-CNN when accuracy matters more than speed and you can afford the extra compute — the gap has narrowed as YOLO has matured, but the design tradeoff is still real.", example:"A real-time driver-assist camera feed needs a single-stage detector running at 30+ fps; an offline annotation-quality pass on recorded footage can afford a slower, more accurate two-stage detector."},
-  {phase:"P10 — CV Detection & Tracking Depth", title:"Anchor boxes", desc:"Anchor boxes are a set of pre-defined box shapes/sizes a detector tries at each location, so it only has to predict small adjustments to a reasonable starting box instead of a box from scratch.", tradeoff:"Anchors make training more stable and faster to converge by giving the model a sensible starting point. The cost: you have to choose anchor sizes/ratios that actually match your objects — anchors tuned for cars will detect pedestrians poorly, which is why some newer detectors are anchor-free instead.", example:"A self-driving dataset's anchors are typically wide/short (cars) and tall/narrow (pedestrians) — anchors borrowed from a generic COCO-trained model won't fit either shape well."},
+  {phase:"P10 — CV Detection & Tracking Depth", title:"Anchor boxes", desc:"Anchor boxes are a set of pre-defined box shapes/sizes a detector tries at each location, so it only has to predict small adjustments to a reasonable starting box instead of a box from scratch.", tradeoff:"Anchors make training more stable and faster to converge by giving the model a sensible starting point. The cost: you have to choose anchor sizes/ratios that actually match your objects — anchors tuned for cars will detect pedestrians poorly, which is why some newer detectors are anchor-free instead.", example:"A self-driving dataset's anchors are typically wide/short (cars) and tall/narrow (pedestrians) — anchors borrowed from a generic COCO-trained model won't fit either shape well.", secondary:true},
   {phase:"P10 — CV Detection & Tracking Depth", title:"Non-max suppression (NMS)", desc:"A detector typically proposes many overlapping boxes for the same object. Non-max suppression keeps only the highest-confidence box and removes other boxes that overlap it too much, leaving one clean detection per object.", tradeoff:"A stricter overlap threshold removes more duplicate boxes but risks deleting a real second object standing close to the first (two pedestrians walking together). Too loose a threshold leaves duplicate boxes on the same object.", example:"Without NMS, a single car might show up as 5 nearly-identical overlapping boxes in the output — NMS collapses those down to 1.", python:"import torchvision\nkeep_idx = torchvision.ops.nms(boxes, scores, iou_threshold=0.5)\nfinal_boxes = boxes[keep_idx]"},
   {phase:"P10 — CV Detection & Tracking Depth", title:"Intersection over Union (IoU)", desc:"IoU measures how much two boxes overlap: the area they share divided by the total area they cover together. It's the core measurement used both inside NMS and to score whether a predicted box 'counts' as correct.", tradeoff:"A high IoU threshold (e.g. 0.75) for 'counts as correct' is stricter and more demanding of precise localization; a lower threshold (0.5) is more forgiving. Which is 'right' depends on how precisely your downstream system needs the box — distance estimation needs tighter boxes than a rough presence/absence check.", example:"A predicted box that's mostly right but shifted 20% to the side might have an IoU of 0.6 with the true box — correct under a 0.5 threshold, wrong under 0.75.", python:"def iou(boxA, boxB):\n    xA, yA = max(boxA[0], boxB[0]), max(boxA[1], boxB[1])\n    xB, yB = min(boxA[2], boxB[2]), min(boxA[3], boxB[3])\n    inter = max(0, xB-xA) * max(0, yB-yA)\n    areaA = (boxA[2]-boxA[0]) * (boxA[3]-boxA[1])\n    areaB = (boxB[2]-boxB[0]) * (boxB[3]-boxB[1])\n    return inter / (areaA + areaB - inter)"},
   {phase:"P10 — CV Detection & Tracking Depth", title:"Mean Average Precision (mAP)", desc:"mAP is the standard detection metric: it summarizes precision across all confidence thresholds and all object classes into a single number, using IoU to decide which detections count as correct.", tradeoff:"mAP is the right metric to report/compare against other published detectors — it's the standard. It's a poor metric to optimize for your specific product decision alone — it averages across every class and confidence level, which can hide that your model is terrible specifically on 'pedestrian at night,' the case you actually care about most.", example:"A model can have a strong overall mAP while badly underperforming on one safety-critical class (cyclists) — always check per-class AP, not just the averaged number, for a safety-relevant system."},
@@ -757,7 +802,7 @@ const TOPICS = [
   {phase:"P6 — Data Prep & Imbalance", title:"SQL for pulling and shaping training data", desc:"Most real training data lives in a database, not a CSV on your laptop — SQL is how you pull, filter, join, and aggregate it into the dataset you actually train on.", tradeoff:"Filtering and joining in SQL (at the database) is usually far faster than pulling everything into Pandas and filtering in Python — the database is built for this. The tradeoff is SQL logic living outside your Python codebase, so it needs its own version control and review like any other code.", example:"Pulling only completed transactions from the last 90 days, joined with a customer table for account age, is one SQL query — versus pulling every table entirely and joining/filtering in Pandas, which is slower and easy to get subtly wrong.", python:"SELECT t.amount, t.hour, t.merchant_category, c.account_age_days, t.is_fraud\nFROM transactions t\nJOIN customers c ON t.customer_id = c.id\nWHERE t.created_at >= NOW() - INTERVAL '90 days'"},
 
   {phase:"P5 — Evaluating Models", title:"Threshold selection", desc:"A classifier outputs a probability; you choose the cutoff (default 0.5) that turns it into a yes/no decision. That threshold is a business decision, not a modeling detail — moving it trades precision for recall directly.", tradeoff:"Lowering the threshold catches more true positives (higher recall) at the cost of more false positives (lower precision) — the right threshold depends entirely on what each error actually costs downstream, not on picking whatever number looks best on a chart.", example:"If your fraud investigation team can only review 500 flagged transactions a day, the threshold has to be set so daily flagged volume fits that capacity — not just wherever the F1 score happens to peak.", python:"import numpy as np\nprobs = model.predict_proba(X_test)[:, 1]\npreds_at_03 = (probs >= 0.3).astype(int)  # lower threshold = more flagged, higher recall"},
-  {phase:"P5 — Evaluating Models", title:"ROC-AUC vs PR-AUC", desc:"ROC-AUC plots true positive rate vs false positive rate across thresholds. PR-AUC plots precision vs recall instead. On severely imbalanced data (like fraud), PR-AUC is far more informative — ROC-AUC can look great while precision is actually terrible.", tradeoff:"Use ROC-AUC when classes are roughly balanced. Use PR-AUC on imbalanced problems — a huge number of true negatives can make ROC-AUC look deceptively good even when precision on the rare positive class is poor.", example:"A fraud model with 99.9% non-fraud transactions can show a strong ROC-AUC of 0.95 while its precision at any usable threshold is under 20% — PR-AUC reveals that immediately, ROC-AUC mostly hides it.", python:"from sklearn.metrics import roc_auc_score, average_precision_score\nprint(roc_auc_score(y_test, probs))            # can look great even when precision is bad\nprint(average_precision_score(y_test, probs))  # PR-AUC — the honest number here"},
+  {phase:"P5 — Evaluating Models", title:"ROC-AUC vs PR-AUC", desc:"ROC-AUC plots true positive rate vs false positive rate across thresholds. PR-AUC plots precision vs recall instead. On severely imbalanced data (like fraud), PR-AUC is far more informative — ROC-AUC can look great while precision is actually terrible.", tradeoff:"ROC-AUC remains a valid metric on imbalanced datasets, but PR-AUC is often more informative when the positive class is rare and positive-class performance is specifically what you care about — a huge number of true negatives can make ROC-AUC look deceptively good even when precision on the rare positive class is poor.", example:"A fraud model with 99.9% non-fraud transactions can show a strong ROC-AUC of 0.95 while its precision at any usable threshold is under 20% — PR-AUC reveals that immediately, ROC-AUC mostly hides it.", python:"from sklearn.metrics import roc_auc_score, average_precision_score\nprint(roc_auc_score(y_test, probs))            # can look great even when precision is bad\nprint(average_precision_score(y_test, probs))  # PR-AUC — the honest number here"},
   {phase:"P5 — Evaluating Models", title:"Error analysis", desc:"Looking at a single aggregate metric hides which specific examples the model gets wrong and why. Error analysis means pulling up the actual misclassified examples and looking for a pattern — a systematic blind spot, not just noise.", tradeoff:"Error analysis takes real time — manually reading through wrong predictions instead of just checking a number. What it buys you: most real model improvements come from a specific pattern you find this way, not from generically retraining with more data.", example:"Pulling up every false negative in the fraud model might reveal they're almost all small transactions under $10 — a specific blind spot a single 'recall: 0.82' number would never tell you.", python:"false_negatives = X_test[(y_test == 1) & (preds == 0)]\nfalse_negatives.describe()   # look for a pattern in what the model is missing"},
 
   {phase:"P4 — Practical Tooling: scikit-learn & PyTorch", title:"Reproducibility: seeds, configs & dataset versions", desc:"Randomness (weight init, data shuffling, train/val splits) makes results vary run to run unless you fix a random seed and record the exact config and data version used — otherwise 'it got 91% yesterday' is unverifiable.", tradeoff:"Setting seeds and logging configs costs a few lines of setup. Skipping it means you can't tell if a metric change is a real improvement or just random variance from a different seed — a very common false alarm in ML debugging.", example:"Without a fixed seed, retraining the exact same code can swing accuracy by a percent or two purely from a different random train/val split — indistinguishable from a real improvement unless you control for it.", python:"import torch, numpy as np, random\nseed = 42\nrandom.seed(seed); np.random.seed(seed); torch.manual_seed(seed)"},
@@ -846,7 +891,7 @@ const QUIZ_BANK = {
 
   "Vectors & what they represent": {q:"A vector is best described as...", options:["A single number","An ordered list of numbers representing something (features, an embedding)","A type of loss function","A database table"], correct:1},
   "Matrix multiplication — what a layer actually computes": {q:"A neural network layer's core computation is...", options:["A sorting algorithm","input @ weights + bias (matrix multiplication plus a bias)","A random number generator","A lookup table"], correct:1},
-  "Dot products & similarity": {q:"A dot product between two aligned (similar-direction) vectors tends to be...", options:["Zero","Large","Negative","Undefined"], correct:1},
+  "Dot products & similarity": {q:"Unlike raw dot product, cosine similarity...", options:["Also depends heavily on vector magnitude","Normalizes vector lengths first, isolating directional similarity alone","Is only defined for 2D vectors","Always equals zero"], correct:1},
   "Gradients & what gradient descent actually computes": {q:"Gradient descent moves weights...", options:["In a random direction each step","Opposite the gradient, to reduce the loss","In the same direction as the gradient, to increase the loss","It doesn't move weights at all"], correct:1},
   "Probability basics: distributions & expectation": {q:"A model outputting 0.98 vs 0.51 for the same predicted label mainly differs in...", options:["Nothing, both round to the same answer","Confidence — 0.98 reflects far more certainty", "Training speed","Loss function choice"], correct:1},
   "Bayes' intuition — why priors matter": {q:"Why can a 95%-accurate fraud detector still mostly flag innocent transactions?", options:["The model is broken","Fraud's low prior/base rate means false positives on the huge majority-class outnumber true positives","Accuracy is calculated wrong","Precision and recall are the same thing"], correct:1},
@@ -944,7 +989,19 @@ function updateStats(){
   document.getElementById('s-defined').textContent = defined;
   document.getElementById('s-explain').textContent = explain;
   document.getElementById('s-mastered').textContent = mastered;
-  document.getElementById('pbar').style.width = (mastered/total*100)+'%';
+
+  const coreTopics = TOPICS.filter(t=>!t.secondary);
+  const extendedTopics = TOPICS.filter(t=>t.secondary);
+  const masteredCore = coreTopics.filter(t=>levelOf(t.id)===3).length;
+  const masteredExtended = extendedTopics.filter(t=>levelOf(t.id)===3).length;
+  const coreReadiness = coreTopics.length ? Math.round(masteredCore/coreTopics.length*100) : 0;
+  const extReadiness = extendedTopics.length ? Math.round(masteredExtended/extendedTopics.length*100) : 0;
+
+  // Progress bar tracks core-path mastery only — Extended topics are bonus,
+  // not required, so they shouldn't make you look less ready by diluting it.
+  document.getElementById('pbar').style.width = coreReadiness+'%';
+  document.getElementById('readiness-line').textContent =
+    `Core readiness: ${coreReadiness}%  ·  Extended: ${extReadiness}%`;
 }
 
 function buildPhaseFilters(){
@@ -1008,6 +1065,7 @@ function openTopicModal(id){
     cbox.style.display = 'none';
   }
   renderModalLadder(id);
+  renderVerifySection(t);
   updatePomoDisplay();
   document.getElementById('topic-modal-overlay').classList.add('open');
 }
@@ -1019,6 +1077,53 @@ function renderModalLadder(id){
     <div class="ladder-opt ${o.l===lvl?'selected':''}" data-l="${o.l}" onclick="setLevel(${id},${o.l})">
       <span class="ladder-dot"></span>${o.label}
     </div>`).join('');
+}
+
+// ===== Explain / Code / Diagnose verification =====
+// Self-graded on purpose — this is a static page with no backend, so there's
+// no honest way to auto-grade free text or code. The "reveal, then check the
+// box yourself" pattern is deliberate: it only works if you're honest with it.
+let verifiedState = {};
+function saveVerified(){ localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); }
+
+function toggleVerifyCheck(id, kind, checked){
+  if(!verifiedState[id]) verifiedState[id] = {};
+  verifiedState[id][kind] = checked;
+  saveVerified();
+  renderTopicCard(id);
+}
+
+function isFullyVerified(id){
+  const v = verifiedState[id];
+  return !!(v && v.explain && v.code && v.diagnose);
+}
+
+function revealVerifyKey(btn){
+  btn.style.display = 'none';
+  btn.nextElementSibling.style.display = 'block';
+}
+
+function renderVerifySection(t){
+  const container = document.getElementById('modal-verify-section');
+  if(!t.verify){ container.innerHTML = ''; return; }
+  const vstate = verifiedState[t.id] || {};
+  const kinds = [
+    {key:'explain', label:'EXPLAIN', prompt:t.verify.explain, keyText:t.verify.explainKey},
+    {key:'code', label:'CODE', prompt:t.verify.code, keyText:t.verify.codeKey},
+    {key:'diagnose', label:'DIAGNOSE', prompt:t.verify.diagnose, keyText:t.verify.diagnoseKey}
+  ];
+  container.innerHTML = `<div class="verify-title">Prove it — before you call this mastered</div>` +
+    kinds.map(k => `
+      <div class="verify-card">
+        <div class="vk-label">${k.label}</div>
+        <div class="vk-prompt">${k.prompt}</div>
+        <button class="pomo-btn" onclick="revealVerifyKey(this)">Reveal what to check for</button>
+        <div class="vk-key" style="display:none">${k.keyText}</div>
+        <label class="verify-check">
+          <input type="checkbox" ${vstate[k.key] ? 'checked' : ''} onchange="toggleVerifyCheck(${t.id},'${k.key}',this.checked)">
+          I worked through this honestly
+        </label>
+      </div>`).join('');
 }
 
 function closeTopicModal(){
@@ -1041,6 +1146,8 @@ function renderTopicCard(id){
   ring.textContent = lvl>=1 ? (lvl===3?'✓':lvl) : '';
   titleEl.classList.toggle('mastered', lvl===3);
   card.classList.toggle('mastered', lvl===3);
+  const badge = document.getElementById('verified'+id);
+  if(badge) badge.style.display = (t.verify && isFullyVerified(id)) ? 'inline-block' : 'none';
 }
 
 function render(){
@@ -1084,6 +1191,7 @@ function render(){
           <div class="ring" id="ring${t.id}" data-lvl="0"></div>
           <div class="topic-title" id="title${t.id}">${t.title}</div>
           ${qtag}${skilltag}${extTag}
+          <span class="verified-badge" id="verified${t.id}">&#10003; Verified</span>
           <span class="chev">&#8250;</span>
         </div>`;
       group.appendChild(card);
@@ -1327,17 +1435,25 @@ function renderQuizBody(){
 }
 
 function answerQuiz(qi, oi){
+  // Only marks your own pick — doesn't reveal the correct answer, so you
+  // can't game a wrong guess into an immediate free hint before submitting.
   currentQuizAnswers[qi]=oi;
-  const q = currentQuizQuestions[qi];
-  document.querySelectorAll(`[id^="qopt-${qi}-"]`).forEach(btn=>btn.classList.remove('correct','incorrect'));
-  document.getElementById(`qopt-${qi}-${oi}`).classList.add(oi===q.correct?'correct':'incorrect');
-  if(oi!==q.correct) document.getElementById(`qopt-${qi}-${q.correct}`).classList.add('correct');
+  document.querySelectorAll(`[id^="qopt-${qi}-"]`).forEach(btn=>btn.classList.remove('selected'));
+  document.getElementById(`qopt-${qi}-${oi}`).classList.add('selected');
 }
 
 function submitQuiz(){
   const total = currentQuizQuestions.length;
   let score=0;
-  currentQuizQuestions.forEach((q,qi)=>{ if(currentQuizAnswers[qi]===q.correct) score++; });
+  currentQuizQuestions.forEach((q,qi)=>{
+    if(currentQuizAnswers[qi]===q.correct) score++;
+    // reveal correct/incorrect for every question only now, at submit time
+    document.querySelectorAll(`[id^="qopt-${qi}-"]`).forEach(btn=>btn.classList.remove('selected'));
+    document.getElementById(`qopt-${qi}-${q.correct}`).classList.add('correct');
+    if(currentQuizAnswers[qi] !== null && currentQuizAnswers[qi] !== q.correct){
+      document.getElementById(`qopt-${qi}-${currentQuizAnswers[qi]}`).classList.add('incorrect');
+    }
+  });
   const pass = (score/total) >= 0.7;
   document.getElementById('quiz-result-box').innerHTML =
     `<div class="quiz-result ${pass?'pass':'fail'}">${score}/${total} correct — ${pass?'Passed! 🎉':'Not quite — review and retry.'}</div>`;
@@ -1359,12 +1475,14 @@ function markPassedQuizButtons(){
   });
 }
 
-// ===== Optional cross-device sync via a public Gist =====
+// ===== Optional one-way import from a public Gist =====
+// This is a READ-only import, not two-way sync — it only ever pulls a
+// snapshot in; nothing here ever pushes local changes back out to the Gist.
 // Set GIST_RAW_URL to a raw.githubusercontent.com URL for a public gist JSON
-// file to pull shared state on load. Left empty by default — never put a
+// file to import shared state on load. Left empty by default — never put a
 // GitHub token in this file, since it's served publicly from GitHub Pages.
 const GIST_RAW_URL = '';
-function pullFromGist(){
+function importFromGist(){
   if(!GIST_RAW_URL) return;
   fetch(GIST_RAW_URL).then(r=>r.json()).then(data=>{
     if(data.state){ state = Object.assign({}, state, data.state); saveState(); }
@@ -1379,11 +1497,12 @@ function init(){
   try{ const v = localStorage.getItem('fnd-topic-levels'); if(v) state = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-daily-log:'+todayStr()); if(v) dailyLog = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-quiz-results'); if(v) quizResults = JSON.parse(v); }catch(e){}
+  try{ const v = localStorage.getItem('fnd-verified'); if(v) verifiedState = JSON.parse(v); }catch(e){}
   render();
   markPassedQuizButtons();
   drawRings();
   updatePomoDisplay();
-  pullFromGist(); // fetch latest cross-device state in the background, then re-render
+  importFromGist(); // one-way pull of a shared snapshot, if configured, then re-render
 }
 
 const SITE_PASSWORD = '221625';
