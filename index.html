@@ -82,6 +82,37 @@
   }
   .feedback-card b{color:var(--chalk);font-weight:600}
 
+  /* ===== Today: rings + pomodoro ===== */
+  .today-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+  .today-card{
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    border-radius:8px;
+    padding:16px;
+    flex:1;
+    min-width:220px;
+  }
+  .tcard-title{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--chalk-dim2);margin-bottom:12px;
+  }
+  .rings-wrap{display:flex;align-items:center;gap:14px}
+  .rings-legend{font-size:11px;color:var(--chalk-dim2);display:flex;flex-direction:column;gap:6px}
+  .legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+  .pomo-display{font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:var(--yellow);text-align:center;margin-bottom:2px}
+  .pomo-mode-label{text-align:center;font-size:11px;color:var(--chalk-dim2);margin-bottom:12px}
+  .pomo-controls{display:flex;gap:8px;justify-content:center}
+  .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+
+  .pomo-btn{
+    font-family:'Space Mono',monospace;font-size:11px;padding:8px 14px;border-radius:6px;
+    border:1px solid var(--rule);background:transparent;color:var(--chalk-dim2);
+    cursor:pointer;letter-spacing:0.03em;transition:all .15s;
+  }
+  .pomo-btn:hover{border-color:var(--blue)}
+  .pomo-btn.primary{background:var(--blue);color:var(--board);border-color:var(--blue);font-weight:700}
+  .pomo-btn.saved{background:var(--green-ok);color:var(--board);border-color:var(--green-ok)}
+
   /* ===== Stats ===== */
   .stats-row{
     display:grid;
@@ -142,7 +173,7 @@
   /* ===== Phase groups ===== */
   .phase-group{margin-bottom:10px}
   .phase-header{
-    display:flex;align-items:baseline;gap:10px;
+    display:flex;align-items:baseline;gap:10px;justify-content:space-between;
     font-family:'Space Mono',monospace;
     font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
     color:var(--yellow);
@@ -151,6 +182,14 @@
     margin-bottom:8px;
   }
   .phase-header .pcount{color:var(--chalk-dim2);font-weight:400;text-transform:none;letter-spacing:0}
+  .quiz-phase-btn{
+    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.03em;
+    padding:5px 10px;border-radius:99px;border:1px solid var(--rule);
+    background:transparent;color:var(--chalk-dim2);cursor:pointer;white-space:nowrap;
+    text-transform:none;
+  }
+  .quiz-phase-btn:hover{border-color:var(--blue)}
+  .quiz-phase-btn.passed{background:var(--green-ok);color:var(--board);border-color:var(--green-ok);font-weight:700}
 
   .topic-card{
     background:var(--board-panel);
@@ -191,7 +230,10 @@
   }
   @media(min-width:640px){.skilltag{display:inline-block}}
   .chev{color:var(--chalk-dim2);font-size:14px;transition:transform .2s;flex-shrink:0}
+  .chev.open{transform:rotate(180deg)}
 
+  .topic-body{display:none;border-top:1px solid var(--rule);padding:14px 15px 16px}
+  .topic-body.open{display:block}
   .topic-desc{font-size:13px;color:var(--chalk-dim2);line-height:1.6;margin-bottom:14px}
   .tradeoff-box{
     background:var(--board);
@@ -221,12 +263,612 @@
   .ladder-opt.selected[data-l="1"]{border-color:var(--coral)}
   .ladder-opt.selected[data-l="2"]{border-color:var(--blue)}
   .ladder-opt.selected[data-l="3"]{border-color:var(--green-ok)}
-< truncated lines 224-886 >
+  .ladder-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--chalk-dim2);flex-shrink:0}
+  .ladder-opt.selected .ladder-dot{background:currentColor;border-color:currentColor}
+
+  .phase-project{
+    background:var(--board-panel);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--yellow);
+    border-radius:4px;
+    padding:12px 15px;
+    margin-bottom:12px;
+  }
+  .phase-project .plabel{
+    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;
+    color:var(--yellow);margin-bottom:5px;
+  }
+  .phase-project p{font-size:12.5px;color:var(--chalk-dim2);line-height:1.6}
+
+  .no-results{text-align:center;padding:50px 20px;color:var(--chalk-dim2);font-size:13px}
+
+  footer{margin-top:36px;text-align:center;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--chalk-dim2);line-height:1.7}
+
+  /* ===== Lock screen ===== */
+  .lock-overlay{
+    position:fixed;inset:0;background:var(--board);
+    display:flex;align-items:center;justify-content:center;
+    z-index:200;padding:20px;
+  }
+  .lock-box{
+    background:var(--board-panel);border:1px solid var(--rule);border-radius:10px;
+    padding:28px 24px;max-width:320px;width:100%;text-align:center;
+  }
+  .lock-eyebrow{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;
+    text-transform:uppercase;color:var(--yellow);margin-bottom:8px;
+  }
+  .lock-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:16px}
+  .lock-input{
+    width:100%;background:var(--board);border:1px solid var(--rule);color:var(--chalk);
+    padding:10px 13px;border-radius:6px;font-size:14px;margin-bottom:12px;
+    text-align:center;letter-spacing:0.2em;font-family:'Space Mono',monospace;
+  }
+  .lock-input:focus{outline:none;border-color:var(--blue)}
+  .lock-error{font-size:11.5px;color:var(--coral);margin-top:10px;min-height:14px}
+
+  /* ===== Toast ===== */
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--board-panel-hi);border:1px solid var(--rule);color:var(--chalk);
+    padding:10px 18px;border-radius:8px;font-size:12.5px;
+    opacity:0;pointer-events:none;transition:all .25s;z-index:300;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===== Modals (quiz + daily log) ===== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.55);
+    display:none;align-items:center;justify-content:center;
+    z-index:150;padding:20px;
+  }
+  .modal-overlay.open{display:flex}
+  .modal-box{
+    background:var(--board-panel);border:1px solid var(--rule);border-radius:10px;
+    padding:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;
+  }
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .modal-header h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+  .modal-close{background:none;border:none;color:var(--chalk-dim2);font-size:20px;cursor:pointer;line-height:1}
+  .modal-close:hover{color:var(--chalk)}
+  .quiz-phase-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--chalk-dim2);margin-bottom:14px}
+
+  .quiz-q{margin-bottom:16px}
+  .quiz-q-text{font-size:13px;margin-bottom:8px;font-weight:500}
+  .quiz-opt{
+    display:block;width:100%;text-align:left;background:var(--board);
+    border:1px solid var(--rule);color:var(--chalk-dim2);
+    padding:8px 12px;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:12.5px;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .quiz-opt:hover{border-color:var(--blue)}
+  .quiz-opt.correct{border-color:var(--green-ok);color:var(--green-ok);background:rgba(143,191,138,0.1)}
+  .quiz-opt.incorrect{border-color:var(--coral);color:var(--coral);background:rgba(193,104,90,0.1)}
+  .quiz-result{margin-top:12px;padding:10px 13px;border-radius:6px;font-size:13px;text-align:center;font-weight:600}
+  .quiz-result.pass{background:rgba(143,191,138,0.15);color:var(--green-ok)}
+  .quiz-result.fail{background:rgba(193,104,90,0.15);color:var(--coral)}
+
+  .daily-check{
+    display:flex;align-items:center;gap:8px;padding:7px 0;
+    font-size:12.5px;color:var(--chalk-dim2);border-bottom:1px solid var(--rule);
+  }
+  .daily-check input{accent-color:var(--blue);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="lock-overlay" id="lock-overlay">
+  <div class="lock-box">
+    <div class="lock-eyebrow">Foundation Tracker</div>
+    <div class="lock-title">Enter password</div>
+    <input class="lock-input" id="lock-input" type="password" placeholder="••••••" autocomplete="off">
+    <button class="pomo-btn primary" style="width:100%" onclick="tryUnlock()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
+
+<div class="wrap" id="main-wrap" style="display:none">
+
+  <div class="eyebrow">Personal tracker · self-paced</div>
+  <h1>Judgment, not <em>a script.</em></h1>
+  <p class="subtitle">Every topic between you and a Perception Engineer role — Python and MLOps interleaved from day one, through core ML, computer vision, and a real camera+lidar+radar capstone. No fixed days. Move the moment you can actually reason about a tradeoff, not just recite a definition.</p>
+
+  <div class="feedback-card">
+    <div class="ftitle">Why this tracker exists</div>
+    <p>Last round of feedback: <b>limited grasp of MLOps concepts</b>, needed questions <b>repeated or rephrased</b> before answering, and answers felt <b>scripted</b> — reused across different questions instead of reasoned live. Every topic here now pairs a definition with a <b>decision & tradeoff</b>: what you'd choose, why, and what breaks if you choose wrong — because on the job, picking the right approach matters more than reciting how any one approach works.</p>
+  </div>
+
+  <div class="today-row">
+    <div class="today-card">
+      <div class="tcard-title">Today's activity</div>
+      <div class="rings-wrap">
+        <svg id="rings-svg" width="140" height="140" viewBox="0 0 140 140"></svg>
+        <div class="rings-legend">
+          <span><span class="legend-dot" style="background:#82AECB"></span>Minutes worked (/60)</span>
+          <span><span class="legend-dot" style="background:#C1685A"></span>Python topics (/2)</span>
+          <span><span class="legend-dot" style="background:#8FBF8A"></span>AI/ML topics (/2)</span>
+        </div>
+      </div>
+    </div>
+    <div class="today-card">
+      <div class="tcard-title">Pomodoro</div>
+      <div class="pomo-display" id="pomo-time">25:00</div>
+      <div class="pomo-mode-label" id="pomo-mode">Work session</div>
+      <div class="pomo-controls">
+        <button class="pomo-btn primary" id="pomo-startpause" onclick="pomoToggle()">Start</button>
+        <button class="pomo-btn" onclick="pomoReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="today-actions">
+    <button class="pomo-btn primary" onclick="openDailyLogModal()">Log today's progress</button>
+    <button class="pomo-btn" onclick="openDailyQuiz()">Today's check-in quiz</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">topics tracked</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can define</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can explain</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can defend live</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+
+  <div class="controls">
+    <input class="search-box" id="search" type="text" placeholder="Search topics..." oninput="applyFilters()">
+  </div>
+  <div class="filter-row" id="phase-filters"></div>
+  <div class="filter-row" id="status-filters">
+    <span class="filter-label">Status:</span>
+    <button class="filter-btn active" onclick="setStatusFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setStatusFilter('todo',this)">Not started</button>
+    <button class="filter-btn" onclick="setStatusFilter('progress',this)">In progress</button>
+    <button class="filter-btn" onclick="setStatusFilter('mastered',this)">Can defend live</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="topics-container"></div>
+
+  <footer>
+    Progress is saved to this browser (localStorage) — it persists across reloads on this device.<br>
+    Built from your interview question list · Phase order tracks the roadmap
+  </footer>
+</div>
+
+<div class="modal-overlay" id="daily-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Log today's progress</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="quiz-phase-tag">Check off what you covered today — this feeds the activity rings and the daily check-in quiz.</div>
+    <div id="daily-modal-body"></div>
+    <button class="pomo-btn primary" id="modal-save-btn" style="width:100%;margin-top:14px" onclick="saveModalProgress()">Save</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quiz-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="quiz-title">Phase check</h3>
+      <button class="modal-close" onclick="closeQuiz()">&times;</button>
+    </div>
+    <div class="quiz-phase-tag" id="quiz-phase-label"></div>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LADDER = [
+  {l:1, label:"Can define it"},
+  {l:2, label:"Can explain why & how it's used"},
+  {l:3, label:"Can defend it under a curveball follow-up"}
+];
+
+const PHASE_PROJECTS = {
+  "P0 — Python + MLOps Intuition (interleaved)": "PROJECT THREAD START — Fraud Detection. Load the Kaggle 'Credit Card Fraud Detection' CSV with Pandas, dedupe/parse transaction rows using a dict/set, then wrap a tiny 'predict' function in a local API and containerize it. This dataset carries through P1-P4.",
+  "P1 — What ML Actually Is": "Fraud Detection, part 2. Split the fraud dataset into train/val/test yourself, then deliberately leak test rows into training once so you *see* the inflated score with your own eyes before fixing it properly.",
+  "P2 — Evaluating Models": "Fraud Detection, part 3. Train a simple classifier on the (heavily imbalanced) fraud data. Compute accuracy vs. precision/recall by hand and show exactly why 99%+ accuracy here is meaningless — then pick recall or precision as your real target metric and justify it.",
+  "P3 — How Models Learn": "Fraud Detection, part 4. Train a small neural net on the same data twice — once until it overfits, once with dropout/regularization added — compare loss curves side by side.",
+  "P4 — Core Model Types": "Fraud Detection, part 5 (wrap-up). Same fraud data, one logistic regression and one random forest. Compare results and write down why you'd pick one over the other — this closes out your first real portfolio project.",
+  "P5 — Computer Vision Foundations": "PROJECT THREAD START — Visual Anomaly Detection. Use a defect-detection image set (e.g. MVTec AD style: normal vs. defective parts) and fine-tune a pretrained CNN via transfer learning. Run it once with augmentation, once without, and compare generalization.",
+  "P6 — MLOps / Deployment Depth": "Visual Anomaly Detection, part 2. Quantize that same defect-detection model to INT8. Measure the actual size, speed, and accuracy tradeoff yourself instead of just reading about it — this closes out your second portfolio project.",
+  "P7 — Python/Coding Patterns": "Reframe the algorithm drills around the fraud project: implement 'find duplicate transactions' brute-force, then optimized with a dict. Time both on a large input and prove the O(n²) → O(n) jump with real numbers.",
+  "P8 — Capstone: Perception Pipeline": "PROJECT THREAD START — Perception Pipeline. Your third and biggest portfolio piece: build the camera+lidar(+radar) fusion pipeline on real KITTI/nuScenes data, end to end. See the topic list below for the build order."
+};
+
+
+const TOPICS = [
+  // PHASE 0 — Python + light MLOps, interleaved (days 1-7)
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Syntax & dynamic typing", desc:"No braces, no semicolons — indentation is the block. Python is dynamically typed, unlike C#.", tradeoff:"Choose dynamic typing for speed of iteration in research/prototyping. Downside: no compile-time safety net — type errors surface at runtime, which matters once a model is in production.", skill:"Python"},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Why training isn't the finish line", desc:"A trained model has to be packaged, served, monitored, and eventually retrained — that whole lifecycle is 'MLOps'.", tradeoff:"You could hand a .pt file to another team and call it done — cheaper short-term. But without a lifecycle plan, drift and silent failures go unnoticed until users complain.", skill:""},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Core data structures", desc:"list/dict/set/tuple vs C#'s List/Dictionary/HashSet — same ideas, different mutability rules.", tradeoff:"Use a dict/set when you need fast lookup (hash-based, ~O(1)). Use a list when order matters or you need to scan sequentially. Picking a list where you need lookups is the classic O(n²) mistake.", skill:"Python"},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Inference vs training", desc:"Training: the slow, heavy process of learning. Inference: the fast, repeated process of using the trained model.", tradeoff:"Training optimizes for accuracy and can be slow/expensive (run once, offline). Inference optimizes for latency and cost (run millions of times) — you'll deliberately trade some accuracy away here.", skill:""},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Functions & classes", desc:"Python OOP is looser than C# — duck typing instead of strict interfaces.", tradeoff:"Duck typing gives flexibility and less boilerplate. Downside: bugs from mismatched objects only show up at runtime, not compile time — worth writing type hints in anything production-bound.", skill:"Python"},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Containers & serving a model", desc:"Packaging a model behind an API inside a container (Docker) so it runs consistently anywhere.", tradeoff:"Containerizing costs setup time upfront, but without it 'works on my machine' becomes a production incident. Worth it the moment more than one person or environment touches the model.", skill:""},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"List comprehensions", desc:"Python's LINQ-ish one-liner for building lists — `[x*2 for x in nums]` instead of a loop.", tradeoff:"Great for readability and speed on simple transforms. Avoid nesting more than one level deep — past that, a plain loop is easier to debug and reason about.", skill:"Python"},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"NumPy arrays & vectorized ops", desc:"Nearly all ML math is done as array operations instead of loops — the foundation under every model you'll build.", tradeoff:"Vectorized NumPy is often 10-100x faster than a Python for-loop because it runs in compiled C under the hood. Choose a loop only when the logic is too irregular to express as array math.", skill:"Python"},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Monitoring & drift", desc:"Why a model's accuracy degrades over time as real-world data shifts away from what it was trained on.", tradeoff:"You could skip monitoring to ship faster, but then you find out about drift from angry users instead of a dashboard. The cost of monitoring is small compared to the cost of a silently degrading model.", skill:""},
+  {phase:"P0 — Python + MLOps Intuition (interleaved)", title:"Pandas basics", desc:"Tabular data handling — your SQL background transfers directly here.", tradeoff:"Pandas is great for datasets that fit in memory and need exploratory speed. Once data outgrows memory, you'd reach for something like Spark or chunked processing instead.", skill:"Python"},
+
+  // PHASE 1 — What ML Actually Is
+  {phase:"P1 — What ML Actually Is", title:"Traditional programming vs ML", desc:"You write the rules vs the model learns the rules from data.", tradeoff:"Choose hand-written rules when the logic is well-understood and stable (tax brackets). Choose ML when the rules are too complex or shifting to hand-code (spam patterns, image recognition).", skill:""},
+  {phase:"P1 — What ML Actually Is", title:"What 'training' means", desc:"Adjusting a model's internal numbers so its predictions get closer to correct answers, repeatedly, based on data."},
+  {phase:"P1 — What ML Actually Is", title:"Features & labels", desc:"Inputs the model sees (features) vs the answer it's trying to predict (label)."},
+  {phase:"P1 — What ML Actually Is", title:"Train / validation / test sets", desc:"Practice problems / practice quiz / final exam.", tradeoff:"Using the same data to train and report results inflates your score artificially. The cost of a proper split is a bit less training data — worth it, because a fake-good score fails in production.", q:"Q4"},
+  {phase:"P1 — What ML Actually Is", title:"Overfitting vs underfitting", desc:"Overfitting: memorized the training data, fails on new data. Underfitting: never learned the pattern in the first place.", tradeoff:"If train and val performance are both bad → underfitting, fix by adding capacity or training longer. If train is great but val is bad → overfitting, fix by adding data, regularization, or simplifying the model.", q:"Q18"},
+  {phase:"P1 — What ML Actually Is", title:"Data leakage & bad splits", desc:"When information from outside the training set leaks in, making results look better than they'd be in reality.", q:"Q5"},
+
+  // PHASE 2 — Evaluating Models
+  {phase:"P2 — Evaluating Models", title:"Accuracy and its limits", desc:"On imbalanced data (99% non-fraud, 1% fraud), a model that always says 'not fraud' gets 99% accuracy while being useless.", tradeoff:"Use plain accuracy only when classes are roughly balanced and errors cost the same. On imbalanced or high-stakes data, switch to precision/recall/F1 instead — accuracy alone will lie to you."},
+  {phase:"P2 — Evaluating Models", title:"Precision vs recall", desc:"Precision: of what you flagged positive, how many were actually positive. Recall: of all actual positives, how many did you catch.", q:"Q15"},
+  {phase:"P2 — Evaluating Models", title:"When precision matters more", desc:"Spam filters — better to miss some spam than wrongly bury an important real email.", tradeoff:"Optimize for precision when a false positive is more costly than a false negative. The downside: you'll let more true positives (actual spam) slip through.", q:"Q16"},
+  {phase:"P2 — Evaluating Models", title:"Fraud detection tradeoff", desc:"Usually recall-first: missing real fraud is costlier than a few false alarms.", tradeoff:"Optimize for recall when missing a positive is expensive (fraud, cancer screening). The downside: more false alarms, which costs analyst time or user trust — the right balance depends on the actual dollar/human cost of each error type.", q:"Q17"},
+  {phase:"P2 — Evaluating Models", title:"Confusion matrix", desc:"The 2x2 (or NxN) table of predicted vs actual — the source every other metric is computed from."},
+  {phase:"P2 — Evaluating Models", title:"Loss functions", desc:"A single number scoring how wrong the model's predictions were — what training is actually trying to minimize.", tradeoff:"Choose a loss function to match the task: cross-entropy for classification, MSE for regression. Picking the wrong one — e.g. MSE for classification — gives the model the wrong signal to optimize against."},
+  {phase:"P2 — Evaluating Models", title:"Reading train vs val loss together", desc:"Low train loss (0.03) + high val loss (2.6) is a classic overfitting signature.", q:"Q14"},
+
+  // PHASE 3 — How Models Learn
+  {phase:"P3 — How Models Learn", title:"Neural network basics", desc:"Layers of simple math units (neurons) that combine to approximate complex patterns — intuition only, no calculus needed yet."},
+  {phase:"P3 — How Models Learn", title:"Weights & activation functions", desc:"Weights: learned importance of each input. Activation functions: introduce non-linearity so the network can learn more than straight lines.", tradeoff:"ReLU is the default choice — cheap and avoids vanishing gradients, but can 'die' on negative inputs. Sigmoid/tanh are used when you specifically need bounded outputs (e.g. a probability), at the cost of vanishing gradients in deep nets.", q:"Q12"},
+  {phase:"P3 — How Models Learn", title:"Are activations quantized?", desc:"Yes — in optimized deployment, activation outputs get reduced to lower precision too, not just weights.", q:"Q13"},
+  {phase:"P3 — How Models Learn", title:"Forward vs backward pass", desc:"Forward: input flows through to a prediction. Backward: the error flows back to adjust weights."},
+  {phase:"P3 — How Models Learn", title:"Learning rate effects", desc:"Too high: training overshoots and never settles. Too low: training crawls or gets stuck.", tradeoff:"Start with a moderate rate and a scheduler that decays it. Too aggressive risks divergence; too conservative wastes compute time and risks getting stuck in a poor local minimum.", q:"Q21"},
+  {phase:"P3 — How Models Learn", title:"Batch size & epochs", desc:"Batch size: how many examples before updating weights once. Epoch: one full pass through all training data.", tradeoff:"Larger batches: faster, more stable gradient estimates, but need more memory and can generalize slightly worse. Smaller batches: noisier updates that can actually help generalization, but slower wall-clock time.", q:"Q24"},
+  {phase:"P3 — How Models Learn", title:"Dropout", desc:"Randomly turns off neurons during training so the network can't over-rely on any single path — reduces overfitting.", tradeoff:"Use dropout when the model is overfitting and you have enough capacity to spare. Downside: too high a dropout rate makes the model underfit and training unstable.", q:"Q20"},
+  {phase:"P3 — How Models Learn", title:"L1 vs L2 regularization", desc:"L1 can push weights to exactly zero (sparse, feature-selecting). L2 shrinks weights smoothly toward zero without eliminating them.", tradeoff:"Choose L1 when you want automatic feature selection / a sparse model. Choose L2 (more common in deep nets) when you just want smoother, smaller weights without zeroing any out.", q:"Q22"},
+  {phase:"P3 — How Models Learn", title:"Batch normalization", desc:"Normalizes layer inputs during training for stability.", tradeoff:"Speeds up and stabilizes training in most CNNs. Downside: it can hurt performance with very small batch sizes, since the batch statistics become noisy — layer norm is often swapped in for those cases.", q:"Q23"},
+  {phase:"P3 — How Models Learn", title:"Confidently wrong models", desc:"A model can output high confidence on a completely incorrect prediction — a sign of poor calibration, not just poor accuracy.", q:"Q19"},
+
+  // PHASE 4 — Core Model Types
+  {phase:"P4 — Core Model Types", title:"Linear & logistic regression", desc:"The simplest models — a straight-line fit (regression) or a straight-line decision boundary (classification)."},
+  {phase:"P4 — Core Model Types", title:"Decision trees & random forests", desc:"Splitting data by rules instead of fitting weights. Random forests combine many trees to reduce overfitting.", tradeoff:"Choose trees/forests for structured/tabular data where interpretability matters and you don't have millions of rows. Downside vs deep learning: they don't scale as well to raw images, text, or huge unstructured datasets."},
+  {phase:"P4 — Core Model Types", title:"Classical ML vs deep learning", desc:"When a simple model beats a neural net (small/structured data) vs when deep learning wins (images, text, huge datasets).", tradeoff:"Reach for classical ML first on small/structured data — faster to train, easier to explain, less data-hungry. Reach for deep learning when the data is unstructured (images/audio/text) and plentiful — the cost is more compute and less interpretability."},
+
+  // PHASE 5 — Computer Vision Foundations
+  {phase:"P5 — Computer Vision Foundations", title:"Images as data", desc:"An image is just a grid of numbers — pixels across height, width, and color channels (RGB)."},
+  {phase:"P5 — Computer Vision Foundations", title:"Convolution", desc:"A small filter slides across the image detecting local patterns (edges, textures).", tradeoff:"Convolution over a fully-connected layer wins because it shares weights across the image (far fewer parameters) and respects spatial locality. The tradeoff: it assumes local patterns matter, which can miss long-range relationships — that's part of why attention/transformers emerged for vision too."},
+  {phase:"P5 — Computer Vision Foundations", title:"CNN architecture basics", desc:"Convolution layers extract features, pooling layers shrink the data, together building from edges to shapes to objects."},
+  {phase:"P5 — Computer Vision Foundations", title:"Transfer learning", desc:"Starting from a model already trained on millions of images instead of training from scratch.", tradeoff:"Use transfer learning by default when you have limited labeled data — massively faster, needs far less data. Train from scratch only when your domain is very different from natural images (e.g. medical/satellite/lidar-derived imagery) where pretrained features transfer poorly."},
+  {phase:"P5 — Computer Vision Foundations", title:"Data augmentation", desc:"Artificially varying training images (flips, crops, brightness) so the model generalizes instead of memorizing exact pixels.", tradeoff:"Augment when you have limited data or want robustness to real-world variation. Watch out: augmentations that don't reflect reality (e.g. flipping a stop sign so text reads backwards) can teach the model the wrong thing."},
+  {phase:"P5 — Computer Vision Foundations", title:"Camera vs lidar vs radar", desc:"Camera: rich texture/color, no depth, fails in low light. Lidar: precise 3D depth via laser point clouds, expensive, sparse at range. Radar: works in rain/fog/dark, measures velocity directly, but low resolution.", tradeoff:"No single sensor is sufficient alone for perception — camera lacks depth, lidar is sparse and pricier, radar is low-res. That's exactly why real AV/ADAS systems fuse all three: each covers the others' blind spots."},
+  {phase:"P5 — Computer Vision Foundations", title:"Why sensor fusion, not one sensor", desc:"Combining camera, lidar, and radar so each sensor's weakness is covered by another's strength — e.g. radar sees through fog when camera can't.", tradeoff:"Fusing sensors costs engineering complexity (time synchronization, calibration, coordinate alignment) but buys reliability. Skipping fusion is simpler to build but leaves hard failure modes (fog, glare, low light) uncovered."},
+
+  // PHASE 6 — MLOps / Deployment (deepened)
+  {phase:"P6 — MLOps / Deployment Depth", title:"Quantization — what it is", desc:"Reducing the numeric precision of a model's weights (e.g. 32-bit to 8-bit numbers) to make it smaller and faster, at a small accuracy cost.", tradeoff:"Quantize when you need to run on constrained hardware (edge devices, in-vehicle compute) or need lower latency. The cost is a small, usually acceptable, accuracy drop — verify it against your actual error tolerance, not just 'a bit worse'.", q:"Q8, Q9"},
+  {phase:"P6 — MLOps / Deployment Depth", title:"Quantization — a concrete example", desc:"Converting weights stored as FP32 decimals into INT8 whole numbers using a scale factor, then reversing the scale at inference time.", q:"Q10"},
+  {phase:"P6 — MLOps / Deployment Depth", title:"FP32 & precision formats", desc:"FP32 is the standard 32-bit decimal format models train in. FP16/INT8 trade precision for speed and smaller size.", tradeoff:"Train in FP32 (or mixed precision) for numerical stability. Deploy in FP16/INT8 once accuracy is validated — the earlier in the pipeline you drop precision, the more compounding error risk you introduce.", q:"Q11"},
+  {phase:"P6 — MLOps / Deployment Depth", title:"Inference optimization (TensorRT-style)", desc:"Tools that take a trained model and restructure/compress it specifically for fast inference on target hardware.", tradeoff:"Worth it once latency/throughput is a hard constraint (real-time perception, on-vehicle compute). The tradeoff is usually a small accuracy dip for a large speed gain — and added deployment complexity to maintain.", q:"Q6, Q7"},
+
+  // PHASE 7 — Python/Coding Patterns
+  {phase:"P7 — Python/Coding Patterns", title:"Finding duplicates efficiently", desc:"Naive nested-loop comparison is O(n²) — using a set/dict lookup brings it down to roughly O(n).", tradeoff:"Choose a set/dict approach whenever you need repeated lookups — it trades a bit of memory for a huge speed win. Nested loops are fine only for tiny, one-off inputs.", q:"Q25"},
+  {phase:"P7 — Python/Coding Patterns", title:"How sets & dicts work internally", desc:"Hash tables — near-instant lookup because the key's hash tells Python almost exactly where to look, not a scan through every entry.", q:"Q26, Q35-38"},
+  {phase:"P7 — Python/Coding Patterns", title:"Running two slow functions together", desc:"Concurrency basics.", tradeoff:"Use threading/async for I/O-bound work (waiting on network/disk) — Python's GIL doesn't block you there. Use multiprocessing for CPU-bound work, since threads can't truly parallelize CPU-heavy code under the GIL.", q:"Q27"},
+  {phase:"P7 — Python/Coding Patterns", title:"Two-sum: brute force → optimized", desc:"Nested loop checks every pair (O(n²)) vs a single pass using a dictionary of seen values (O(n)).", q:"Q28-34"},
+
+  // PHASE 8 — Capstone: Perception Pipeline (real sensor data)
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Pick a dataset: KITTI vs nuScenes", desc:"KITTI: smaller, camera+lidar, easier to start. nuScenes: full camera+lidar+radar with 3D annotations, closer to a real AV stack.", tradeoff:"Start with KITTI if this is your first perception project — smaller and simpler to get a pipeline working end to end. Move to nuScenes once your pipeline works, since it includes radar and matches the Lucid-style perception stack more closely."},
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Camera-only object detection baseline", desc:"Run a pretrained 2D detector (e.g. YOLO-family) on camera frames as your first working milestone before adding depth.", tradeoff:"Ship the camera-only baseline first — it proves the pipeline end to end fastest. Skipping straight to fusion risks a big, hard-to-debug system with no working checkpoint along the way."},
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Projecting lidar points onto the camera image", desc:"Using camera calibration matrices to map 3D lidar points into 2D image coordinates — this is where the two sensors' data actually gets aligned.", tradeoff:"This step lives or dies on calibration accuracy. Get it slightly wrong and every downstream fusion result looks 'sort of right but off' — worth verifying visually before building anything on top of it."},
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Fusing camera detections with lidar depth", desc:"For each 2D detection box, pull in the lidar points that fall inside it to estimate real-world distance — camera gives you 'what', lidar gives you 'how far'.", tradeoff:"This is the core deliverable: it's the same category of problem (camera+lidar fusion for object distance) that shows up directly in Lucid/ADAS perception job descriptions."},
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Adding radar for velocity", desc:"Radar directly measures relative velocity (via Doppler), which camera and lidar can't do from a single frame — fold that in as a third signal per detected object.", tradeoff:"Adding radar is the stretch goal, not a requirement to finish. If time is short, a working camera+lidar fusion demo is already a strong capstone — radar velocity is the layer that makes it look production-grade."},
+  {phase:"P8 — Capstone: Perception Pipeline", title:"Explaining the pipeline's failure modes", desc:"Where does it break — occlusion, low light, sparse lidar returns at range, sensor misalignment? Knowing this cold is what turns a project into a defensible answer.", tradeoff:"This topic is the whole point of the capstone: being able to say 'here's where my system fails and why, and here's what real AV stacks do about it' is exactly the live-reasoning skill this tracker was built to fix."},
+
+  // PHASE 9 — Behavioral / Ways of Working
+  {phase:"P9 — Behavioral / Ways of Working", title:"Blocked by upstream dependencies", desc:"How to communicate a real risk early, escalate appropriately, and keep moving on what you can control while you wait.", q:"Q39, Q40"},
+  {phase:"P9 — Behavioral / Ways of Working", title:"Smooth handoffs across time zones", desc:"Documenting state clearly enough that the next person can pick up without needing you awake to answer questions.", q:"Q41"},
+  {phase:"P9 — Behavioral / Ways of Working", title:"Questions to ask the interviewer", desc:"Good closing questions signal genuine engagement rather than a rehearsed close.", q:"Q42"},
+  {phase:"P9 — Behavioral / Ways of Working", title:"Explaining live vs reciting", desc:"The actual meta-skill this whole tracker is built around: reasoning from understanding, not retrieving a memorized paragraph."}
+];
+
+// runtime ids
+TOPICS.forEach((t,i)=>t.id=i);
+
+const QUIZ_BANK = {
+  "Syntax & dynamic typing": {q:"What defines a code block in Python instead of braces?", options:["Semicolons","Indentation","Curly braces","Parentheses"], correct:1},
+  "Why training isn't the finish line": {q:"What comes after a model is trained, before it's truly 'done'?", options:["Nothing — training is the finish line","Packaging, serving, monitoring, and retraining","Just saving the file","Re-running the same training script"], correct:1},
+  "Core data structures": {q:"Which structure gives ~O(1) average lookup by key?", options:["list","tuple","dict","string"], correct:2},
+  "Inference vs training": {q:"Which phase is optimized primarily for low latency?", options:["Training","Inference","Data labeling","Neither"], correct:1},
+  "Functions & classes": {q:"What does Python use instead of strict interfaces for object compatibility?", options:["Duck typing","Abstract base classes only","Static typing","Header files"], correct:0},
+  "Containers & serving a model": {q:"What problem does containerizing a model mainly solve?", options:["Makes training faster","'Works on my machine' inconsistency across environments","Improves model accuracy","Removes the need for an API"], correct:1},
+  "List comprehensions": {q:"[x*2 for x in nums] is Python's concise way to do what?", options:["Filter a dict","Build a list via loop+expression in one line","Sort a list","Define a class"], correct:1},
+  "NumPy arrays & vectorized ops": {q:"Why is a vectorized NumPy operation usually much faster than a Python for-loop?", options:["It uses more RAM","It runs in compiled C under the hood","It skips validation","It uses the GPU automatically"], correct:1},
+  "Monitoring & drift": {q:"What is 'drift' in a deployed model?", options:["The model file moving on disk","Real-world data shifting away from training data over time","A bug in the training loop","GPU temperature rising"], correct:1},
+  "Pandas basics": {q:"Pandas is best suited for datasets that...", options:["Never fit in memory","Fit in memory and need exploratory speed","Are streamed in real time only","Have no tabular structure"], correct:1},
+
+  "Traditional programming vs ML": {q:"In traditional programming, who writes the rules?", options:["The model learns them from data","The developer writes them explicitly","Neither — rules are random","The compiler infers them"], correct:1},
+  "What 'training' means": {q:"Training a model means...", options:["Compiling source code","Repeatedly adjusting internal numbers to reduce prediction error","Writing unit tests","Deploying to production"], correct:1},
+  "Features & labels": {q:"The label is...", options:["An input the model sees","The answer the model is trying to predict","A type of loss function","A hyperparameter"], correct:1},
+  "Train / validation / test sets": {q:"Why keep a separate test set untouched until the very end?", options:["To save disk space","To get an honest, unbiased estimate of real-world performance","Because training requires it","It's not actually necessary"], correct:1},
+  "Overfitting vs underfitting": {q:"Train loss is low but validation loss is high. This is a sign of...", options:["Underfitting","Overfitting","Perfect fit","Data leakage only"], correct:1},
+  "Data leakage & bad splits": {q:"Data leakage causes evaluation results to be...", options:["Randomly noisy","Artificially better than real-world performance","Always worse than reality","Unaffected"], correct:1},
+
+  "Accuracy and its limits": {q:"On a dataset that's 99% non-fraud, a model that always predicts 'not fraud' gets what accuracy — and is it useful?", options:["50% accuracy, useful","99% accuracy, useless","0% accuracy, useless","99% accuracy, very useful"], correct:1},
+  "Precision vs recall": {q:"Recall measures...", options:["Of flagged positives, how many were correct","Of all actual positives, how many were caught","Overall correctness","Model training speed"], correct:1},
+  "When precision matters more": {q:"For a spam filter, why might you optimize for precision over recall?", options:["Missing real spam is worse than a false positive","Wrongly burying a real email is worse than letting some spam through","Precision is always better","Recall doesn't apply to spam"], correct:1},
+  "Fraud detection tradeoff": {q:"Fraud detection is usually optimized recall-first because...", options:["False alarms are more costly than missed fraud","Missing real fraud is costlier than a few false alarms","Precision and recall are the same thing","Accuracy is the only metric that matters"], correct:1},
+  "Confusion matrix": {q:"A confusion matrix shows...", options:["Loss over training epochs","Predicted vs actual outcomes","Learning rate schedule","Feature importances"], correct:1},
+  "Loss functions": {q:"Cross-entropy loss is typically used for...", options:["Regression tasks","Classification tasks","Clustering","Data augmentation"], correct:1},
+  "Reading train vs val loss together": {q:"Train loss 0.03, val loss 2.6 — what does this pattern indicate?", options:["Underfitting","Classic overfitting","Perfect generalization","Data leakage only"], correct:1},
+
+  "Neural network basics": {q:"A neural network is best described as...", options:["A single linear equation","Layers of simple units combined to approximate complex patterns","A lookup table","A sorting algorithm"], correct:1},
+  "Weights & activation functions": {q:"Why use ReLU as a default activation function?", options:["It's the most expensive to compute","Cheap and avoids vanishing gradients, though it can 'die' on negative inputs","It bounds output between 0 and 1 for probabilities","It has no drawbacks"], correct:1},
+  "Are activations quantized?": {q:"In optimized deployment, is it only the weights that get reduced to lower precision?", options:["Yes, only weights","No, activation outputs are quantized too","Neither is ever quantized","Only biases are quantized"], correct:1},
+  "Forward vs backward pass": {q:"The backward pass is when...", options:["Input flows to a prediction","Error flows back to adjust weights","The model is saved to disk","Data is loaded from disk"], correct:1},
+  "Learning rate effects": {q:"A learning rate that's too high typically causes...", options:["Training to crawl slowly","Training to overshoot and never settle","No effect at all","Faster convergence with no downsides"], correct:1},
+  "Batch size & epochs": {q:"Larger batch sizes generally give you...", options:["Slower, less stable updates","Faster, more stable gradient estimates but need more memory","No change in memory usage","Always better generalization"], correct:1},
+  "Dropout": {q:"Dropout helps prevent overfitting by...", options:["Adding more layers","Randomly turning off neurons during training","Increasing the learning rate","Removing the validation set"], correct:1},
+  "L1 vs L2 regularization": {q:"Which regularization can push weights to exactly zero, acting like feature selection?", options:["L2","L1","Dropout","Batch norm"], correct:1},
+  "Batch normalization": {q:"Batch normalization can hurt performance when...", options:["Batch sizes are very large","Batch sizes are very small, making batch statistics noisy","It's used with ReLU","Learning rate is low"], correct:1},
+  "Confidently wrong models": {q:"A model outputting high confidence on a wrong prediction is a sign of...", options:["Good accuracy","Poor calibration","Data leakage","Overfitting only"], correct:1},
+
+  "Linear & logistic regression": {q:"Logistic regression is typically used for...", options:["Regression only","Classification via a straight-line decision boundary","Image segmentation","Clustering"], correct:1},
+  "Decision trees & random forests": {q:"Random forests reduce overfitting compared to a single tree by...", options:["Using a bigger single tree","Combining predictions from many trees","Removing all splits","Ignoring the training data"], correct:1},
+  "Classical ML vs deep learning": {q:"Deep learning tends to win when data is...", options:["Small and structured","Unstructured (images/text/audio) and plentiful","Missing entirely","Only tabular"], correct:1},
+
+  "Images as data": {q:"An image is fundamentally represented as...", options:["A text string","A grid of numbers across height, width, and color channels","A single scalar value","A sound waveform"], correct:1},
+  "Convolution": {q:"Why does convolution use far fewer parameters than a fully-connected layer on images?", options:["It ignores the image entirely","It shares weights across the image (a sliding filter)","It uses more layers","It requires more memory"], correct:1},
+  "CNN architecture basics": {q:"In a CNN, pooling layers primarily...", options:["Increase image resolution","Shrink the data while convolution layers extract features","Add color channels","Replace convolution entirely"], correct:1},
+  "Transfer learning": {q:"Transfer learning is most useful when you have...", options:["Unlimited labeled data","Limited labeled data","No pretrained models available","A domain identical to nothing else"], correct:1},
+  "Data augmentation": {q:"A risky augmentation example is flipping a stop sign so its text reads backwards — why is this a problem?", options:["It's not a problem at all","It teaches the model something that doesn't reflect reality","It slows down training","It removes color information"], correct:1},
+  "Camera vs lidar vs radar": {q:"Which sensor directly measures velocity and works well in rain/fog/dark?", options:["Camera","Lidar","Radar","None of them"], correct:2},
+  "Why sensor fusion, not one sensor": {q:"Why do real AV/ADAS systems fuse camera, lidar, and radar instead of using one?", options:["It's cheaper than one sensor","Each sensor's weakness is covered by another's strength","Regulations require exactly three sensors","Fusion removes the need for calibration"], correct:1},
+
+  "Quantization — what it is": {q:"Quantization reduces a model's...", options:["Number of training epochs","Numeric precision of weights, to shrink size and speed it up","Dataset size","Number of layers"], correct:1},
+  "Quantization — a concrete example": {q:"Converting FP32 weights to INT8 typically uses...", options:["A random rounding scheme with no structure","A scale factor to map values, reversed at inference time","Deleting half the weights","Doubling the model size"], correct:1},
+  "FP32 & precision formats": {q:"Why train in FP32 but deploy in FP16/INT8?", options:["FP32 is faster for inference","FP32 gives numerical stability for training; lower precision trades some accuracy for speed at deployment","There's no difference between them","INT8 is used for training only"], correct:1},
+  "Inference optimization (TensorRT-style)": {q:"Tools like TensorRT mainly optimize a model for...", options:["Better training accuracy","Faster inference on target hardware","Larger model size","Slower but more interpretable predictions"], correct:1},
+
+  "Finding duplicates efficiently": {q:"A nested-loop duplicate check is O(n²); using a set/dict lookup brings it down to roughly...", options:["O(n!)","O(n log n)","O(n)","O(1)"], correct:2},
+  "How sets & dicts work internally": {q:"Sets and dicts achieve near-instant lookup because they're implemented as...", options:["Sorted arrays","Hash tables","Linked lists","Binary search trees"], correct:1},
+  "Running two slow functions together": {q:"For I/O-bound work in Python, threading/async works well despite the GIL because...", options:["The GIL blocks all I/O too","The GIL doesn't block while waiting on network/disk","Threads never share memory","I/O-bound work needs multiprocessing instead"], correct:1},
+  "Two-sum: brute force → optimized": {q:"The optimized two-sum solution uses a single pass with a dictionary of seen values, achieving...", options:["O(n²)","O(n log n)","O(n)","O(2^n)"], correct:2},
+
+  "Pick a dataset: KITTI vs nuScenes": {q:"Which dataset includes radar in addition to camera+lidar, closer to a real AV stack?", options:["KITTI","nuScenes","Neither","Both equally"], correct:1},
+  "Camera-only object detection baseline": {q:"Why build a camera-only detection baseline before adding fusion?", options:["Camera detection is the final goal","It proves the pipeline works end to end before adding complexity","Lidar and radar are not needed at all","It's required by law"], correct:1},
+  "Projecting lidar points onto the camera image": {q:"What is used to map 3D lidar points into 2D image coordinates?", options:["A random projection","Camera calibration matrices","The confusion matrix","Batch normalization"], correct:1},
+  "Fusing camera detections with lidar depth": {q:"In camera+lidar fusion, camera provides 'what' while lidar provides...", options:["Color texture","How far (depth/distance)","Velocity","Nothing useful"], correct:1},
+  "Adding radar for velocity": {q:"What can radar measure directly that camera and lidar cannot from a single frame?", options:["Color","Relative velocity via Doppler","Texture","Object class"], correct:1},
+  "Explaining the pipeline's failure modes": {q:"Being able to explain where a perception pipeline fails (occlusion, low light, sparse returns) demonstrates...", options:["Nothing useful for interviews","The live-reasoning skill the whole tracker is built around","Only theoretical knowledge","Memorized scripted answers"], correct:1},
+
+  "Blocked by upstream dependencies": {q:"When blocked by an upstream dependency, the best approach is to...", options:["Stay silent until it resolves itself","Communicate the risk early, escalate appropriately, and keep moving on what you control","Immediately drop the task entirely","Wait without informing anyone"], correct:1},
+  "Smooth handoffs across time zones": {q:"A smooth cross-timezone handoff mainly relies on...", options:["Being awake at all hours","Documenting state clearly enough for the next person to pick up without you","Avoiding all documentation","Assigning no one else to the task"], correct:1},
+  "Questions to ask the interviewer": {q:"Good closing questions in an interview mainly signal...", options:["That you have nothing else to say","Genuine engagement rather than a rehearsed close","That the interview is over","Lack of preparation"], correct:1},
+  "Explaining live vs reciting": {q:"The core meta-skill this tracker is built around is...", options:["Memorizing paragraphs to recite","Reasoning from understanding, live","Reading definitions verbatim","Avoiding follow-up questions"], correct:1}
+};
+
+// ===== Topic mastery state (persisted to localStorage) =====
+let state = {};
+TOPICS.forEach(t=>state[t.id]=0);
+
+let activePhase='all';
+let activeStatus='all';
+
+function levelOf(id){return state[id]||0}
+
+function saveState(){
+  localStorage.setItem('fnd-topic-levels', JSON.stringify(state));
+}
+
+function setLevel(id, lvl){
+  state[id] = (state[id]===lvl) ? 0 : lvl; // click again to clear
+  saveState();
+  renderTopicCard(id);
+  updateStats();
+  applyFilters();
+}
+
+function updateStats(){
+  const total = TOPICS.length;
+  let defined=0, explain=0, mastered=0;
+  TOPICS.forEach(t=>{
+    const l = levelOf(t.id);
+    if(l>=1) defined++;
+    if(l>=2) explain++;
+    if(l>=3) mastered++;
+  });
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-defined').textContent = defined;
+  document.getElementById('s-explain').textContent = explain;
+  document.getElementById('s-mastered').textContent = mastered;
+  document.getElementById('pbar').style.width = (mastered/total*100)+'%';
+}
+
+function buildPhaseFilters(){
+  const phases = [...new Set(TOPICS.map(t=>t.phase))];
+  const row = document.getElementById('phase-filters');
+  row.innerHTML = '<span class="filter-label">Phase:</span>';
+  const allBtn = document.createElement('button');
+  allBtn.className='filter-btn active';
+  allBtn.textContent='All';
+  allBtn.onclick=()=>{activePhase='all';refreshActive(row,allBtn);applyFilters();};
+  row.appendChild(allBtn);
+  phases.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn';
+    btn.textContent=p.split('—')[0].trim();
+    btn.onclick=()=>{activePhase=p;refreshActive(row,btn);applyFilters();};
+    row.appendChild(btn);
+  });
+}
+function refreshActive(row, btn){
+  row.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setStatusFilter(val, btn){
+  activeStatus=val;
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function toggleCard(id){
+  const body=document.getElementById('body'+id);
+  const chev=document.getElementById('chev'+id);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function renderTopicCard(id){
+  const t = TOPICS[id];
+  const lvl = levelOf(id);
+  const ring = document.getElementById('ring'+id);
+  const titleEl = document.getElementById('title'+id);
+  const card = document.getElementById('card'+id);
+  ring.setAttribute('data-lvl', lvl);
+  ring.textContent = lvl>=1 ? (lvl===3?'✓':lvl) : '';
+  titleEl.classList.toggle('mastered', lvl===3);
+  card.classList.toggle('mastered', lvl===3);
+  document.querySelectorAll('#ladder'+id+' .ladder-opt').forEach(opt=>{
+    const l = parseInt(opt.getAttribute('data-l'));
+    opt.classList.toggle('selected', l===lvl);
+  });
+}
+
+function render(){
+  buildPhaseFilters();
+  const container = document.getElementById('topics-container');
+  container.innerHTML='';
+  const phases = [...new Set(TOPICS.map(t=>t.phase))];
+  phases.forEach(phaseName=>{
+    const items = TOPICS.filter(t=>t.phase===phaseName);
+    const group = document.createElement('div');
+    group.className='phase-group';
+    group.setAttribute('data-phase', phaseName);
+    const header=document.createElement('div');
+    header.className='phase-header';
+    const safePhase = phaseName.replace(/'/g,"\\'");
+    header.innerHTML = `<span>${phaseName} <span class="pcount">(${items.length})</span></span><button class="quiz-phase-btn" id="${quizBtnId(phaseName)}" onclick="event.stopPropagation();openQuiz('${safePhase}')">Phase check</button>`;
+    group.appendChild(header);
+
+    const projectText = PHASE_PROJECTS[phaseName];
+    if(projectText){
+      const proj = document.createElement('div');
+      proj.className='phase-project';
+      proj.innerHTML = `<div class="plabel">Mini-project for this phase</div><p>${projectText}</p>`;
+      group.appendChild(proj);
+    }
+
+    items.forEach(t=>{
+      const card=document.createElement('div');
+      card.className='topic-card';
+      card.id='card'+t.id;
+      card.setAttribute('data-title', t.title.toLowerCase());
+      card.setAttribute('data-desc', t.desc.toLowerCase());
+
+      const qtag = t.q ? `<span class="qtag">${t.q}</span>` : '';
+      const skilltag = t.skill ? `<span class="skilltag">${t.skill}</span>` : '';
+      const tradeoffBox = t.tradeoff ? `<div class="tradeoff-box"><div class="tlabel">Decision & tradeoff</div><p>${t.tradeoff}</p></div>` : '';
+
+      card.innerHTML = `
+        <div class="topic-header" onclick="toggleCard(${t.id})">
+          <div class="ring" id="ring${t.id}" data-lvl="0"></div>
+          <div class="topic-title" id="title${t.id}">${t.title}</div>
+          ${qtag}${skilltag}
+          <span class="chev" id="chev${t.id}">&#8964;</span>
+        </div>
+        <div class="topic-body" id="body${t.id}">
+          <div class="topic-desc">${t.desc}</div>
+          ${tradeoffBox}
+          <div class="ladder" id="ladder${t.id}">
+            ${LADDER.map(o=>`
+              <div class="ladder-opt" data-l="${o.l}" onclick="event.stopPropagation();setLevel(${t.id},${o.l})">
+                <span class="ladder-dot"></span>${o.label}
+              </div>`).join('')}
+          </div>
+        </div>`;
+      group.appendChild(card);
+    });
+    container.appendChild(group);
+  });
+  TOPICS.forEach(t=>renderTopicCard(t.id));
+  updateStats();
+  applyFilters();
+}
+
+function applyFilters(){
+  const q = document.getElementById('search').value.toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll('.phase-group').forEach(group=>{
+    const phaseName = group.getAttribute('data-phase');
+    const phaseMatch = activePhase==='all' || phaseName===activePhase;
+    let groupHasVisible = false;
+    group.querySelectorAll('.topic-card').forEach(card=>{
+      const id = parseInt(card.id.replace('card',''));
+      const lvl = levelOf(id);
+      const statusMatch = activeStatus==='all'
+        || (activeStatus==='todo' && lvl===0)
+        || (activeStatus==='progress' && lvl>0 && lvl<3)
+        || (activeStatus==='mastered' && lvl===3);
+      const searchMatch = !q || card.getAttribute('data-title').includes(q) || card.getAttribute('data-desc').includes(q);
+      const show = phaseMatch && statusMatch && searchMatch;
+      card.classList.toggle('hidden', !show);
+      if(show){groupHasVisible=true; anyVisible=true;}
+    });
+    group.style.display = groupHasVisible ? 'block' : 'none';
+  });
+  let noResults = document.getElementById('no-results');
+  if(!anyVisible){
+    if(!noResults){
+      noResults=document.createElement('div');
+      noResults.id='no-results';
+      noResults.className='no-results';
+      noResults.textContent='No topics match.';
+      document.getElementById('topics-container').appendChild(noResults);
+    }
+    noResults.style.display='block';
+  } else if(noResults){ noResults.style.display='none'; }
+}
+
+// ===== Daily log (today's minutes + completed topics) =====
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+let dailyLog = {minutes:0, completedIds:[]};
+function saveDailyLog(){
+  localStorage.setItem('fnd-daily-log:'+todayStr(), JSON.stringify(dailyLog));
+}
+
+let quizResults = {};
+function saveQuizResults(){
+  localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults));
+}
+
+function openDailyLogModal(){
+  const body = document.getElementById('daily-modal-body');
+  body.innerHTML = TOPICS.map(t=>`
+    <label class="daily-check">
+      <input type="checkbox" ${dailyLog.completedIds.includes(t.id)?'checked':''} onchange="toggleDailyComplete(${t.id}, this.checked)">
+      ${t.title}
+    </label>`).join('');
+  const btn = document.getElementById('modal-save-btn');
+  btn.textContent = 'Save';
+  btn.classList.remove('saved');
+  document.getElementById('daily-modal-overlay').classList.add('open');
+}
+function toggleDailyComplete(id, checked){
+  if(checked){
+    if(!dailyLog.completedIds.includes(id)) dailyLog.completedIds.push(id);
+  } else {
+    dailyLog.completedIds = dailyLog.completedIds.filter(x=>x!==id);
+  }
+}
+function closeModal(){
+  document.getElementById('daily-modal-overlay').classList.remove('open');
+}
+function saveModalProgress(){
   saveDailyLog();
   const btn = document.getElementById('modal-save-btn');
   btn.textContent = 'Saved ✓';
   btn.classList.add('saved');
   showToast('Progress saved');
+  drawRings();
   setTimeout(closeModal, 700);
 }
 
@@ -405,12 +1047,30 @@ function markPassedQuizButtons(){
   });
 }
 
+// ===== Optional cross-device sync via a public Gist =====
+// Set GIST_RAW_URL to a raw.githubusercontent.com URL for a public gist JSON
+// file to pull shared state on load. Left empty by default — never put a
+// GitHub token in this file, since it's served publicly from GitHub Pages.
+const GIST_RAW_URL = '';
+function pullFromGist(){
+  if(!GIST_RAW_URL) return;
+  fetch(GIST_RAW_URL).then(r=>r.json()).then(data=>{
+    if(data.state){ state = Object.assign({}, state, data.state); saveState(); }
+    if(data.quizResults){ quizResults = Object.assign({}, quizResults, data.quizResults); saveQuizResults(); }
+    render();
+    markPassedQuizButtons();
+    drawRings();
+  }).catch(()=>{});
+}
+
 function init(){
   try{ const v = localStorage.getItem('fnd-topic-levels'); if(v) state = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-daily-log:'+todayStr()); if(v) dailyLog = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-quiz-results'); if(v) quizResults = JSON.parse(v); }catch(e){}
   render();
   markPassedQuizButtons();
+  drawRings();
+  updatePomoDisplay();
   pullFromGist(); // fetch latest cross-device state in the background, then re-render
 }
 
