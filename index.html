@@ -984,6 +984,7 @@ function levelOf(id){return state[id]||0}
 
 function saveState(){
   localStorage.setItem('fnd-topic-levels', JSON.stringify(state));
+  pushCloudState();
 }
 
 function setLevel(id, lvl){
@@ -1122,7 +1123,7 @@ function renderModalLadder(id){
 // no honest way to auto-grade free text or code. The "reveal, then check the
 // box yourself" pattern is deliberate: it only works if you're honest with it.
 let verifiedState = {};
-function saveVerified(){ localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); }
+function saveVerified(){ localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); pushCloudState(); }
 
 function toggleVerifyCheck(id, kind, checked){
   if(!verifiedState[id]) verifiedState[id] = {};
@@ -1289,6 +1290,7 @@ function saveDailyLog(){
 let quizResults = {};
 function saveQuizResults(){
   localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults));
+  pushCloudState();
 }
 
 function openDailyLogModal(){
@@ -1548,6 +1550,40 @@ function init(){
     if(coll) coll.classList.add('collapsed');
   }
   importFromGist(); // one-way pull of a shared snapshot, if configured, then re-render
+  // Deliberately not pushing local state to the cloud here. The cloud
+  // listener (module script below) delivers the real synced data shortly
+  // after load — pushing local state first would race it and can overwrite
+  // real cloud data with an empty/stale local copy on a fresh device. The
+  // cloud doc gets seeded naturally the first time you actually change
+  // something (setLevel/quiz/verify already call pushCloudState()).
+}
+
+// ===== Real-time cross-device sync (Firestore) =====
+// The actual Firebase calls live in a separate <script type="module"> below
+// (module imports don't work in a classic script), which exposes
+// window.__cloudSync.push(data) and calls window.applyCloudState(data) here
+// whenever another device's change arrives. Both directions degrade to a
+// no-op if the module hasn't loaded yet (e.g. slow network) — sync is a
+// bonus layer on top of localStorage, never a requirement for the tracker
+// to work.
+function pushCloudState(){
+  if(window.__cloudSync) window.__cloudSync.push({state, quizResults, verifiedState});
+}
+
+function applyCloudState(data){
+  let changed = false;
+  if(data.state){ state = data.state; localStorage.setItem('fnd-topic-levels', JSON.stringify(state)); changed = true; }
+  if(data.quizResults){ quizResults = data.quizResults; localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults)); changed = true; }
+  if(data.verifiedState){ verifiedState = data.verifiedState; localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); changed = true; }
+  if(!changed) return;
+  if(document.getElementById('main-wrap').style.display === 'none') return; // still on the lock screen — nothing to refresh yet
+  render();
+  markPassedQuizButtons();
+  if(currentModalTopicId !== null){
+    renderModalLadder(currentModalTopicId);
+    renderVerifySection(TOPICS[currentModalTopicId]);
+  }
+  showToast('Synced from another device');
 }
 
 const SITE_PASSWORD = '221625';
@@ -1586,6 +1622,52 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
+</script>
+
+<script type="module">
+  // Cross-device sync via Firestore. This is intentionally a separate
+  // <script type="module"> — ES module imports only work inside a module
+  // script, and the rest of the page is a classic script full of inline
+  // onclick="..." handlers that need real global functions, which modules
+  // don't expose automatically. This module talks to the main script only
+  // through two agreed points: it calls window.applyCloudState(data) when a
+  // remote change arrives, and it exposes window.__cloudSync.push(data) for
+  // the main script to call whenever local state changes.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqahtOdSPQ7a-OuGmWDUnTX_k2CpI-Kns",
+    authDomain: "foundation-tracker-a9df8.firebaseapp.com",
+    projectId: "foundation-tracker-a9df8",
+    storageBucket: "foundation-tracker-a9df8.firebasestorage.app",
+    messagingSenderId: "764097304393",
+    appId: "1:764097304393:web:6c7d1b27ed6798f344ec98"
+  };
+
+  // A random, unpublished document id acts as the "sync key" — same casual
+  // security model as the page password: not a real secret, fine for a
+  // personal, non-sensitive learning tracker. Firestore security rules also
+  // restrict all access to exactly this one document, nothing else in the
+  // project is reachable even if someone found this id.
+  const SYNC_DOC_ID = "744983b0-2033-4a77-9a11-796169ca5bad";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const syncRef = doc(db, "sync", SYNC_DOC_ID);
+
+  window.__cloudSync = {
+    push(data){
+      setDoc(syncRef, { ...data, updatedAt: Date.now() }, { merge: true }).catch(()=>{});
+    }
+  };
+
+  onSnapshot(syncRef, snap => {
+    if(snap.metadata.hasPendingWrites) return; // this device's own optimistic write echoing back — skip
+    if(snap.exists() && window.applyCloudState){
+      window.applyCloudState(snap.data());
+    }
+  });
 </script>
 </body>
 </html>
