@@ -57,31 +57,6 @@
     margin-bottom:22px;
   }
 
-  /* ===== Feedback strip ===== */
-  .feedback-card{
-    background:var(--board-panel);
-    border:1px solid var(--rule);
-    border-left:3px solid var(--coral);
-    border-radius:4px;
-    padding:14px 18px;
-    margin-bottom:26px;
-    box-shadow:0 1px 3px rgba(30,43,36,0.05);
-  }
-  .feedback-card .ftitle{
-    font-family:'Space Mono',monospace;
-    font-size:13px;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color:var(--coral);
-    margin-bottom:6px;
-  }
-  .feedback-card p{
-    font-size:16.5px;
-    color:var(--chalk-dim2);
-    line-height:1.6;
-  }
-  .feedback-card b{color:var(--chalk);font-weight:600}
-
   /* ===== Today: rings + pomodoro ===== */
   .today-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
   .today-card{
@@ -458,14 +433,9 @@
 
 <div class="wrap" id="main-wrap" style="display:none">
 
-  <div class="eyebrow">Personal tracker · self-paced</div>
+  <div class="eyebrow">Visual progress tracker · self-paced</div>
   <h1>Judgment, not <em>a script.</em></h1>
   <p class="subtitle">Every topic between you and a Perception Engineer role — Python and MLOps interleaved from day one, through core ML, computer vision, and a real camera+lidar+radar capstone. No fixed days. Move the moment you can actually reason about a tradeoff, not just recite a definition.</p>
-
-  <div class="feedback-card">
-    <div class="ftitle">Why this tracker exists</div>
-    <p>Last round of feedback: <b>limited grasp of MLOps concepts</b>, needed questions <b>repeated or rephrased</b> before answering, and answers felt <b>scripted</b> — reused across different questions instead of reasoned live. Every topic here now pairs a definition with a <b>decision & tradeoff</b>: what you'd choose, why, and what breaks if you choose wrong — because on the job, picking the right approach matters more than reciting how any one approach works.</p>
-  </div>
 
   <div class="today-row">
     <div class="today-card">
