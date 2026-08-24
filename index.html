@@ -29,7 +29,72 @@
     min-height:100vh;
     padding:2.5rem 1.25rem 4rem;
   }
-  .wrap{max-width:900px;margin:0 auto}
+  /* ===== 3-panel dashboard layout ===== */
+  .dashboard{
+    max-width:1360px;margin:0 auto;
+    display:grid;
+    grid-template-columns:220px 1fr 300px;
+    grid-template-areas:
+      "topbar topbar topbar"
+      "leftnav main rightbar";
+    gap:8px 28px;
+    align-items:start;
+  }
+  .topbar{
+    grid-area:topbar;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    padding-bottom:16px;margin-bottom:8px;
+    border-bottom:1px solid var(--rule);
+  }
+  .topbar-brand{
+    font-family:'Fraunces',serif;font-weight:600;font-size:20px;
+    display:flex;align-items:center;gap:8px;color:var(--chalk);
+  }
+  .topbar-mark{color:var(--blue)}
+  .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .topbar-actions .search-box{width:210px}
+
+  .leftnav{grid-area:leftnav;display:flex;flex-direction:column;gap:2px;position:sticky;top:20px}
+  .main-panel{grid-area:main;min-width:0}
+  .rightbar{grid-area:rightbar;display:flex;flex-direction:column;gap:14px;position:sticky;top:20px}
+
+  .phase-nav-item{
+    display:block;width:100%;text-align:left;
+    background:transparent;border:1px solid transparent;border-radius:6px;
+    padding:8px 10px;cursor:pointer;color:var(--chalk-dim2);
+  }
+  .phase-nav-item:hover{background:var(--board-panel)}
+  .phase-nav-item.active{background:var(--board-panel);border-color:var(--rule)}
+  .pn-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .pn-code{font-family:'Space Mono',monospace;font-size:12px;font-weight:500;color:var(--chalk-dim2)}
+  .phase-nav-item.active .pn-code{color:var(--chalk);font-weight:700}
+  .pn-progress{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--chalk-dim2)}
+  .phase-nav-item.active .pn-progress{color:var(--blue)}
+  .pn-name{font-size:11px;color:var(--chalk-dim2);margin-top:2px;line-height:1.3}
+
+  .mobile-only{display:none}
+  .mobile-collapse-btn{
+    font-family:'Space Mono',monospace;font-size:12px;color:var(--blue);
+    background:none;border:none;cursor:pointer;padding:8px 0;margin-bottom:4px;
+  }
+
+  @media(max-width:1024px){
+    .dashboard{
+      grid-template-columns:1fr;
+      grid-template-areas:
+        "topbar"
+        "rightbar"
+        "leftnav"
+        "main";
+      gap:20px;
+    }
+    .leftnav{position:static;flex-direction:column}
+    .rightbar{position:static;flex-direction:row;flex-wrap:wrap}
+    .rightbar .today-card{flex:1;min-width:220px}
+    .rightbar .stats-row{flex-basis:100%}
+    .mobile-only{display:block}
+    #mobile-collapsible.collapsed{display:none}
+  }
 
   /* ===== Header ===== */
   .eyebrow{
@@ -58,14 +123,11 @@
   }
 
   /* ===== Today: rings + pomodoro ===== */
-  .today-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
   .today-card{
     background:var(--board-panel);
     border:1px solid var(--rule);
     border-radius:8px;
     padding:16px;
-    flex:1;
-    min-width:220px;
     box-shadow:0 1px 3px rgba(30,43,36,0.05);
   }
   .tcard-title{
@@ -78,7 +140,6 @@
   .pomo-display{font-family:'Fraunces',serif;font-size:39px;font-weight:600;color:var(--yellow);text-align:center;margin-bottom:2px}
   .pomo-mode-label{text-align:center;font-size:13.5px;color:var(--chalk-dim2);margin-bottom:12px}
   .pomo-controls{display:flex;gap:8px;justify-content:center}
-  .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
 
   .pomo-btn{
     font-family:'Space Mono',monospace;font-size:13.5px;padding:8px 14px;border-radius:6px;
@@ -92,12 +153,9 @@
   /* ===== Stats ===== */
   .stats-row{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:8px;
-    margin-bottom:24px;
-  }
-  @media(max-width:380px){
-    .stats-row{grid-template-columns:repeat(2,1fr)}
+    margin-bottom:0;
   }
   .stat-card{
     background:var(--board-panel);
@@ -116,7 +174,6 @@
   .progress-fill{background:linear-gradient(90deg,var(--blue),var(--green-ok));height:100%;border-radius:99px;transition:width .4s}
 
   /* ===== Controls ===== */
-  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center}
   .search-box{
     flex:1;min-width:200px;
     background:var(--board-panel);
@@ -431,13 +488,51 @@
   </div>
 </div>
 
-<div class="wrap" id="main-wrap" style="display:none">
+<div class="dashboard" id="main-wrap" style="display:none">
 
-  <div class="eyebrow">Visual progress tracker · self-paced</div>
-  <h1>Judgment, not <em>a script.</em></h1>
-  <p class="subtitle">Every topic between you and a Perception Engineer role — Python and MLOps interleaved from day one, through core ML, computer vision, and a real camera+lidar+radar capstone. No fixed days. Move the moment you can actually reason about a tradeoff, not just recite a definition.</p>
+  <div class="topbar">
+    <div class="topbar-brand"><span class="topbar-mark">&#9670;</span> AI/ML Roadmap</div>
+    <div class="topbar-actions">
+      <input class="search-box" id="search" type="text" placeholder="Search topics..." oninput="applyFilters()">
+      <button class="pomo-btn primary" onclick="openDailyLogModal()">Log today's progress</button>
+      <button class="pomo-btn" onclick="openDailyQuiz()">Today's check-in quiz</button>
+    </div>
+  </div>
 
-  <div class="today-row">
+  <nav class="leftnav" id="phase-nav-list"></nav>
+
+  <main class="main-panel">
+    <h1>Judgment, not <em>a script.</em></h1>
+    <p class="subtitle">Every topic between you and a Perception Engineer role — Python and MLOps interleaved from day one, through core ML, computer vision, and a real camera+lidar+radar capstone. No fixed days. Move the moment you can actually reason about a tradeoff, not just recite a definition.</p>
+
+    <button class="mobile-only mobile-collapse-btn" onclick="collapseMobileTopics()">&larr; Back to overview</button>
+
+    <div id="mobile-collapsible">
+      <div class="filter-row" id="status-filters">
+        <span class="filter-label">Status:</span>
+        <button class="filter-btn active" onclick="setStatusFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setStatusFilter('todo',this)">Not started</button>
+        <button class="filter-btn" onclick="setStatusFilter('progress',this)">In progress</button>
+        <button class="filter-btn" onclick="setStatusFilter('mastered',this)">Can defend live</button>
+      </div>
+      <div class="filter-row" id="core-filter-row">
+        <span class="filter-label">Scope:</span>
+        <button class="filter-btn" id="core-toggle-btn" onclick="toggleCoreOnly()">Core path only</button>
+        <span class="core-hint">Hides Extended topics (RNNs/transformers, deep TensorRT tuning, A/B testing, segmentation, radar) — go deep on the core sequence first, come back for these later.</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="topics-container"></div>
+    </div>
+
+    <footer>
+      Progress is saved to this browser (localStorage) — it persists across reloads on this device.<br>
+      Phase order tracks the roadmap
+    </footer>
+  </main>
+
+  <aside class="rightbar">
     <div class="today-card">
       <div class="tcard-title">Today's activity</div>
       <div class="rings-wrap">
@@ -458,47 +553,17 @@
         <button class="pomo-btn" onclick="pomoReset()">Reset</button>
       </div>
     </div>
-  </div>
 
-  <div class="today-actions">
-    <button class="pomo-btn primary" onclick="openDailyLogModal()">Log today's progress</button>
-    <button class="pomo-btn" onclick="openDailyQuiz()">Today's check-in quiz</button>
-  </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">topics tracked</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can explain</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can implement</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can diagnose</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+    <div class="readiness-line" id="readiness-line"></div>
+  </aside>
 
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">topics tracked</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can explain</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can implement</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can diagnose</div></div>
-  </div>
-  <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
-  <div class="readiness-line" id="readiness-line"></div>
-
-  <div class="controls">
-    <input class="search-box" id="search" type="text" placeholder="Search topics..." oninput="applyFilters()">
-  </div>
-  <div class="filter-row" id="phase-filters"></div>
-  <div class="filter-row" id="status-filters">
-    <span class="filter-label">Status:</span>
-    <button class="filter-btn active" onclick="setStatusFilter('all',this)">All</button>
-    <button class="filter-btn" onclick="setStatusFilter('todo',this)">Not started</button>
-    <button class="filter-btn" onclick="setStatusFilter('progress',this)">In progress</button>
-    <button class="filter-btn" onclick="setStatusFilter('mastered',this)">Can defend live</button>
-  </div>
-  <div class="filter-row" id="core-filter-row">
-    <span class="filter-label">Scope:</span>
-    <button class="filter-btn" id="core-toggle-btn" onclick="toggleCoreOnly()">Core path only</button>
-    <span class="core-hint">Hides Extended topics (RNNs/transformers, deep TensorRT tuning, A/B testing, segmentation, radar) — go deep on the core sequence first, come back for these later.</span>
-  </div>
-
-  <div class="divider"></div>
-
-  <div id="topics-container"></div>
-
-  <footer>
-    Progress is saved to this browser (localStorage) — it persists across reloads on this device.<br>
-    Built from your interview question list · Phase order tracks the roadmap
-  </footer>
 </div>
 
 <div class="modal-overlay" id="daily-modal-overlay">
@@ -972,28 +1037,47 @@ function updateStats(){
   document.getElementById('pbar').style.width = coreReadiness+'%';
   document.getElementById('readiness-line').textContent =
     `Core readiness: ${coreReadiness}%  ·  Extended: ${extReadiness}%`;
+
+  buildPhaseNav(); // refresh per-phase progress counts in the sidebar
 }
 
-function buildPhaseFilters(){
+function buildPhaseNav(){
+  const container = document.getElementById('phase-nav-list');
+  if(!container) return;
   const phases = PHASE_ORDER.filter(p=>TOPICS.some(t=>t.phase===p));
-  const row = document.getElementById('phase-filters');
-  row.innerHTML = '<span class="filter-label">Phase:</span>';
-  const allBtn = document.createElement('button');
-  allBtn.className='filter-btn active';
-  allBtn.textContent='All';
-  allBtn.onclick=()=>{activePhase='all';refreshActive(row,allBtn);applyFilters();};
-  row.appendChild(allBtn);
+  let html = `<button class="phase-nav-item ${activePhase==='all'?'active':''}" onclick="setPhaseNav('all')">
+    <div class="pn-top"><span class="pn-code">All phases</span></div>
+  </button>`;
   phases.forEach(p=>{
-    const btn=document.createElement('button');
-    btn.className='filter-btn';
-    btn.textContent=p.split('—')[0].trim();
-    btn.onclick=()=>{activePhase=p;refreshActive(row,btn);applyFilters();};
-    row.appendChild(btn);
+    const items = TOPICS.filter(t=>t.phase===p);
+    const mastered = items.filter(t=>levelOf(t.id)===3).length;
+    const code = p.split('—')[0].trim();
+    const name = p.includes('—') ? p.split('—')[1].trim() : '';
+    const safe = p.replace(/'/g,"\\'");
+    html += `<button class="phase-nav-item ${activePhase===p?'active':''}" onclick="setPhaseNav('${safe}')">
+      <div class="pn-top"><span class="pn-code">${code}</span><span class="pn-progress">${mastered}/${items.length}</span></div>
+      <div class="pn-name">${name}</div>
+    </button>`;
   });
+  container.innerHTML = html;
 }
-function refreshActive(row, btn){
-  row.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+
+function setPhaseNav(phase){
+  activePhase = phase;
+  buildPhaseNav();
+  applyFilters();
+  const coll = document.getElementById('mobile-collapsible');
+  if(coll){
+    coll.classList.remove('collapsed');
+    if(window.innerWidth <= 1024) coll.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function collapseMobileTopics(){
+  const coll = document.getElementById('mobile-collapsible');
+  if(coll) coll.classList.add('collapsed');
+  const nav = document.querySelector('.leftnav');
+  if(nav) nav.scrollIntoView({behavior:'smooth'});
 }
 function setStatusFilter(val, btn){
   activeStatus=val;
@@ -1121,7 +1205,7 @@ function renderTopicCard(id){
 }
 
 function render(){
-  buildPhaseFilters();
+  buildPhaseNav();
   const container = document.getElementById('topics-container');
   container.innerHTML='';
   const phases = PHASE_ORDER.filter(p=>TOPICS.some(t=>t.phase===p));
@@ -1472,6 +1556,13 @@ function init(){
   markPassedQuizButtons();
   drawRings();
   updatePomoDisplay();
+  // On mobile, start collapsed to a fast, glanceable overview — the full
+  // topic list only loads in once you tap a phase, since studying on a
+  // phone isn't the point here, checking progress is.
+  if(window.innerWidth <= 1024){
+    const coll = document.getElementById('mobile-collapsible');
+    if(coll) coll.classList.add('collapsed');
+  }
   importFromGist(); // one-way pull of a shared snapshot, if configured, then re-render
 }
 
@@ -1483,7 +1574,7 @@ function tryUnlock(){
   if(input.value === SITE_PASSWORD){
     sessionStorage.setItem('fnd-unlocked', 'true');
     document.getElementById('lock-overlay').style.display = 'none';
-    document.getElementById('main-wrap').style.display = 'block';
+    document.getElementById('main-wrap').style.removeProperty('display');
     init();
   } else {
     err.textContent = 'Incorrect password';
@@ -1498,7 +1589,7 @@ document.getElementById('lock-input').addEventListener('keydown', e=>{
 
 if(sessionStorage.getItem('fnd-unlocked') === 'true'){
   document.getElementById('lock-overlay').style.display = 'none';
-  document.getElementById('main-wrap').style.display = 'block';
+  document.getElementById('main-wrap').style.removeProperty('display');
   init();
 } else {
   document.getElementById('lock-input').focus();
