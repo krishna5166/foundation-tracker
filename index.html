@@ -107,6 +107,37 @@
   .resume-field-label{font-family:'Space Mono',monospace;font-size:10.5px;text-transform:uppercase;color:var(--chalk-dim2);margin-bottom:4px}
   .resume-field-value{font-size:14.5px;line-height:1.5;color:var(--chalk-dim);white-space:pre-wrap;overflow-wrap:anywhere}
   .warmup-card{padding:16px 18px;background:var(--board-panel);border:1px solid var(--rule);border-radius:8px}
+  .today-project-card{
+    width:100%;text-align:left;background:var(--board-panel);border:1px solid var(--yellow);
+    border-radius:8px;padding:18px;cursor:pointer;color:var(--chalk);
+  }
+  .today-project-card:hover{border-color:var(--blue)}
+  .today-project-card .today-sublabel{margin:5px 0 0;font-size:14px}
+  .xp-rank-line{padding:10px 2px 0;color:var(--chalk-dim2);font-family:'Space Mono',monospace;font-size:11.5px}
+  .xp-rank-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .xp-rank-track{height:3px;background:var(--rule);border-radius:99px;overflow:hidden}
+  .xp-rank-fill{height:100%;background:var(--blue);border-radius:99px}
+  .projects-view{grid-column:1/-1;width:100%;max-width:980px;margin:18px auto 0}
+  .projects-heading{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin-bottom:6px}
+  .projects-intro{color:var(--chalk-dim);line-height:1.55;margin-bottom:20px}
+  .project-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .project-list-card{background:var(--board-panel);border:1px solid var(--rule);border-radius:8px;padding:16px}
+  .project-list-card h3{font-family:'Fraunces',serif;font-size:19px;margin-bottom:5px}
+  .project-phase,.project-status{font-family:'Space Mono',monospace;font-size:11px;color:var(--chalk-dim2);margin-bottom:8px}
+  .project-card-copy{font-size:14px;color:var(--chalk-dim);line-height:1.5;margin-bottom:10px}
+  .remaining-modules{padding-left:18px;color:var(--chalk-dim);font-size:13.5px;line-height:1.5;margin:8px 0 12px}
+  .project-milestones{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+  .project-milestone{border:1px solid var(--rule);border-radius:7px;padding:12px;background:var(--board-panel)}
+  .project-milestone.current{border-color:var(--blue);background:var(--board)}
+  .project-milestone.future{opacity:.5}
+  .project-milestone summary{cursor:pointer;font-weight:600}
+  .artifact-note{font-size:14px;color:var(--chalk-dim);line-height:1.5;margin-top:8px;white-space:pre-wrap}
+  .blocked-panel{padding:14px;border:1px solid var(--rule);border-radius:7px;background:var(--board-panel);margin:12px 0}
+  .project-gate{padding:14px;border-left:3px solid var(--yellow);background:var(--board-panel);border-radius:5px;margin:12px 0}
+  .project-deep-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+  .project-deep-option{display:flex;align-items:flex-start;gap:8px;font-size:14px;color:var(--chalk-dim)}
+  .project-deep-option input{margin-top:3px;accent-color:var(--blue)}
+  @media(max-width:700px){.project-list{grid-template-columns:1fr}}
   @media(max-width:600px){
     .resume-fields{grid-template-columns:1fr}
     .today-primary{padding:18px}
@@ -630,12 +661,19 @@
       <button class="app-tab active" id="tab-today" onclick="showAppView('today')">Today</button>
       <button class="app-tab" id="tab-learn" onclick="openLearnView()">Learn</button>
       <button class="app-tab" id="review-button" onclick="openReviewView()">Review (0)</button>
+      <button class="app-tab" id="tab-projects" onclick="showAppView('projects')">Projects</button>
       <button class="app-tab" id="tab-roadmap" onclick="showAppView('roadmap')">Roadmap</button>
     </div>
   </div>
 
   <section class="today-view" id="today-view">
     <div class="today-stack" id="today-content"></div>
+  </section>
+
+  <section class="projects-view" id="projects-view" hidden>
+    <div class="projects-heading">Projects</div>
+    <div class="projects-intro">Build evidence through milestones, boss challenges, and short postmortems.</div>
+    <div class="project-list" id="projects-content"></div>
   </section>
 
   <nav class="leftnav roadmap-surface" id="phase-nav-list" hidden></nav>
@@ -755,6 +793,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="project-modal-overlay">
+  <div class="modal-box review-modal-box">
+    <div class="modal-header">
+      <h3 id="project-modal-title">Project</h3>
+      <button class="modal-close" onclick="closeProjectDetail()">&times;</button>
+    </div>
+    <div id="project-modal-root"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -766,6 +814,11 @@
 // source later means changing only this one function's body.
 let PHASE_PROJECTS = {};
 let PHASE_ORDER = [];
+let PHASES = [];
+let PROJECTS = [];
+let PROJECTS_BY_ID = new Map();
+let PHASE_BOSSES = [];
+let PHASE_BOSSES_BY_ID = new Map();
 let TOPICS = [];
 let TOPICS_BY_ID = new Map();
 let CURRICULUM_META = {};
@@ -820,6 +873,17 @@ async function initCurriculumData(){
 
   CURRICULUM_META = curriculum.meta || {};
   const sortedPhases = [...curriculum.phases].sort((a,b)=>a.order-b.order);
+  PHASES = sortedPhases.map(phase=>({
+    id:phase.id,
+    order:phase.order,
+    title:phase.title,
+    project:phase.project ? Object.assign({phaseId:phase.id,phaseOrder:phase.order,phaseTitle:phase.title}, phase.project) : null,
+    boss:phase.boss ? Object.assign({phaseId:phase.id,phaseOrder:phase.order,phaseTitle:phase.title}, phase.boss) : null
+  }));
+  PROJECTS = PHASES.filter(phase=>phase.project).map(phase=>phase.project);
+  PROJECTS_BY_ID = new Map(PROJECTS.map(project=>[project.id, project]));
+  PHASE_BOSSES = PHASES.filter(phase=>phase.boss).map(phase=>phase.boss);
+  PHASE_BOSSES_BY_ID = new Map(PHASE_BOSSES.map(boss=>[boss.phaseId, boss]));
   PHASE_ORDER = sortedPhases.map(phaseLabel);
   PHASE_PROJECTS = {};
   TOPICS = [];
@@ -888,8 +952,10 @@ function toggleCoreOnly(){
 const REVIEW_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30];
 const MAX_DAILY_REVIEWS = 5;
 const APP_STATE_KEY = 'appState';
-let appState = {lastActiveTopicId:null, lastActiveAt:null};
+const XP_EVENTS_KEY = 'xpEvents';
+let appState = {lastActiveTopicId:null, lastActiveAt:null, xpTotal:0, currentRank:null};
 let comebackPending = false;
+let comebackRewardPending = false;
 
 function defaultProgressRecord(topicId, depth){
   return {
@@ -910,9 +976,120 @@ function defaultProgressRecord(topicId, depth){
     helpLevels: { highestUsedEver: 0, log: [] },
     rebuild: { required:false, reason:null, completedAt:null },
     attemptCounts: { independent:0, assisted:0 },
+    stuckAttempts: [],
     review: { nextDueAt:null, history:[], currentRung:0 },
     lastStudiedAt: null
   };
+}
+
+// ===== Projects and boss progress =====
+// Curriculum definitions stay immutable; these additive records contain only
+// the learner's state and can be replaced with another persistence boundary.
+function defaultProjectProgress(project){
+  return {
+    projectId: project.id,
+    status: 'not-started',
+    startedAt: null,
+    currentMilestoneIndex: 0,
+    milestones: [],
+    blocked: {isBlocked:false, reason:null},
+    boss: {attempted:false, passed:false, notes:null, completedAt:null},
+    postmortem: null,
+    nextAction: (project.milestones && project.milestones[0]) || ''
+  };
+}
+
+function getProjectProgress(projectId){
+  const project = PROJECTS_BY_ID.get(projectId);
+  if(!project) return null;
+  let stored = null;
+  try{
+    const raw = localStorage.getItem('projectProgress:' + projectId);
+    if(raw) stored = JSON.parse(raw);
+  } catch(e){ stored = null; }
+  const fallback = defaultProjectProgress(project);
+  const record = Object.assign({}, fallback, stored || {});
+  record.milestones = Array.isArray(record.milestones) ? record.milestones : [];
+  record.blocked = Object.assign({}, fallback.blocked, record.blocked || {});
+  record.boss = Object.assign({}, fallback.boss, record.boss || {});
+  record.currentMilestoneIndex = Math.max(0, Math.min(
+    project.milestones.length,
+    Number.isInteger(record.currentMilestoneIndex) ? record.currentMilestoneIndex : record.milestones.length
+  ));
+  if(record.blocked.isBlocked) record.status = 'blocked';
+  else if(record.status === 'blocked') record.status = 'active';
+  if(!['not-started','active','blocked','complete'].includes(record.status)) record.status = 'not-started';
+  return record;
+}
+
+function saveProjectProgress(record){
+  localStorage.setItem('projectProgress:' + record.projectId, JSON.stringify(record));
+}
+
+function defaultBossProgress(){
+  return {passed:false, notes:null, completedAt:null};
+}
+
+function getBossProgress(phaseId){
+  if(!PHASE_BOSSES_BY_ID.has(phaseId)) return null;
+  let stored = null;
+  try{
+    const raw = localStorage.getItem('bossProgress:' + phaseId);
+    if(raw) stored = JSON.parse(raw);
+  } catch(e){ stored = null; }
+  return Object.assign(defaultBossProgress(), stored || {});
+}
+
+function saveBossProgress(phaseId, record){
+  localStorage.setItem('bossProgress:' + phaseId, JSON.stringify(record));
+}
+
+function projectProgressSnapshot(projects){
+  const snapshot = {};
+  (projects || PROJECTS).forEach(project=>{ snapshot[project.id] = getProjectProgress(project.id); });
+  return snapshot;
+}
+
+function bossProgressSnapshot(bosses){
+  const snapshot = {};
+  (bosses || PHASE_BOSSES).forEach(boss=>{ snapshot[boss.phaseId] = getBossProgress(boss.phaseId); });
+  return snapshot;
+}
+
+function phaseTopicsFor(phaseId, topics){
+  return (topics || TOPICS).filter(topic=>topic.phaseId === phaseId);
+}
+
+// Availability is intentionally a recommendation, not a hard lock.
+function isProjectAvailable(project, topics, progressById){
+  const phaseTopics = phaseTopicsFor(project.phaseId, topics);
+  return phaseTopics.length > 0 && phaseTopics.every(topic=>{
+    const progress = progressById[topic.id];
+    return progress && progress.masteryLevel >= 2;
+  });
+}
+
+function isBossAvailable(boss, topics, progressById){
+  const phaseTopics = phaseTopicsFor(boss.phaseId, topics);
+  return phaseTopics.length > 0 && phaseTopics.every(topic=>{
+    const progress = progressById[topic.id];
+    return progress && progress.masteryLevel >= 2;
+  });
+}
+
+function phaseTopicsAtTargetMastery(phaseId, topics, progressById){
+  const phaseTopics = phaseTopicsFor(phaseId, topics);
+  return phaseTopics.length > 0 && phaseTopics.every(topic=>{
+    const progress = progressById[topic.id];
+    return progress && progress.masteryLevel >= targetMasteryForTopic(topic);
+  });
+}
+
+function remainingPhaseModules(phaseId, topics, progressById){
+  return phaseTopicsFor(phaseId, topics).filter(topic=>{
+    const progress = progressById[topic.id];
+    return !progress || progress.masteryLevel < 2;
+  });
 }
 
 function containsLegacyLadderEvidence(record){
@@ -948,6 +1125,7 @@ function getTopicProgress(topicId){
   if(!Array.isArray(record.helpLevels.log)) record.helpLevels.log = [];
   record.rebuild = Object.assign({}, fallback.rebuild, record.rebuild || {});
   record.attemptCounts = Object.assign({}, fallback.attemptCounts, record.attemptCounts || {});
+  if(!Array.isArray(record.stuckAttempts)) record.stuckAttempts = [];
   record.review = Object.assign({}, fallback.review, record.review || {});
   if(!Array.isArray(record.review.history)) record.review.history = [];
   if(!Number.isInteger(record.review.currentRung)) record.review.currentRung = 0;
@@ -973,15 +1151,147 @@ function loadAppState(){
   } catch(e){ stored = null; }
   appState = {
     lastActiveTopicId: stored && typeof stored.lastActiveTopicId === 'string' ? stored.lastActiveTopicId : null,
-    lastActiveAt: stored && stored.lastActiveAt ? stored.lastActiveAt : null
+    lastActiveAt: stored && stored.lastActiveAt ? stored.lastActiveAt : null,
+    xpTotal: stored && Number.isFinite(stored.xpTotal) ? Math.max(0, Math.round(stored.xpTotal)) : 0,
+    currentRank: stored && typeof stored.currentRank === 'string' ? stored.currentRank : null
   };
 }
 
 function saveAppState(){
   localStorage.setItem(APP_STATE_KEY, JSON.stringify({
     lastActiveTopicId: appState.lastActiveTopicId,
-    lastActiveAt: appState.lastActiveAt
+    lastActiveAt: appState.lastActiveAt,
+    xpTotal: appState.xpTotal,
+    currentRank: appState.currentRank
   }));
+}
+
+const XP_TABLE_LABELS = {
+  'focus-block':'Start and protect one focus block',
+  'closed-source-recall':'Closed-source recall',
+  'prediction':'Prediction before execution',
+  'independent-build':'Independent build',
+  'break-and-diagnose':'Intentional break plus diagnosis',
+  'curveball':'Curveball solved',
+  'project-milestone':'Project milestone shipped',
+  'boss':'Boss battle passed',
+  'resume-note':'Resume note'
+};
+const FIXED_XP_AMOUNTS = {
+  'retrieval-review':5,
+  'solved-while-stuck':20,
+  'rebuild-after-help':25,
+  'comeback':30
+};
+const DAILY_TOPIC_XP_ACTIONS = new Set([
+  'closed-source-recall','prediction','independent-build','break-and-diagnose'
+]);
+const XP_DISPLAY_LABELS = {
+  'focus-block':'Focus block',
+  'closed-source-recall':'Closed-source recall',
+  'prediction':'Prediction',
+  'independent-build':'Independent build',
+  'break-and-diagnose':'Break and diagnose',
+  'curveball':'Curveball solved',
+  'project-milestone':'Project milestone',
+  'boss':'Boss passed',
+  'resume-note':'Resume note',
+  'retrieval-review':'Retrieval review',
+  'solved-while-stuck':'Solved while stuck',
+  'rebuild-after-help':'Rebuilt after help'
+};
+
+function getXPEvents(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(XP_EVENTS_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){ return []; }
+}
+
+function saveXPEvents(events){
+  localStorage.setItem(XP_EVENTS_KEY, JSON.stringify(events));
+}
+
+function xpAmountForAction(action){
+  if(Object.prototype.hasOwnProperty.call(FIXED_XP_AMOUNTS, action)) return FIXED_XP_AMOUNTS[action];
+  const label = XP_TABLE_LABELS[action];
+  const row = (CURRICULUM_META.xpTable || []).find(item=>item.action === label);
+  return row && Number.isFinite(row.xp) ? row.xp : null;
+}
+
+function rankForXP(total){
+  const ranks = [...(CURRICULUM_META.ranks || [])].sort((a,b)=>a.xp-b.xp);
+  return ranks.reduce((current,rank)=>total >= rank.xp ? rank : current, ranks[0] || {name:'',xp:0});
+}
+
+function recomputeXPState(save){
+  appState.xpTotal = getXPEvents().reduce((sum,event)=>sum + (Number(event.xp) || 0), 0);
+  appState.currentRank = rankForXP(appState.xpTotal).name || null;
+  if(save !== false) saveAppState();
+  return appState.xpTotal;
+}
+
+function newXPEventId(){
+  return window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID()
+    : 'xp-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
+}
+
+let pendingXPToasts = [];
+let xpToastTimer = null;
+
+function queueXPToast(event, rankUpName){
+  pendingXPToasts.push({event:event,rankUpName:rankUpName || null});
+  if(xpToastTimer) return;
+  xpToastTimer = setTimeout(()=>{
+    const batch = pendingXPToasts.splice(0);
+    xpToastTimer = null;
+    const parts = batch.map(item=>item.event.action === 'comeback'
+      ? 'Welcome back +30'
+      : '+' + item.event.xp + ' XP — ' + (XP_DISPLAY_LABELS[item.event.action] || item.event.action));
+    const rankUps = [...new Set(batch.map(item=>item.rankUpName).filter(Boolean))];
+    rankUps.forEach(name=>parts.push('Rank up — ' + name));
+    showToast(parts.join(' · '));
+  }, 60);
+}
+
+// The only XP write boundary. Ledger entries are append-only, idempotent on
+// refId, and daily loop-step limits are enforced here rather than in the UI.
+function grantXP(action, refId, options){
+  options = options || {};
+  const reference = String(refId || '').trim();
+  if(!reference) throw new Error('XP refId is required');
+  const events = getXPEvents();
+  if(events.some(event=>event.refId === reference)) return null;
+  const timestamp = options.timestamp || new Date().toISOString();
+  if(DAILY_TOPIC_XP_ACTIONS.has(action) && options.topicId){
+    const day = localDayKey(timestamp);
+    const alreadyGranted = events.some(event=>event.action === action && event.topicId === options.topicId && localDayKey(event.timestamp) === day);
+    if(alreadyGranted) return null;
+  }
+  const xp = xpAmountForAction(action);
+  if(!Number.isFinite(xp)) throw new Error('Unknown XP action: ' + action);
+  const previousRank = rankForXP(events.reduce((sum,event)=>sum + (Number(event.xp) || 0), 0)).name;
+  const event = {
+    id:newXPEventId(), timestamp:timestamp, action:action, xp:xp,
+    refType:options.refType || 'event', refId:reference
+  };
+  if(options.topicId) event.topicId = options.topicId;
+  events.push(event);
+  saveXPEvents(events);
+  recomputeXPState(false);
+  saveAppState();
+  const newRank = appState.currentRank;
+  queueXPToast(event, previousRank && newRank !== previousRank ? newRank : null);
+  if(activeAppView === 'today') renderTodayDashboard();
+  pushCloudState();
+  return event;
+}
+
+function grantComebackXPIfPending(timestamp){
+  if(!comebackRewardPending) return null;
+  comebackRewardPending = false;
+  sessionStorage.setItem('fnd-comeback-xp-pending', '');
+  return grantXP('comeback', 'comeback:' + localDayKey(timestamp), {timestamp:timestamp,refType:'comeback'});
 }
 
 function markAppActivity(topicId, timestamp){
@@ -993,6 +1303,7 @@ function markAppActivity(topicId, timestamp){
 
 function initializeComebackState(now){
   comebackPending = false;
+  comebackRewardPending = false;
   if(!appState.lastActiveAt) return;
   const last = new Date(appState.lastActiveAt);
   const current = now == null ? new Date() : new Date(now);
@@ -1001,7 +1312,11 @@ function initializeComebackState(now){
   const seenKey = sessionStorage.getItem('fnd-comeback-seen');
   if(isComeback && seenKey !== appState.lastActiveAt){
     comebackPending = true;
+    comebackRewardPending = true;
     sessionStorage.setItem('fnd-comeback-seen', appState.lastActiveAt);
+    sessionStorage.setItem('fnd-comeback-xp-pending', appState.lastActiveAt);
+  } else if(isComeback && sessionStorage.getItem('fnd-comeback-xp-pending') === appState.lastActiveAt){
+    comebackRewardPending = true;
   }
 }
 
@@ -1146,6 +1461,10 @@ function recordReviewAttempt(topicId, result, confidence){
   record.review.nextDueAt = schedule.nextDueAt;
   markAppActivity(topicId, attempt.date);
   saveProgressRecord(record);
+  grantXP('retrieval-review', topicId + ':review:' + attempt.date, {
+    timestamp:attempt.date, refType:'review', topicId:topicId
+  });
+  grantComebackXPIfPending(attempt.date);
   pushCloudState();
   updateReviewButton();
   renderTodayDashboard();
@@ -1160,18 +1479,22 @@ function recordEvidence(topicId, activityType, entry){
   const t = TOPICS_BY_ID.get(topicId);
   const record = getTopicProgress(topicId);
   const previousMasteryLevel = Number(record.masteryLevel) || 0;
+  const rebuildWasRequired = !!record.rebuild.required;
   const now = new Date().toISOString();
   entry = entry || {};
+  let evidenceEntry;
 
   if(activityType === 'build' && typeof entry.helpLevelUsed === 'number'){
     entry.independent = entry.helpLevelUsed <= 1;
   }
 
   if(activityType === 'learn' || activityType === 'resumeNote'){
-    record.evidence[activityType] = Object.assign({timestamp: now}, entry);
+    evidenceEntry = Object.assign({timestamp: now}, entry);
+    record.evidence[activityType] = evidenceEntry;
   } else {
     if(!Array.isArray(record.evidence[activityType])) record.evidence[activityType] = [];
-    record.evidence[activityType].push(Object.assign({timestamp: now}, entry));
+    evidenceEntry = Object.assign({timestamp: now}, entry);
+    record.evidence[activityType].push(evidenceEntry);
   }
 
   record.lastStudiedAt = now;
@@ -1206,9 +1529,54 @@ function recordEvidence(topicId, activityType, entry){
 
   markAppActivity(topicId, now);
   saveProgressRecord(record);
+  grantEvidenceXP(topicId, activityType, evidenceEntry, record);
+  if(rebuildWasRequired && activityType === 'build' && evidenceEntry.independent === true && record.rebuild.completedAt === now){
+    grantXP('rebuild-after-help', topicId + ':rebuild:' + now, {timestamp:now,refType:'rebuild',topicId:topicId});
+  }
+  grantComebackXPIfPending(now);
   pushCloudState();
   updateReviewButton();
   renderTodayDashboard();
+  return record;
+}
+
+function grantEvidenceXP(topicId, activityType, evidenceEntry, record){
+  if(!evidenceEntry) return null;
+  const timestamp = evidenceEntry.timestamp;
+  const options = {timestamp:timestamp,refType:'evidence',topicId:topicId};
+  if(activityType === 'recall'){
+    return grantXP('closed-source-recall', topicId + ':recall:' + timestamp, options);
+  }
+  if(activityType === 'predict' && String(evidenceEntry.predictionText || '').trim()){
+    return grantXP('prediction', topicId + ':predict:' + timestamp, options);
+  }
+  if(activityType === 'build' && evidenceEntry.independent === true){
+    return grantXP('independent-build', topicId + ':build:' + timestamp, options);
+  }
+  if(activityType === 'diagnose' && String(evidenceEntry.rootCause || '').trim() && record.evidence.break.length){
+    return grantXP('break-and-diagnose', topicId + ':diagnose:' + timestamp, options);
+  }
+  if(activityType === 'curveball' && evidenceEntry.passed === true){
+    return grantXP('curveball', topicId + ':curveball:' + timestamp, options);
+  }
+  if(activityType === 'resumeNote' && String(evidenceEntry.nextAction || '').trim()){
+    return grantXP('resume-note', topicId + ':resumeNote:' + timestamp, options);
+  }
+  return null;
+}
+
+function recordStuckAttempt(topicId, entry){
+  const record = getTopicProgress(topicId);
+  const attempt = Object.assign({timestamp:new Date().toISOString(),resolvedWithoutHelp:false}, entry || {});
+  record.stuckAttempts.push(attempt);
+  record.lastStudiedAt = attempt.timestamp;
+  saveProgressRecord(record);
+  if(attempt.resolvedWithoutHelp === true){
+    grantXP('solved-while-stuck', topicId + ':stuck:' + attempt.timestamp, {
+      timestamp:attempt.timestamp,refType:'stuck-attempt',topicId:topicId
+    });
+  }
+  pushCloudState();
   return record;
 }
 
@@ -1285,10 +1653,14 @@ function loopStepDisplayName(step){
 
 // Pure next-item engine. Each rule returns null when it does not match, so
 // future project and boss rules can be inserted before the final rule.
-function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds){
+function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds, projects, projectProgressById, bosses, bossProgressByPhaseId){
   const orderedTopics = [...topics].sort((a,b)=>
     a.phaseOrder - b.phaseOrder || a.moduleOrder - b.moduleOrder || a.id.localeCompare(b.id)
   );
+  const orderedProjects = [...(projects || [])].sort((a,b)=>a.phaseOrder - b.phaseOrder || a.id.localeCompare(b.id));
+  const orderedBosses = [...(bosses || [])].sort((a,b)=>a.phaseOrder - b.phaseOrder || a.phaseId.localeCompare(b.phaseId));
+  const projectState = projectProgressById || {};
+  const bossState = bossProgressByPhaseId || {};
   const rules = [
     function resumeMidLoop(){
       const candidates = orderedTopics.map(topic=>{
@@ -1335,6 +1707,48 @@ function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds){
         topicId:topic.id,
         label:'Start: ' + topic.title,
         sublabel:topic.firstAction
+      };
+    },
+    function activeProjectMilestone(){
+      const project = orderedProjects.find(item=>{
+        const state = projectState[item.id];
+        return state && state.status === 'active' && !(state.blocked && state.blocked.isBlocked) &&
+          state.currentMilestoneIndex < item.milestones.length &&
+          phaseTopicsAtTargetMastery(item.phaseId, orderedTopics, progressById);
+      });
+      if(!project) return null;
+      const state = projectState[project.id];
+      return {
+        type:'project',
+        topicId:null,
+        projectId:project.id,
+        label:'Project: ' + project.title,
+        sublabel:String(state.nextAction || '').trim() || project.milestones[state.currentMilestoneIndex]
+      };
+    },
+    function availableBossChallenge(){
+      const project = orderedProjects.find(item=>{
+        const state = projectState[item.id];
+        return state && state.status === 'active' && !(state.blocked && state.blocked.isBlocked) &&
+          state.currentMilestoneIndex >= item.milestones.length && !(state.boss && state.boss.passed) &&
+          isProjectAvailable(item, orderedTopics, progressById);
+      });
+      if(project){
+        return {
+          type:'boss', bossKind:'project', topicId:null, projectId:project.id, phaseId:project.phaseId,
+          label:'Boss: ' + project.title,
+          sublabel:project.bossChallenge
+        };
+      }
+      const phaseBoss = orderedBosses.find(item=>{
+        const state = bossState[item.phaseId] || defaultBossProgress();
+        return !state.passed && isBossAvailable(item, orderedTopics, progressById);
+      });
+      if(!phaseBoss) return null;
+      return {
+        type:'boss', bossKind:'phase', topicId:null, projectId:null, phaseId:phaseBoss.phaseId,
+        label:'Boss: ' + phaseBoss.title,
+        sublabel:phaseBoss.build
       };
     },
     function allCaughtUp(){
@@ -1416,7 +1830,7 @@ let activeAppView = 'today';
 let currentTodayAction = null;
 
 function setNavigationActive(name){
-  ['today','learn','roadmap'].forEach(tab=>{
+  ['today','learn','projects','roadmap'].forEach(tab=>{
     const el = document.getElementById('tab-' + tab);
     if(el) el.classList.toggle('active', tab === name);
   });
@@ -1426,17 +1840,23 @@ function setNavigationActive(name){
 
 function showAppView(name){
   const today = document.getElementById('today-view');
+  const projects = document.getElementById('projects-view');
   const roadmapSurfaces = document.querySelectorAll('.roadmap-surface');
-  activeAppView = name === 'roadmap' ? 'roadmap' : 'today';
+  activeAppView = ['today','projects','roadmap'].includes(name) ? name : 'today';
   if(today) today.hidden = activeAppView !== 'today';
+  if(projects) projects.hidden = activeAppView !== 'projects';
   roadmapSurfaces.forEach(surface=>{ surface.hidden = activeAppView !== 'roadmap'; });
   setNavigationActive(activeAppView);
   if(activeAppView === 'today') renderTodayDashboard();
+  if(activeAppView === 'projects') renderProjectsView();
 }
 
 function buildTodayAction(){
   const snapshot = progressSnapshot();
-  return pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()));
+  return pickNextAction(
+    TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()),
+    PROJECTS, projectProgressSnapshot(), PHASE_BOSSES, bossProgressSnapshot()
+  );
 }
 
 function renderResumeContext(context){
@@ -1458,12 +1878,31 @@ function renderResumeContext(context){
     '</div></div>';
 }
 
+function renderTodayXPLine(){
+  const ranks = [...(CURRICULUM_META.ranks || [])].sort((a,b)=>a.xp-b.xp);
+  if(!ranks.length) return '';
+  const total = appState.xpTotal || 0;
+  const current = rankForXP(total);
+  const next = ranks.find(rank=>rank.xp > total) || null;
+  const span = next ? Math.max(1, next.xp - current.xp) : 1;
+  const progress = next ? Math.max(0, Math.min(100, Math.round((total - current.xp) / span * 100))) : 100;
+  return '<div class="xp-rank-line">' +
+    '<div class="xp-rank-meta"><span>' + escapeHtml(current.name) + '</span><span>' + total + ' XP' +
+      (next ? ' · next ' + escapeHtml(next.name) : '') + '</span></div>' +
+    '<div class="xp-rank-track" aria-label="' + progress + '% to the next rank"><div class="xp-rank-fill" style="width:' + progress + '%"></div></div>' +
+  '</div>';
+}
+
 function renderTodayDashboard(){
   const container = document.getElementById('today-content');
   if(!container || !TOPICS.length) return;
   const snapshot = progressSnapshot();
   const resumeContext = mostRecentResumeContext(TOPICS, snapshot);
-  let action = pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()));
+  const projectsState = projectProgressSnapshot();
+  let action = pickNextAction(
+    TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()),
+    PROJECTS, projectsState, PHASE_BOSSES, bossProgressSnapshot()
+  );
   if(comebackPending && resumeContext && String(resumeContext.note.nextAction || '').trim()){
     action = {
       type:'resume',
@@ -1517,6 +1956,23 @@ function renderTodayDashboard(){
     '<div class="tcard-title">Momentum</div>' +
     '<div class="momentum-dots" aria-label="Activity over the last seven days">' + momentum + '</div>' +
   '</div>';
+  const activeProject = PROJECTS.find(project=>{
+    const state = projectsState[project.id];
+    return state && state.status === 'active' && !(state.blocked && state.blocked.isBlocked);
+  });
+  if(activeProject){
+    const state = projectsState[activeProject.id];
+    const milestone = state.currentMilestoneIndex < activeProject.milestones.length
+      ? activeProject.milestones[state.currentMilestoneIndex]
+      : state.boss.passed ? 'Write the project postmortem' : 'Attempt the boss challenge';
+    html += '<button class="today-project-card" onclick="openProjectDetail(\'' + escapeHtml(activeProject.id) + '\')">' +
+      '<div class="tcard-title">Project</div>' +
+      '<div class="loop-title">' + escapeHtml(activeProject.title) + '</div>' +
+      '<div class="project-card-copy">' + escapeHtml(milestone) + '</div>' +
+      '<div class="today-sublabel">' + escapeHtml(String(state.nextAction || '').trim() || milestone) + '</div>' +
+    '</button>';
+  }
+  html += renderTodayXPLine();
   container.innerHTML = html;
 }
 
@@ -1525,6 +1981,11 @@ function handleTodayContinue(){
   comebackPending = false;
   if(currentTodayAction.type === 'review'){
     openReviewFlow();
+  } else if(currentTodayAction.type === 'project'){
+    openProjectDetail(currentTodayAction.projectId);
+  } else if(currentTodayAction.type === 'boss'){
+    if(currentTodayAction.bossKind === 'project') openProjectDetail(currentTodayAction.projectId);
+    else openPhaseBoss(currentTodayAction.phaseId);
   } else if(currentTodayAction.topicId){
     openTopicModal(currentTodayAction.topicId);
   } else {
@@ -1555,6 +2016,404 @@ function skipComebackWarmup(){
 
 function openComebackWarmup(topicId){
   startReviewFlow([topicId], {mode:'warmup',hasMore:false});
+}
+
+let currentProjectDetail = null; // {kind:'project'|'phase-boss', id:string}
+
+function refreshProjectSurfaces(){
+  pushCloudState();
+  renderTodayDashboard();
+  if(activeAppView === 'projects') renderProjectsView();
+  if(currentProjectDetail) renderProjectDetail();
+}
+
+function startProject(projectId, timestamp){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  if(!project || !record) return null;
+  if(record.status === 'not-started'){
+    record.status = 'active';
+    record.startedAt = timestamp || new Date().toISOString();
+    record.nextAction = project.milestones[record.currentMilestoneIndex] || project.bossChallenge;
+    saveProjectProgress(record);
+    refreshProjectSurfaces();
+  }
+  return record;
+}
+
+function completeProjectMilestone(projectId, artifactNote, timestamp){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  const note = String(artifactNote || '').trim();
+  if(!project || !record) throw new Error('Project not found');
+  if(!note) throw new Error('Add one line describing what this milestone produced.');
+  if(record.status !== 'active') throw new Error('Start or unblock this project first.');
+  if(record.currentMilestoneIndex >= project.milestones.length) return record;
+  const index = record.currentMilestoneIndex;
+  const completedAt = timestamp || new Date().toISOString();
+  let added = false;
+  if(!record.milestones.some(item=>item.index === index)){
+    record.milestones.push({index:index, completedAt:completedAt, artifactNote:note});
+    added = true;
+  }
+  record.currentMilestoneIndex = index + 1;
+  record.nextAction = record.currentMilestoneIndex < project.milestones.length
+    ? project.milestones[record.currentMilestoneIndex]
+    : project.bossChallenge;
+  saveProjectProgress(record);
+  if(added){
+    grantXP('project-milestone', projectId + ':milestone:' + index, {
+      timestamp:completedAt,refType:'project-milestone'
+    });
+  }
+  refreshProjectSurfaces();
+  return record;
+}
+
+function updateProjectNextAction(projectId, nextAction){
+  const record = getProjectProgress(projectId);
+  if(!record || record.status !== 'active') return null;
+  const value = String(nextAction || '').trim();
+  if(value) record.nextAction = value;
+  saveProjectProgress(record);
+  refreshProjectSurfaces();
+  return record;
+}
+
+function setProjectBlocked(projectId, isBlocked, reason){
+  const record = getProjectProgress(projectId);
+  if(!record) throw new Error('Project not found');
+  if(isBlocked){
+    const value = String(reason || '').trim();
+    if(!value) throw new Error('Add the reason this project is blocked.');
+    if(record.status === 'not-started') throw new Error('Start the project before marking it blocked.');
+    record.blocked = {isBlocked:true, reason:value};
+    record.status = 'blocked';
+  } else {
+    record.blocked = {isBlocked:false, reason:null};
+    if(record.status !== 'complete') record.status = 'active';
+  }
+  saveProjectProgress(record);
+  refreshProjectSurfaces();
+  return record;
+}
+
+function recordProjectBossAttempt(projectId, passed, notes, timestamp){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  const value = String(notes || '').trim();
+  if(!project || !record) throw new Error('Project not found');
+  if(record.currentMilestoneIndex < project.milestones.length) throw new Error('Complete the milestones first.');
+  if(record.status !== 'active') throw new Error('Unblock this project first.');
+  if(!value) throw new Error('Record what happened in the boss challenge.');
+  const wasPassed = !!record.boss.passed;
+  const completedAt = passed ? (timestamp || new Date().toISOString()) : null;
+  record.boss = {
+    attempted:true,
+    passed:!!passed,
+    notes:value,
+    completedAt:completedAt
+  };
+  if(passed) record.nextAction = 'Write the project postmortem';
+  saveProjectProgress(record);
+  if(passed && !wasPassed){
+    grantXP('boss', projectId + ':boss', {timestamp:completedAt,refType:'project-boss'});
+  }
+  refreshProjectSurfaces();
+  return record;
+}
+
+function applyProjectCurveballEvidence(projectId, topicIds){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  if(!project || !record || !record.boss.passed) throw new Error('Pass the project boss first.');
+  const allowed = new Set(phaseTopicsFor(project.phaseId, TOPICS).filter(topic=>topic.depth === 'deep').map(topic=>topic.id));
+  const note = 'via ' + project.title + ' boss challenge';
+  const recorded = [];
+  [...new Set(topicIds || [])].forEach(topicId=>{
+    if(!allowed.has(topicId)) return;
+    const progress = getTopicProgress(topicId);
+    const exists = progress.evidence.curveball.some(entry=>entry && entry.passed === true && entry.notes === note);
+    if(!exists){
+      recordEvidence(topicId, 'curveball', {passed:true, notes:note});
+      recorded.push(topicId);
+    }
+  });
+  refreshProjectSurfaces();
+  return recorded;
+}
+
+function completeProjectPostmortem(projectId, postmortem){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  const value = String(postmortem || '').trim();
+  if(!project || !record) throw new Error('Project not found');
+  if(record.currentMilestoneIndex < project.milestones.length || !record.boss.passed){
+    throw new Error('Complete the milestones and pass the boss first.');
+  }
+  if(!value) throw new Error('Add the project postmortem before completing it.');
+  record.postmortem = value;
+  record.status = 'complete';
+  record.blocked = {isBlocked:false, reason:null};
+  record.nextAction = '';
+  saveProjectProgress(record);
+  refreshProjectSurfaces();
+  return record;
+}
+
+function recordPhaseBossAttempt(phaseId, passed, notes, timestamp){
+  const boss = PHASE_BOSSES_BY_ID.get(phaseId);
+  const previous = getBossProgress(phaseId);
+  const value = String(notes || '').trim();
+  if(!boss) throw new Error('Boss challenge not found');
+  if(!isBossAvailable(boss, TOPICS, progressSnapshot())) throw new Error('Complete this phase\'s topics first.');
+  if(!value) throw new Error('Record what happened in the boss challenge.');
+  const record = {passed:!!passed, notes:value, completedAt:passed ? (timestamp || new Date().toISOString()) : null};
+  saveBossProgress(phaseId, record);
+  if(passed && !previous.passed){
+    grantXP('boss', phaseId + ':boss', {timestamp:record.completedAt,refType:'phase-boss'});
+  }
+  refreshProjectSurfaces();
+  return record;
+}
+
+function projectStatusLabel(project, record, available){
+  if(record.status === 'complete') return 'Complete';
+  if(record.blocked.isBlocked) return 'Blocked';
+  if(record.status === 'active') return 'Active';
+  return available ? 'Available' : 'Not started';
+}
+
+function renderRemainingModules(phaseId, snapshot){
+  const remaining = remainingPhaseModules(phaseId, TOPICS, snapshot);
+  if(!remaining.length) return '';
+  return '<div class="project-card-copy">Unlocks with this phase\'s topics:</div><ul class="remaining-modules">' +
+    remaining.map(topic=>'<li>' + escapeHtml(topic.title) + '</li>').join('') + '</ul>';
+}
+
+function renderProjectsView(){
+  const container = document.getElementById('projects-content');
+  if(!container) return;
+  const snapshot = progressSnapshot();
+  let html = PROJECTS.map(project=>{
+    const record = getProjectProgress(project.id);
+    const available = isProjectAvailable(project, TOPICS, snapshot);
+    const status = projectStatusLabel(project, record, available);
+    const locked = record.status === 'not-started' && !available;
+    return '<article class="project-list-card">' +
+      '<div class="project-phase">' + escapeHtml(project.phaseId.toUpperCase() + ' · ' + project.phaseTitle) + '</div>' +
+      '<h3>' + escapeHtml(project.title) + '</h3>' +
+      '<div class="project-status">' + escapeHtml(status) + '</div>' +
+      '<div class="project-card-copy">' + escapeHtml(project.purpose) + '</div>' +
+      (locked ? renderRemainingModules(project.phaseId, snapshot) : '') +
+      '<button class="pomo-btn ' + (available || record.status !== 'not-started' ? 'primary' : '') +
+        '" onclick="openProjectDetail(\'' + escapeHtml(project.id) + '\')">' +
+        (record.status === 'not-started' ? (available ? 'Start project' : 'View project') : 'Open project') + '</button>' +
+    '</article>';
+  }).join('');
+  html += PHASE_BOSSES.map(boss=>{
+    const record = getBossProgress(boss.phaseId);
+    const available = isBossAvailable(boss, TOPICS, snapshot);
+    return '<article class="project-list-card">' +
+      '<div class="project-phase">' + escapeHtml(boss.phaseId.toUpperCase() + ' · ' + boss.phaseTitle) + '</div>' +
+      '<h3>' + escapeHtml(boss.title) + '</h3>' +
+      '<div class="project-status">' + (record.passed ? 'Complete' : available ? 'Available' : 'Not available yet') + '</div>' +
+      (!available && !record.passed ? renderRemainingModules(boss.phaseId, snapshot) : '') +
+      '<button class="pomo-btn ' + (available ? 'primary' : '') + '" onclick="openPhaseBoss(\'' + escapeHtml(boss.phaseId) + '\')">Open boss</button>' +
+    '</article>';
+  }).join('');
+  container.innerHTML = html;
+}
+
+function openProjectDetail(projectId){
+  if(!PROJECTS_BY_ID.has(projectId)) return;
+  currentProjectDetail = {kind:'project', id:projectId};
+  document.getElementById('project-modal-overlay').classList.add('open');
+  renderProjectDetail();
+}
+
+function openPhaseBoss(phaseId){
+  if(!PHASE_BOSSES_BY_ID.has(phaseId)) return;
+  currentProjectDetail = {kind:'phase-boss', id:phaseId};
+  document.getElementById('project-modal-overlay').classList.add('open');
+  renderProjectDetail();
+}
+
+function closeProjectDetail(){
+  document.getElementById('project-modal-overlay').classList.remove('open');
+  currentProjectDetail = null;
+  setNavigationActive(activeAppView);
+}
+
+function renderProjectDetail(){
+  if(!currentProjectDetail) return;
+  if(currentProjectDetail.kind === 'phase-boss') renderPhaseBossDetail(currentProjectDetail.id);
+  else renderProjectDetailBody(currentProjectDetail.id);
+}
+
+function renderProjectDetailBody(projectId){
+  const project = PROJECTS_BY_ID.get(projectId);
+  const record = getProjectProgress(projectId);
+  if(!project || !record) return;
+  document.getElementById('project-modal-title').textContent = project.title;
+  const root = document.getElementById('project-modal-root');
+  const snapshot = progressSnapshot();
+  const available = isProjectAvailable(project, TOPICS, snapshot);
+  let html = '<div class="project-phase">' + escapeHtml(project.phaseId.toUpperCase() + ' · ' + project.phaseTitle) + '</div>' +
+    '<div class="project-card-copy">' + escapeHtml(project.purpose) + '</div>' +
+    '<div class="project-gate"><strong>Build</strong><div class="artifact-note">' + escapeHtml(project.build) + '</div></div>';
+  if(record.status === 'not-started'){
+    if(!available) html += renderRemainingModules(project.phaseId, snapshot);
+    html += '<button class="pomo-btn primary" onclick="startProject(\'' + escapeHtml(project.id) + '\')">' +
+      (available ? 'Start project' : 'Start early') + '</button>';
+    root.innerHTML = html;
+    return;
+  }
+  if(record.blocked.isBlocked){
+    html += '<div class="blocked-panel"><div class="tcard-title">Blocked</div>' +
+      '<div class="artifact-note">' + escapeHtml(record.blocked.reason) + '</div>' +
+      '<button class="pomo-btn" style="margin-top:10px" onclick="setProjectBlocked(\'' + escapeHtml(project.id) + '\',false)">Unblocked now</button></div>';
+    root.innerHTML = html;
+    return;
+  }
+  html += '<div class="project-milestones">' + project.milestones.map((milestone,index)=>{
+    const completed = record.milestones.find(item=>item.index === index);
+    if(completed){
+      return '<details class="project-milestone"><summary>' + escapeHtml((index + 1) + '. ' + milestone) + '</summary>' +
+        '<div class="artifact-note">' + escapeHtml(completed.artifactNote) + '</div></details>';
+    }
+    if(index === record.currentMilestoneIndex){
+      return '<div class="project-milestone current"><div class="loop-eyebrow">Current milestone</div>' +
+        '<div class="loop-title">' + escapeHtml((index + 1) + '. ' + milestone) + '</div>' +
+        '<div class="loop-field"><label for="project-artifact-note">What did this milestone produce?</label>' +
+        '<input class="loop-input" id="project-artifact-note" type="text"></div>' +
+        '<div class="loop-field"><label for="project-next-action">Shrunk next action</label>' +
+        '<input class="loop-input" id="project-next-action" type="text" value="' + escapeHtml(record.nextAction || milestone) + '"></div>' +
+        '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitProjectMilestone()">Complete milestone</button>' +
+        '<button class="pomo-btn" onclick="saveProjectNextAction()">Save next action</button></div>' +
+        '<div class="loop-field"><label for="project-block-reason">Blocked reason</label>' +
+        '<input class="loop-input" id="project-block-reason" type="text" placeholder="What is preventing the next step?"></div>' +
+        '<button class="pomo-btn" onclick="blockOpenProject()">Mark blocked</button><div class="loop-error" id="project-error"></div></div>';
+    }
+    return '<div class="project-milestone future">' + escapeHtml((index + 1) + '. ' + milestone) + '</div>';
+  }).join('') + '</div>';
+  if(record.currentMilestoneIndex >= project.milestones.length && record.status !== 'complete'){
+    html += renderProjectCompletionFlow(project, record);
+  }
+  if(record.status === 'complete'){
+    html += '<div class="project-gate"><strong>Project complete</strong><div class="artifact-note">' + escapeHtml(record.postmortem) + '</div></div>';
+  }
+  root.innerHTML = html;
+}
+
+function renderProjectCompletionFlow(project, record){
+  let html = '<div class="project-gate"><div class="tcard-title">Pass gate</div><div class="artifact-note">' + escapeHtml(project.passGate) + '</div></div>';
+  if(!record.boss.passed){
+    if(record.boss.attempted) html += '<div class="project-card-copy">Boss not passed yet.</div>';
+    html += '<div class="project-milestone current"><div class="loop-eyebrow">Boss challenge</div>' +
+      '<div class="loop-copy">' + escapeHtml(project.bossChallenge) + '</div>' +
+      '<label class="project-deep-option"><input id="project-pass-gate" type="checkbox"> This project meets the pass gate above.</label>' +
+      '<div class="loop-field"><label for="project-boss-notes">What happened?</label><textarea class="loop-input" id="project-boss-notes"></textarea></div>' +
+      '<div class="loop-radio-row"><label class="loop-radio"><input type="radio" name="project-boss-result" value="pass"> Passed</label>' +
+      '<label class="loop-radio"><input type="radio" name="project-boss-result" value="fail"> Not passed yet</label></div>' +
+      '<button class="pomo-btn primary" onclick="submitProjectBoss()">Record attempt</button><div class="loop-error" id="project-error"></div></div>';
+    return html;
+  }
+  const deepTopics = phaseTopicsFor(project.phaseId, TOPICS).filter(topic=>topic.depth === 'deep');
+  const evidenceNote = 'via ' + project.title + ' boss challenge';
+  html += '<div class="project-milestone current"><div class="loop-eyebrow">Adaptive evidence</div>' +
+    '<div class="loop-copy">Which of these did this project genuinely exercise under unfamiliar conditions?</div>' +
+    '<div class="project-deep-list">' + deepTopics.map(topic=>{
+      const checked = getTopicProgress(topic.id).evidence.curveball.some(entry=>entry && entry.passed && entry.notes === evidenceNote);
+      return '<label class="project-deep-option"><input type="checkbox" name="project-curveball-topic" value="' +
+        escapeHtml(topic.id) + '" ' + (checked ? 'checked' : '') + '> ' + escapeHtml(topic.title) + '</label>';
+    }).join('') + '</div>' +
+    (deepTopics.length ? '<button class="pomo-btn" onclick="saveProjectCurveballs()">Save selected evidence</button>' : '<div class="project-card-copy">This phase has no deep modules.</div>') +
+    '</div>' +
+    '<div class="project-milestone current"><div class="loop-eyebrow">Postmortem</div>' +
+    '<div class="loop-copy">What failed, what changed, and what remains?</div>' +
+    '<textarea class="loop-input" id="project-postmortem">' + escapeHtml(record.postmortem || '') + '</textarea>' +
+    '<button class="pomo-btn primary" onclick="submitProjectPostmortem()">Complete project</button><div class="loop-error" id="project-error"></div></div>';
+  return html;
+}
+
+function projectError(message){
+  const el = document.getElementById('project-error');
+  if(el) el.textContent = message;
+}
+
+function submitProjectMilestone(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  try{ completeProjectMilestone(currentProjectDetail.id, document.getElementById('project-artifact-note').value); }
+  catch(error){ projectError(error.message); }
+}
+
+function saveProjectNextAction(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  updateProjectNextAction(currentProjectDetail.id, document.getElementById('project-next-action').value);
+}
+
+function blockOpenProject(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  try{ setProjectBlocked(currentProjectDetail.id, true, document.getElementById('project-block-reason').value); }
+  catch(error){ projectError(error.message); }
+}
+
+function submitProjectBoss(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  const gate = document.getElementById('project-pass-gate');
+  const selected = document.querySelector('input[name="project-boss-result"]:checked');
+  if(!gate || !gate.checked){ projectError('Confirm the pass-gate self-check first.'); return; }
+  if(!selected){ projectError('Record whether the challenge passed.'); return; }
+  try{ recordProjectBossAttempt(currentProjectDetail.id, selected.value === 'pass', document.getElementById('project-boss-notes').value); }
+  catch(error){ projectError(error.message); }
+}
+
+function saveProjectCurveballs(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  const ids = [...document.querySelectorAll('input[name="project-curveball-topic"]:checked')].map(input=>input.value);
+  try{ applyProjectCurveballEvidence(currentProjectDetail.id, ids); }
+  catch(error){ projectError(error.message); }
+}
+
+function submitProjectPostmortem(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
+  try{ completeProjectPostmortem(currentProjectDetail.id, document.getElementById('project-postmortem').value); }
+  catch(error){ projectError(error.message); }
+}
+
+function renderPhaseBossDetail(phaseId){
+  const boss = PHASE_BOSSES_BY_ID.get(phaseId);
+  const record = getBossProgress(phaseId);
+  if(!boss || !record) return;
+  document.getElementById('project-modal-title').textContent = boss.title;
+  const root = document.getElementById('project-modal-root');
+  const snapshot = progressSnapshot();
+  const available = isBossAvailable(boss, TOPICS, snapshot);
+  let html = '<div class="project-phase">' + escapeHtml(boss.phaseId.toUpperCase() + ' · ' + boss.phaseTitle) + '</div>' +
+    '<div class="project-gate"><strong>Build</strong><div class="artifact-note">' + escapeHtml(boss.build) + '</div></div>' +
+    '<div class="project-gate"><strong>Challenge</strong><div class="artifact-note">' + escapeHtml(boss.challenge) + '</div></div>' +
+    '<div class="project-gate"><strong>Pass gate</strong><div class="artifact-note">' + escapeHtml(boss.passGate) + '</div></div>';
+  if(record.passed){
+    html += '<div class="project-card-copy">Complete</div><div class="artifact-note">' + escapeHtml(record.notes) + '</div>';
+  } else if(!available){
+    html += renderRemainingModules(phaseId, snapshot);
+  } else {
+    if(record.notes) html += '<div class="project-card-copy">Boss not passed yet.</div>';
+    html += '<div class="loop-field"><label for="phase-boss-notes">What happened?</label><textarea class="loop-input" id="phase-boss-notes"></textarea></div>' +
+      '<div class="loop-radio-row"><label class="loop-radio"><input type="radio" name="phase-boss-result" value="pass"> Passed</label>' +
+      '<label class="loop-radio"><input type="radio" name="phase-boss-result" value="fail"> Not passed yet</label></div>' +
+      '<button class="pomo-btn primary" onclick="submitPhaseBoss()">Record attempt</button><div class="loop-error" id="project-error"></div>';
+  }
+  root.innerHTML = html;
+}
+
+function submitPhaseBoss(){
+  if(!currentProjectDetail || currentProjectDetail.kind !== 'phase-boss') return;
+  const selected = document.querySelector('input[name="phase-boss-result"]:checked');
+  if(!selected){ projectError('Record whether the challenge passed.'); return; }
+  try{ recordPhaseBossAttempt(currentProjectDetail.id, selected.value === 'pass', document.getElementById('phase-boss-notes').value); }
+  catch(error){ projectError(error.message); }
 }
 
 function updateStats(){
@@ -2779,6 +3638,9 @@ function finishFocusSession(endedEarly){
     outcomeNote: null
   };
   appendSessionRecord(record);
+  if(!record.endedEarly){
+    grantXP('focus-block', 'session:' + record.id, {timestamp:record.endedAt,refType:'session',topicId:record.topicId});
+  }
   dailyLog.minutes += actualMinutes;
   saveDailyLog();
   drawRings();
@@ -3167,6 +4029,7 @@ function importFromGist(){
 
 function init(){
   loadAppState();
+  recomputeXPState();
   initializeComebackState();
   // Topic progress is no longer preloaded into one blob — getTopicProgress()
   // reads each topic's own `progress:{topicId}` key on demand.
@@ -3206,13 +4069,30 @@ function init(){
 function pushCloudState(){
   if(!window.__cloudSync) return;
   const progress = {};
+  const projectProgress = {};
+  const bossProgress = {};
   TOPICS.forEach(t=>{
     try{
       const raw = localStorage.getItem('progress:'+t.id);
       if(raw) progress[t.id] = JSON.parse(raw);
     } catch(e){}
   });
-  window.__cloudSync.push({progress, quizResults, verifiedState, appState, sessions: getSessions(), focusPrefs});
+  PROJECTS.forEach(project=>{
+    try{
+      const raw = localStorage.getItem('projectProgress:' + project.id);
+      if(raw) projectProgress[project.id] = JSON.parse(raw);
+    } catch(e){}
+  });
+  PHASE_BOSSES.forEach(boss=>{
+    try{
+      const raw = localStorage.getItem('bossProgress:' + boss.phaseId);
+      if(raw) bossProgress[boss.phaseId] = JSON.parse(raw);
+    } catch(e){}
+  });
+  window.__cloudSync.push({
+    progress, projectProgress, bossProgress, xpEvents:getXPEvents(),
+    quizResults, verifiedState, appState, sessions:getSessions(), focusPrefs
+  });
 }
 
 function applyCloudState(data){
@@ -3223,12 +4103,33 @@ function applyCloudState(data){
     });
     changed = true;
   }
+  if(data.projectProgress){
+    Object.keys(data.projectProgress).forEach(projectId=>{
+      if(PROJECTS_BY_ID.has(projectId)) localStorage.setItem('projectProgress:' + projectId, JSON.stringify(data.projectProgress[projectId]));
+    });
+    changed = true;
+  }
+  if(data.bossProgress){
+    Object.keys(data.bossProgress).forEach(phaseId=>{
+      if(PHASE_BOSSES_BY_ID.has(phaseId)) localStorage.setItem('bossProgress:' + phaseId, JSON.stringify(data.bossProgress[phaseId]));
+    });
+    changed = true;
+  }
+  if(Array.isArray(data.xpEvents)){
+    const mergedXP = new Map();
+    getXPEvents().forEach(event=>{ if(event && event.refId) mergedXP.set(event.refId, event); });
+    data.xpEvents.forEach(event=>{ if(event && event.refId) mergedXP.set(event.refId, event); });
+    saveXPEvents([...mergedXP.values()].sort((a,b)=>new Date(a.timestamp) - new Date(b.timestamp)));
+    changed = true;
+  }
   if(data.quizResults){ quizResults = data.quizResults; localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults)); changed = true; }
   if(data.verifiedState){ verifiedState = data.verifiedState; localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); changed = true; }
   if(data.appState){
     appState = {
       lastActiveTopicId: typeof data.appState.lastActiveTopicId === 'string' ? data.appState.lastActiveTopicId : null,
-      lastActiveAt: data.appState.lastActiveAt || null
+      lastActiveAt: data.appState.lastActiveAt || null,
+      xpTotal: Number.isFinite(data.appState.xpTotal) ? data.appState.xpTotal : 0,
+      currentRank: typeof data.appState.currentRank === 'string' ? data.appState.currentRank : null
     };
     saveAppState();
     changed = true;
@@ -3249,6 +4150,7 @@ function applyCloudState(data){
     changed = true;
   }
   if(!changed) return;
+  recomputeXPState();
   if(document.getElementById('main-wrap').style.display === 'none') return; // still on the lock screen — nothing to refresh yet
   render();
   markPassedQuizButtons();
@@ -3256,6 +4158,8 @@ function applyCloudState(data){
     renderLearningLoop();
   }
   if(activeAppView === 'today') renderTodayDashboard();
+  if(activeAppView === 'projects') renderProjectsView();
+  if(currentProjectDetail) renderProjectDetail();
   // Don't re-render the focus card mid-session or mid-end-flow — that would
   // clobber a running countdown's ack text or a half-typed outcome note.
   if(!focusSession && !focusEndFlow && !focusBreak) renderFocusUI();
