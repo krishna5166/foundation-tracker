@@ -1,0 +1,1273 @@
+{
+  "meta": {
+    "title": "AI/ML Engineer to Computer Vision Engineer",
+    "version": "1.0",
+    "pace": "3-5 focused hours/day",
+    "duration": "9-12+ months; mastery decides, not calendar",
+    "method": "Learn -> Recall -> Predict -> Build -> Break -> Diagnose -> Curveball -> Resume",
+    "masteryLevels": [
+      { "level": 0, "name": "Exposed", "meaning": "Encountered the concept. No advancement credit by itself." },
+      { "level": 1, "name": "Assisted", "meaning": "Can use it with examples or documentation. Acceptable for peripheral/light topics." },
+      { "level": 2, "name": "Independent", "meaning": "Can explain and implement the important parts without a tutorial. Required for core topics." },
+      { "level": 3, "name": "Adaptive", "meaning": "Can debug, make tradeoffs, handle curveballs, and apply it in an unfamiliar situation. Required for deep/specialization topics." }
+    ],
+    "helpLadder": [
+      { "level": 0, "name": "Independent", "gives": "No assistance.", "consequence": "Eligible for strongest independent evidence." },
+      { "level": 1, "name": "Error clarification", "gives": "Explain the error/message, not the solution.", "consequence": "Still largely independent." },
+      { "level": 2, "name": "Guiding question", "gives": "A question that points attention to the right area.", "consequence": "Assistance recorded." },
+      { "level": 3, "name": "Small hint", "gives": "One concrete hint.", "consequence": "Assisted evidence." },
+      { "level": 4, "name": "Concept support", "gives": "Relevant concept/docs/explanation.", "consequence": "Assisted evidence." },
+      { "level": 5, "name": "Full solution", "gives": "Complete solution.", "consequence": "Cannot count as independent until rebuilt later. Auto-schedules a rebuild task." }
+    ],
+    "learningLoopSteps": ["orient", "learn", "recall", "predict", "build", "break", "diagnose", "curveball", "reflect", "resumeNote"],
+    "depthLoopMap": {
+      "light": ["learn", "recall", "build"],
+      "core": ["learn", "recall", "predict", "build", "break", "diagnose", "resumeNote"],
+      "deep": ["orient", "learn", "recall", "predict", "build", "break", "diagnose", "curveball", "reflect", "resumeNote"]
+    },
+    "xpTable": [
+      { "action": "Start and protect one focus block", "xp": 5, "evidence": "No multitasking; distractions logged." },
+      { "action": "Closed-source recall", "xp": 10, "evidence": "Must happen before rereading." },
+      { "action": "Prediction before execution", "xp": 5, "evidence": "Specific enough to be wrong." },
+      { "action": "Independent build", "xp": 20, "evidence": "Core work is yours; docs allowed." },
+      { "action": "Intentional break plus diagnosis", "xp": 20, "evidence": "Root cause and evidence recorded." },
+      { "action": "Curveball solved", "xp": 30, "evidence": "Unfamiliar variation without tutorial." },
+      { "action": "Project milestone shipped", "xp": 50, "evidence": "Tested artifact and README update." },
+      { "action": "Boss battle passed", "xp": 100, "evidence": "Mastery gate evidence retained." },
+      { "action": "Resume note", "xp": 5, "evidence": "Exact next action and current state." }
+    ],
+    "ranks": [
+      { "name": "Explorer", "xp": 0 },
+      { "name": "Builder", "xp": 500 },
+      { "name": "Debugger", "xp": 1500 },
+      { "name": "ML Engineer", "xp": 3000 },
+      { "name": "CV Specialist", "xp": 6000 },
+      { "name": "Perception Engineer", "xp": 9000 }
+    ],
+    "stuckProtocol": [
+      "What is the problem asking? Restate it in your own words.",
+      "What do I know? Facts, inputs, constraints, working components.",
+      "What exactly do I not know? Name the smallest uncertainty.",
+      "What do I expect to happen? Make a falsifiable prediction.",
+      "What are at least two possible causes or approaches?",
+      "What one test best separates those possibilities?",
+      "What happened? Record observation, not interpretation.",
+      "What changed in my model of the problem?",
+      "Do I need documentation, a hint, or a full solution? Why?",
+      "After help: why did the fix work, and what regression test prevents recurrence?"
+    ]
+  },
+
+  "phases": [
+    {
+      "id": "p0",
+      "order": 0,
+      "title": "Cognitive Operating System for Technical Learning",
+      "duration": "1 week to install, then ongoing",
+      "purpose": "Build attention, active learning, uncertainty tolerance, independent problem-solving, and reliable re-entry while technical study begins Day 1.",
+      "prerequisites": [],
+      "modules": [
+        {
+          "id": "p0-attention-single-tasking",
+          "title": "Attention and single-tasking",
+          "depth": "core",
+          "prerequisites": "A quiet place, a timer, one clearly chosen task.",
+          "firstAction": "Set a 15-20 minute timer and work one task with no other tabs open.",
+          "mustCover": [
+            "Five-minute settling practice",
+            "15-20 minute single-task block",
+            "Notice wandering without self-attack",
+            "Return attention as the actual repetition",
+            "Reduce multi-source and phone switching"
+          ],
+          "handsOn": "Complete one protected focus block and record distractions without opening them.",
+          "masteryGate": "Resume the chosen task after three distractions without changing sources."
+        },
+        {
+          "id": "p0-active-reading-retrieval",
+          "title": "Active reading, retrieval, and articulation",
+          "depth": "core",
+          "prerequisites": "One short technical explanation and paper or digital notes.",
+          "firstAction": "Read 300-500 words, close the source, write the central idea from memory.",
+          "mustCover": [
+            "Read one small chunk",
+            "Close the source",
+            "Reconstruct the idea",
+            "Draw a mental model",
+            "Give a 60-second explanation",
+            "Compare explanation with source",
+            "Spaced retrieval next day and next week"
+          ],
+          "handsOn": "Read 300-500 words, close the source, write the central idea and three details, then teach it aloud.",
+          "masteryGate": "Achieve at least 80% factual coverage without rereading first."
+        },
+        {
+          "id": "p0-think-first-stuck-protocol",
+          "title": "Think-first and stuck protocol",
+          "depth": "deep",
+          "prerequisites": "A concrete problem and permission to be temporarily wrong.",
+          "firstAction": "Before any search, write what you think the answer or cause is.",
+          "mustCover": [
+            "Define what the problem asks",
+            "List knowns and unknowns",
+            "State an expected outcome",
+            "Generate two or three causes",
+            "Select one test",
+            "Observe and update",
+            "Increase attempt window from 3 to 5, 10, then 15 minutes"
+          ],
+          "handsOn": "Use the protocol on one coding or math problem before any search.",
+          "masteryGate": "Produce a testable hypothesis before external help."
+        },
+        {
+          "id": "p0-pause-uncertainty-handling",
+          "title": "Pause, uncertainty, and unwanted-thought handling",
+          "depth": "core",
+          "prerequisites": "Basic attention practice; professional support when distress or impairment is significant.",
+          "firstAction": "Before answering anything nontrivial, pause one second and restate the question.",
+          "mustCover": [
+            "One-second pause before answering",
+            "Say what is known and unknown",
+            "Separate involuntary thoughts from chosen actions",
+            "Notice without suppression or moral self-attack",
+            "Return to the intended action",
+            "Direct communication instead of internal story-building"
+          ],
+          "handsOn": "Answer an unfamiliar question using: restate, pause, tentative model, evidence, next check.",
+          "masteryGate": "Remain engaged with uncertainty for the current attempt window without immediate escape."
+        },
+        {
+          "id": "p0-resume-not-restart",
+          "title": "Resume, do not restart",
+          "depth": "core",
+          "prerequisites": "A resume note from the previous session.",
+          "firstAction": "Write today's resume note before closing the session: stop point, what works, blocker, next action.",
+          "mustCover": [
+            "Write exact next action",
+            "Record last working state",
+            "Name one blocker",
+            "Use a minimum viable day",
+            "No full revision before re-entry",
+            "No streak penalty or Monday reset"
+          ],
+          "handsOn": "After a simulated three-day break, continue from the resume note in under five minutes.",
+          "masteryGate": "Continue work without restarting the phase or rereading everything."
+        }
+      ],
+      "boss": {
+        "id": "p0-boss-unfamiliar-problem",
+        "title": "Boss 0 - Unfamiliar Problem Under Uncertainty",
+        "purpose": "Demonstrate the learning process before technical mastery.",
+        "build": "Solve a small unfamiliar logic or coding task while logging the think-first protocol, one failed test, one search decision, and a resume note.",
+        "challenge": "A new variation is supplied after the first solution.",
+        "passGate": "The attempt shows independent hypotheses, evidence-based updates, and a clear explanation even if the final answer is imperfect."
+      },
+      "project": null
+    },
+
+    {
+      "id": "p1",
+      "order": 1,
+      "title": "Python for AI/ML",
+      "duration": "3-4 weeks",
+      "purpose": "Become productive in Python through comparison, implementation, testing, and data work rather than passive beginner lectures.",
+      "prerequisites": ["General programming experience helpful, not required", "Phase 0 practices active"],
+      "modules": [
+        {
+          "id": "p1-language-core",
+          "title": "Python language core",
+          "depth": "core",
+          "prerequisites": "Ability to run Python and edit a file.",
+          "firstAction": "Rewrite one small program you know from another language in idiomatic Python.",
+          "mustCover": ["Variables and dynamic typing", "Conditionals and loops", "Functions, scope, arguments, *args and **kwargs", "Comprehensions and lambda intuition", "Modules, packages, and imports", "Exceptions, file handling, and context managers"],
+          "handsOn": "Translate three familiar programs from another language into idiomatic Python.",
+          "masteryGate": "Write and explain a multi-file program without tutorial copying."
+        },
+        {
+          "id": "p1-data-structures-object-model",
+          "title": "Data structures and object model",
+          "depth": "core",
+          "prerequisites": "Python language core.",
+          "firstAction": "Build a tiny inventory class and try to break it with aliasing.",
+          "mustCover": ["list, tuple, set, dictionary, and strings", "Mutability and immutability", "Hashing", "References, shallow copy, deep copy", "Classes, inheritance, dataclasses, type hints", "Iterators, generators, decorator intuition"],
+          "handsOn": "Build a small inventory model and deliberately trigger aliasing and mutation bugs.",
+          "masteryGate": "Select the correct structure and explain time/memory tradeoffs."
+        },
+        {
+          "id": "p1-complexity-engineering",
+          "title": "Complexity and Python engineering",
+          "depth": "core",
+          "prerequisites": "Language core and data structures.",
+          "firstAction": "Time a brute-force duplicate check vs a set-based one on the same input.",
+          "mustCover": ["O(1), O(n), O(n log n), O(n^2)", "Time-memory tradeoffs", "Virtual environments and packages", "Dependency files", "Debugging and logging", "pytest", "Basic package structure", "Command-line execution", "Git basics"],
+          "handsOn": "Package a command-line tool with tests, logs, and reproducible setup instructions.",
+          "masteryGate": "A fresh environment can run the tests and tool from the README."
+        },
+        {
+          "id": "p1-numpy",
+          "title": "NumPy",
+          "depth": "core",
+          "prerequisites": "Loops, functions, lists, indexing, basic algebra.",
+          "firstAction": "Predict the output shape of x @ W before running it, then check.",
+          "mustCover": ["Arrays, dimensions, dtypes, shapes", "Indexing and slicing", "Broadcasting", "Vectorization", "Boolean masks and aggregation", "Matrix operations", "Performance vs Python loops", "Randomness and reproducibility"],
+          "handsOn": "Implement image-like array transformations with loops, then vectorize them.",
+          "masteryGate": "Predict output shapes and broadcasting behavior before execution."
+        },
+        {
+          "id": "p1-pandas",
+          "title": "Pandas",
+          "depth": "core",
+          "prerequisites": "Python structures and NumPy arrays.",
+          "firstAction": "Load one CSV, print shape/columns, inspect missing values, write three observations.",
+          "mustCover": ["Series and DataFrame", "CSV and JSON", "Filtering, sorting, grouping, joining, merging", "Missing values and duplicates", "Transformations", "apply vs vectorization", "Schema and dtype checks"],
+          "handsOn": "Clean a deliberately messy transaction table and produce summary statistics.",
+          "masteryGate": "Create a reproducible pipeline that handles new bad rows without manual edits."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-1-python-toolkit",
+        "title": "Python Data Processing Toolkit",
+        "purpose": "Prove practical Python, NumPy, Pandas, testing, and debugging fluency.",
+        "build": "Load messy transaction data; validate records; remove duplicates; quarantine bad rows; calculate statistics; flag suspicious records; export a report.",
+        "deliverables": ["Source package", "Tests", "Sample input/output", "README", "Short postmortem"],
+        "bossChallenge": "Process an unfamiliar dataset and requirements with documentation but no tutorial.",
+        "passGate": "Tests cover normal and failure cases; logging is useful; setup is reproducible; runtime and data assumptions are explained."
+      }
+    },
+
+    {
+      "id": "p2",
+      "order": 2,
+      "title": "Mathematics for Machine Learning",
+      "duration": "3-4 weeks",
+      "purpose": "Build math intuition for models, losses, representations, and optimization through code and visual experiments.",
+      "prerequisites": ["Phase 1 Python and NumPy", "High-school algebra"],
+      "modules": [
+        {
+          "id": "p2-linear-algebra",
+          "title": "Linear algebra",
+          "depth": "core",
+          "prerequisites": "NumPy arrays, functions, algebra.",
+          "firstAction": "Multiply a 3x3 matrix by a vector by hand, then check it with @ in NumPy.",
+          "mustCover": ["Scalars, vectors, matrices, tensors", "Dimensions and shapes", "Dot products and matrix multiplication", "Transpose", "Norms and cosine similarity", "Basis and linear transformation intuition", "Eigenvector and SVD awareness"],
+          "handsOn": "Visualize a 2D linear transformation and implement cosine similarity.",
+          "masteryGate": "Explain shapes and meaning for each matrix operation without guessing."
+        },
+        {
+          "id": "p2-statistics",
+          "title": "Statistics",
+          "depth": "core",
+          "prerequisites": "Python and basic arithmetic.",
+          "firstAction": "Compute mean/variance on a real column, then normalize it.",
+          "mustCover": ["Mean, median, mode", "Variance and standard deviation", "Quantiles and outliers", "Distributions and sampling", "Covariance and correlation", "Sampling bias", "Confidence interval intuition"],
+          "handsOn": "Simulate sampling distributions and demonstrate why correlation is not causation.",
+          "masteryGate": "Choose and interpret descriptive statistics for skewed and noisy data."
+        },
+        {
+          "id": "p2-probability",
+          "title": "Probability",
+          "depth": "core",
+          "prerequisites": "Statistics basics and algebra.",
+          "firstAction": "Compute P(fraud | flagged) with a made-up base rate and false-positive rate.",
+          "mustCover": ["Probability rules", "Conditional probability and independence", "Bayes theorem", "Priors and posteriors", "Likelihood", "Expectation", "Common discrete and continuous distributions"],
+          "handsOn": "Build a small Bayesian spam or diagnostic update simulation.",
+          "masteryGate": "Calculate and explain a conditional-probability result and its assumptions."
+        },
+        {
+          "id": "p2-calculus-optimization",
+          "title": "Calculus and optimization",
+          "depth": "deep",
+          "prerequisites": "Functions, graphs, linear algebra, NumPy.",
+          "firstAction": "Implement gradient descent on y=(x-5)^2 and watch it converge.",
+          "mustCover": ["Slopes and derivatives", "Partial derivatives and gradients", "Chain rule intuition", "Objective functions and loss surfaces", "Gradient descent", "Learning rate", "Convergence and local/global behavior"],
+          "handsOn": "Implement gradient descent manually; compare learning rates too high, too low, and reasonable.",
+          "masteryGate": "Predict and diagnose convergence behavior from the loss curve."
+        }
+      ],
+      "boss": {
+        "id": "p2-math-lab",
+        "title": "Math Lab - Optimization From Scratch",
+        "purpose": "Connect equations, code, and model behavior.",
+        "build": "Implement linear regression loss and gradient descent with NumPy, gradient checks, plots, and a short derivation.",
+        "challenge": "A changed loss surface or feature scale breaks the first setup; diagnose and stabilize it.",
+        "passGate": "Numerical gradients agree with analytic gradients; convergence behavior is explained."
+      },
+      "project": null
+    },
+
+    {
+      "id": "p3",
+      "order": 3,
+      "title": "Data Engineering Foundations for ML",
+      "duration": "3-4 weeks",
+      "purpose": "Learn to build trustworthy datasets and splits before building models.",
+      "prerequisites": ["Phases 1-2", "Command line and tabular data fluency"],
+      "modules": [
+        {
+          "id": "p3-sql",
+          "title": "SQL for analysis and pipelines",
+          "depth": "core",
+          "prerequisites": "Tables, basic data types, Phase 1 Python.",
+          "firstAction": "Write one query joining two tables and filtering with WHERE.",
+          "mustCover": ["SELECT, WHERE, CASE", "GROUP BY and HAVING", "Inner, left, right, full joins", "Subqueries and CTEs", "Window functions", "Aggregation", "Index intuition", "Query plans and performance basics"],
+          "handsOn": "Build a feature table from normalized transaction and customer tables.",
+          "masteryGate": "Write and explain a multi-stage query and validate row counts after joins."
+        },
+        {
+          "id": "p3-cleaning-preprocessing",
+          "title": "Cleaning and preprocessing",
+          "depth": "core",
+          "prerequisites": "Pandas and descriptive statistics.",
+          "firstAction": "Fit a scaler on train only, then transform test - never fit on test.",
+          "mustCover": ["Missing data", "Duplicates", "Outliers", "Categorical variables", "Scaling and normalization", "Encoding", "Transformations", "Feature engineering", "Schema validation"],
+          "handsOn": "Create a train-only preprocessing routine and compare alternative missing-data policies.",
+          "masteryGate": "Prevent preprocessing information from leaking across splits."
+        },
+        {
+          "id": "p3-eda",
+          "title": "Exploratory data analysis",
+          "depth": "core",
+          "prerequisites": "Pandas, statistics, plotting basics.",
+          "firstAction": "Plot the target's distribution and class balance before anything else.",
+          "mustCover": ["Distributions and class balance", "Correlations and anomalies", "Label quality", "Leakage detection", "Visualization", "Segment analysis", "Data questions before model questions"],
+          "handsOn": "Write an EDA report that ends with testable modeling risks and hypotheses.",
+          "masteryGate": "Identify at least three actionable data risks, not just plots."
+        },
+        {
+          "id": "p3-splitting-leakage",
+          "title": "Splitting, leakage, and dataset versions",
+          "depth": "deep",
+          "prerequisites": "Preprocessing and EDA.",
+          "firstAction": "Deliberately leak test data into a scaler, see the inflated score, then fix it.",
+          "mustCover": ["Training, validation, and test sets", "Stratified, temporal, and grouped splits", "Target, temporal, duplicate, and preprocessing leakage", "Raw, cleaned, and feature datasets", "Reproducibility", "Data lineage and version thinking"],
+          "handsOn": "Deliberately create and then fix four leakage scenarios.",
+          "masteryGate": "Explain why the chosen split represents deployment reality."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-2-house-price-regression",
+        "title": "House Price Regression",
+        "purpose": "Learn the full regression workflow with trustworthy data boundaries.",
+        "build": "Ingestion -> EDA -> preprocessing -> feature engineering -> naive baseline -> linear regression -> tree model -> evaluation -> residual analysis.",
+        "bossChallenge": "Evaluate on a neighborhood or time period absent from training.",
+        "passGate": "Report MAE, MSE, RMSE, and R-squared correctly; inspect residuals and failure slices; document leakage controls."
+      }
+    },
+
+    {
+      "id": "p4",
+      "order": 4,
+      "title": "Machine Learning Foundations",
+      "duration": "5 weeks",
+      "purpose": "Develop model-selection judgment across supervised and unsupervised learning.",
+      "prerequisites": ["Phases 1-3, especially splits, preprocessing, linear algebra, probability, optimization"],
+      "modules": [
+        {
+          "id": "p4-learning-generalization",
+          "title": "Learning concepts and generalization",
+          "depth": "core",
+          "prerequisites": "Train/validation/test splits and basic statistics.",
+          "firstAction": "Deliberately train one model to underfit and one to overfit; compare curves.",
+          "mustCover": ["Traditional programming vs ML", "Supervised and unsupervised learning", "Regression, classification, clustering", "Features and targets", "Parameters and hyperparameters", "Training and inference", "Generalization", "Bias and variance", "Underfitting and overfitting"],
+          "handsOn": "Create learning curves for an intentionally underfit and overfit model.",
+          "masteryGate": "Diagnose bias/variance symptoms and recommend a justified next experiment."
+        },
+        {
+          "id": "p4-regression-models",
+          "title": "Regression models",
+          "depth": "core",
+          "prerequisites": "Linear algebra, optimization, regression metrics.",
+          "firstAction": "Fit linear, Ridge, and a tree regressor on the same split and compare.",
+          "mustCover": ["Linear regression", "Assumptions", "Ridge and Lasso", "Regularization paths", "Tree regression", "Nonlinear feature effects"],
+          "handsOn": "Compare linear, regularized, and tree regressors on the same split.",
+          "masteryGate": "Explain when each model is appropriate and how it can fail."
+        },
+        {
+          "id": "p4-classification-models",
+          "title": "Classification models",
+          "depth": "core",
+          "prerequisites": "Probability, preprocessing, classification framing.",
+          "firstAction": "Plot a decision boundary on a small 2D dataset for two different classifiers.",
+          "mustCover": ["Logistic regression", "k-nearest neighbors", "Naive Bayes intuition", "Support vector machine intuition", "Decision trees", "Random forests"],
+          "handsOn": "Build decision boundaries on a small 2D dataset and test sensitivity to scaling.",
+          "masteryGate": "Select a classifier based on data size, geometry, interpretability, and latency."
+        },
+        {
+          "id": "p4-ensembles",
+          "title": "Ensembles",
+          "depth": "core",
+          "prerequisites": "Decision trees and bias/variance.",
+          "firstAction": "Train a single tree, a random forest, and a boosted model on identical data.",
+          "mustCover": ["Bagging", "Random forests", "Boosting", "Gradient boosting", "XGBoost and LightGBM concepts and usage", "Hyperparameter interactions", "Early stopping"],
+          "handsOn": "Compare a single tree, forest, and boosted model under controlled experiments.",
+          "masteryGate": "Explain performance, calibration, interpretability, and runtime tradeoffs."
+        },
+        {
+          "id": "p4-unsupervised",
+          "title": "Unsupervised learning",
+          "depth": "core",
+          "prerequisites": "Linear algebra, distance metrics, scaling, EDA.",
+          "firstAction": "Run k-means on scaled data and visualize the clusters with PCA.",
+          "mustCover": ["k-means", "Cluster evaluation intuition", "PCA", "Dimensionality reduction intuition", "Anomaly detection awareness", "Limits of interpreting clusters"],
+          "handsOn": "Cluster a dataset after scaling, visualize with PCA, and test stability.",
+          "masteryGate": "Avoid claiming meaningful segments without evidence and stability checks."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-3-customer-churn",
+        "title": "Customer Churn Prediction",
+        "purpose": "Transfer the classification workflow to a second domain.",
+        "build": "EDA, encoding, feature engineering, logistic regression, random forest, boosting, explainability, business tradeoff analysis.",
+        "bossChallenge": "A capacity constraint limits how many customers can be contacted.",
+        "passGate": "Choose a threshold and ranked intervention policy based on costs, benefits, and capacity; inspect error slices."
+      }
+    },
+
+    {
+      "id": "p5",
+      "order": 5,
+      "title": "Evaluation, Experimentation, and Error Analysis",
+      "duration": "3 weeks",
+      "purpose": "Treat metrics and error analysis as engineering decisions rather than score reporting.",
+      "prerequisites": ["A working regression and classification pipeline from Phase 4"],
+      "modules": [
+        {
+          "id": "p5-classification-metrics",
+          "title": "Classification metrics",
+          "depth": "core",
+          "prerequisites": "Binary classification predictions and basic probability.",
+          "firstAction": "Compute precision and recall by hand from a small confusion matrix.",
+          "mustCover": ["TP, TN, FP, FN", "Confusion matrix", "Accuracy", "Precision and recall", "Specificity", "F1", "Macro, micro, weighted averaging", "Metric failure modes"],
+          "handsOn": "Compute metrics from scratch and verify against a library.",
+          "masteryGate": "Choose metrics from the real cost of each error type."
+        },
+        {
+          "id": "p5-curves-thresholds-calibration",
+          "title": "Curves, thresholds, and calibration",
+          "depth": "core",
+          "prerequisites": "Classification metrics and predicted probabilities.",
+          "firstAction": "Move the decision threshold from 0.5 to 0.3 and watch precision/recall shift.",
+          "mustCover": ["ROC and ROC-AUC", "Precision-recall and PR-AUC", "Confidence and decision thresholds", "Cost-sensitive decisions", "Capacity constraints", "Probability calibration", "Reliability diagrams"],
+          "handsOn": "Plot threshold tradeoffs and create a cost curve.",
+          "masteryGate": "Defend an operating threshold and check whether confidence is calibrated."
+        },
+        {
+          "id": "p5-validation-discipline",
+          "title": "Validation and experimental discipline",
+          "depth": "core",
+          "prerequisites": "Splits, leakage controls, metrics.",
+          "firstAction": "Run the same model with 3 different random seeds and compare variance.",
+          "mustCover": ["Holdout and cross-validation", "Stratification", "Grouped and temporal validation", "Repeated experiments and random seeds", "Baseline discipline", "Ablation studies", "Experiment tables"],
+          "handsOn": "Run a controlled ablation where one factor changes at a time.",
+          "masteryGate": "Results are reproducible and claims match uncertainty and validation design."
+        },
+        {
+          "id": "p5-error-analysis",
+          "title": "Error analysis",
+          "depth": "deep",
+          "prerequisites": "A trained model with stored predictions and metadata.",
+          "firstAction": "Pull up 10 wrong predictions and look for a pattern before touching the model.",
+          "mustCover": ["Inspect actual wrong predictions", "Slice by subgroup and condition", "Confidently wrong cases", "Label and data errors", "Model vs threshold errors", "Error taxonomy", "Next-experiment selection"],
+          "handsOn": "Manually review at least 50 errors and build an error taxonomy.",
+          "masteryGate": "Convert the largest actionable error class into a prioritized experiment."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-4a-fraud-detection",
+        "title": "Production Fraud Detection System, Part A",
+        "purpose": "Create a major portfolio project centered on imbalanced classification and decisions.",
+        "build": "EDA, preprocessing pipeline, naive baseline, logistic regression, random forest, boosting, imbalance handling, threshold optimization, PR-AUC evaluation, error analysis.",
+        "bossChallenge": "Fraud prevalence and investigator capacity change after training.",
+        "passGate": "The report chooses a deployable threshold, quantifies workload, and shows failure slices rather than declaring success from accuracy."
+      }
+    },
+
+    {
+      "id": "p6",
+      "order": 6,
+      "title": "Feature Engineering and Practical ML",
+      "duration": "2-3 weeks",
+      "purpose": "Build robust preprocessing and extract useful signal without contaminating evaluation.",
+      "prerequisites": ["Phases 3-5 and scikit-learn model pipelines"],
+      "modules": [
+        {
+          "id": "p6-preprocessing-pipelines",
+          "title": "Reusable preprocessing pipelines",
+          "depth": "core",
+          "prerequisites": "Cleaning, encoding, scaling, train/test boundaries.",
+          "firstAction": "Refactor one notebook step into a scikit-learn Pipeline object.",
+          "mustCover": ["Pipeline and ColumnTransformer", "Categorical encoding", "Feature scaling", "Transformations", "Custom transformers", "fit vs transform", "Serialization and schema checks"],
+          "handsOn": "Refactor an ad hoc notebook into a single reproducible training pipeline.",
+          "masteryGate": "Raw validation data can flow through the pipeline without manual preprocessing."
+        },
+        {
+          "id": "p6-imbalanced-learning",
+          "title": "Imbalanced learning",
+          "depth": "core",
+          "prerequisites": "Classification metrics, thresholding, pipelines.",
+          "firstAction": "Compare class_weight='balanced' vs no weighting on the same fraud split.",
+          "mustCover": ["Class weighting", "Oversampling and undersampling", "SMOTE", "When not to use SMOTE", "Resampling inside validation folds", "Precision-recall tradeoffs"],
+          "handsOn": "Compare class weights, resampling, and thresholding without leakage.",
+          "masteryGate": "Recommend a method based on data geometry, calibration, and deployment cost."
+        },
+        {
+          "id": "p6-feature-creation-selection",
+          "title": "Feature creation and selection",
+          "depth": "core",
+          "prerequisites": "EDA, domain understanding, model baselines.",
+          "firstAction": "Derive one temporal feature (e.g. hour of day) and check if it moves the metric.",
+          "mustCover": ["Domain features", "Interaction terms and ratios", "Temporal and aggregation features", "Filter methods", "Model-based selection", "Regularization", "Feature importance stability"],
+          "handsOn": "Create a feature registry with definition, source, availability time, and risk.",
+          "masteryGate": "Every feature is available at inference time and improves validated performance or understanding."
+        },
+        {
+          "id": "p6-explainability",
+          "title": "Explainability",
+          "depth": "core",
+          "prerequisites": "Linear and tree models; validation data.",
+          "firstAction": "Explain one correct and one incorrect prediction using feature importance.",
+          "mustCover": ["Coefficients", "Tree importance", "Permutation importance", "SHAP concepts and usage", "Global vs local explanations", "Correlated-feature caveats", "Explanation vs causation"],
+          "handsOn": "Explain five correct and five incorrect predictions using two methods.",
+          "masteryGate": "Explanations are stable enough for the claim and never presented as causal proof."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-6-practical-ml-upgrade",
+        "title": "Practical ML Upgrade - Churn or Fraud",
+        "purpose": "Turn a notebook result into a reusable pipeline with defensible features.",
+        "build": "Add a ColumnTransformer pipeline, imbalance experiments, feature registry, explainability, schema checks, and ablation report to an earlier project.",
+        "bossChallenge": "One high-importance feature is revealed to be unavailable at inference time.",
+        "passGate": "The invalid feature is detected, removed, and the performance change is documented."
+      }
+    },
+
+    {
+      "id": "p7",
+      "order": 7,
+      "title": "ML Debugging",
+      "duration": "2-3 weeks",
+      "purpose": "Train hypothesis-driven diagnosis of broken experiments and suspicious results.",
+      "prerequisites": ["At least two complete ML pipelines and Phase 0 think-first practice"],
+      "modules": [
+        {
+          "id": "p7-data-pipeline-failures",
+          "title": "Data and pipeline failures",
+          "depth": "deep",
+          "prerequisites": "Data lineage, preprocessing pipelines, splits.",
+          "firstAction": "Given a suspiciously high accuracy, write 3 hypotheses before checking anything.",
+          "mustCover": ["99.9% suspicious accuracy", "Leakage", "Shuffled or shifted labels", "Wrong preprocessing", "Train/test mismatch", "Duplicate entities across splits", "Feature distribution shifts"],
+          "handsOn": "Diagnose a suite of seeded data bugs without searching first.",
+          "masteryGate": "Each diagnosis contains three hypotheses, discriminating tests, and evidence."
+        },
+        {
+          "id": "p7-model-optimization-failures",
+          "title": "Model and optimization failures",
+          "depth": "deep",
+          "prerequisites": "Metrics, classical ML, basic optimization.",
+          "firstAction": "Reproduce a NaN loss on a toy model, then instrument it to find the cause.",
+          "mustCover": ["Predicts one class", "NaN losses", "Unstable training", "Wrong metric", "Incorrect threshold", "Bad learning rate", "Silent shape and dtype issues"],
+          "handsOn": "Create a minimal reproduction and instrument inputs, outputs, loss, and gradients.",
+          "masteryGate": "Find the root cause instead of masking the symptom."
+        },
+        {
+          "id": "p7-debugging-workflow-communication",
+          "title": "Debugging workflow and communication",
+          "depth": "deep",
+          "prerequisites": "Data/model failure practice.",
+          "firstAction": "Reduce a broken script to the smallest input that still fails.",
+          "mustCover": ["Reproduce", "Reduce", "Inspect invariants", "Bisect the pipeline", "Add assertions and tests", "Record observations", "Separate fact from hypothesis", "Write a concise incident report"],
+          "handsOn": "Reduce a broken training script to the smallest failing example.",
+          "masteryGate": "A teammate could reproduce the bug and understand why the fix works."
+        }
+      ],
+      "boss": {
+        "id": "p7-boss-broken-pipeline",
+        "title": "Boss 7 - Broken Pipeline",
+        "purpose": "Demonstrate adaptive debugging under uncertainty.",
+        "build": "Diagnose an unfamiliar pipeline containing multiple interacting errors.",
+        "challenge": "The first apparent fix improves the metric but preserves a hidden leakage path.",
+        "passGate": "Identify all material causes, add regression tests, and explain the final evidence chain."
+      },
+      "project": null
+    },
+
+    {
+      "id": "p8",
+      "order": 8,
+      "title": "Deep Learning Foundations",
+      "duration": "5-6 weeks",
+      "purpose": "Understand neural networks from manual calculations through reliable PyTorch training loops.",
+      "prerequisites": ["Phases 1-2", "Phase 5 evaluation", "Phase 7 debugging"],
+      "modules": [
+        {
+          "id": "p8-nn-intuition-forward-pass",
+          "title": "Neural network intuition and forward pass",
+          "depth": "core",
+          "prerequisites": "Linear algebra, functions, probability.",
+          "firstAction": "Calculate a 2-neuron forward pass by hand, then in NumPy, then in PyTorch.",
+          "mustCover": ["Neurons, weights, biases, layers", "Activations and representations", "Forward propagation", "Logits and probabilities", "Loss functions"],
+          "handsOn": "Calculate a tiny network manually, then reproduce it in NumPy and PyTorch.",
+          "masteryGate": "All three implementations agree and tensor shapes are explained."
+        },
+        {
+          "id": "p8-backprop-autograd",
+          "title": "Backpropagation and autograd",
+          "depth": "deep",
+          "prerequisites": "Derivatives, gradients, chain rule, forward pass.",
+          "firstAction": "Backprop a 2-layer net by hand for one example, then compare to autograd.",
+          "mustCover": ["Loss gradients", "Chain rule intuition", "Computational graphs", "Autograd", "Gradient checking", "detach and no-grad intuition"],
+          "handsOn": "Backpropagate through a tiny network manually and compare with autograd.",
+          "masteryGate": "Numerical, manual, and autograd gradients agree within tolerance."
+        },
+        {
+          "id": "p8-pytorch-training-system",
+          "title": "PyTorch training system",
+          "depth": "core",
+          "prerequisites": "Python classes, NumPy, neural-network basics.",
+          "firstAction": "Write the 4-step training loop (forward, loss, backward, step) from scratch.",
+          "mustCover": ["Tensors and devices", "CPU and GPU", "Dataset and DataLoader", "nn.Module and forward", "Losses and optimizers", "Training and validation loops", "Checkpoints", "Mixed precision awareness"],
+          "handsOn": "Build a reusable trainer with metrics, checkpointing, and deterministic seeds.",
+          "masteryGate": "Resume training from a checkpoint and reproduce a validation result."
+        },
+        {
+          "id": "p8-activations-optimization",
+          "title": "Activations and optimization",
+          "depth": "core",
+          "prerequisites": "Backpropagation and training loop.",
+          "firstAction": "Swap SGD for Adam in an identical training loop and compare convergence.",
+          "mustCover": ["ReLU, sigmoid, tanh, softmax, GELU awareness", "SGD, momentum, Adam, AdamW", "Learning-rate schedules", "Initialization", "Batch size and epochs", "Normalization"],
+          "handsOn": "Compare optimizers and schedules while controlling all other variables.",
+          "masteryGate": "Interpret the learning curves and recommend a configuration."
+        },
+        {
+          "id": "p8-regularization-training-behavior",
+          "title": "Regularization and training behavior",
+          "depth": "core",
+          "prerequisites": "A functioning neural training loop.",
+          "firstAction": "Deliberately overfit a small model, then add dropout and compare curves.",
+          "mustCover": ["L1/L2 and weight decay", "Dropout", "Early stopping", "Overfitting and underfitting", "Vanishing and exploding gradients", "Poor learning rate", "Data and model capacity"],
+          "handsOn": "Intentionally underfit, overfit, and correctly fit the same task.",
+          "masteryGate": "Explain the mechanism and evidence for each behavior."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-5-neural-fraud-model",
+        "title": "Neural Fraud Model",
+        "purpose": "Practice deep learning while preserving model-selection judgment.",
+        "build": "Build a neural model, calibrate and threshold it, and compare it against classical baselines under identical splits.",
+        "bossChallenge": "The neural model may lose to gradient boosting; choose the production candidate anyway.",
+        "passGate": "The final recommendation is based on quality, calibration, latency, maintenance, and explainability rather than model fashion."
+      }
+    },
+
+    {
+      "id": "p9",
+      "order": 9,
+      "title": "NLP Foundations",
+      "duration": "3 weeks",
+      "purpose": "Gain practical breadth in text modeling before transformers and multimodal systems.",
+      "prerequisites": ["Phases 1, 4, 5, and 8"],
+      "modules": [
+        {
+          "id": "p9-text-representation-preprocessing",
+          "title": "Text representation and preprocessing",
+          "depth": "core",
+          "prerequisites": "Python strings, Pandas, classification framing.",
+          "firstAction": "Tokenize a sentence by hand and see where naive splitting breaks.",
+          "mustCover": ["Tokenization and normalization", "Punctuation and stop words", "Stemming and lemmatization intuition", "n-grams", "Vocabulary and OOV issues", "Data leakage in text"],
+          "handsOn": "Build a deterministic tokenizer and inspect where normalization destroys meaning.",
+          "masteryGate": "Justify each preprocessing choice for the task and language."
+        },
+        {
+          "id": "p9-classical-nlp",
+          "title": "Classical NLP",
+          "depth": "core",
+          "prerequisites": "Text preprocessing and classical classifiers.",
+          "firstAction": "Compare Bag-of-Words and TF-IDF vectors for the same two sentences.",
+          "mustCover": ["Bag of Words", "TF-IDF", "Naive Bayes", "Logistic regression", "SVM intuition", "Sparse feature pipelines"],
+          "handsOn": "Compare sparse baselines on the same reviews dataset.",
+          "masteryGate": "Perform slice and vocabulary error analysis, not score-only comparison."
+        },
+        {
+          "id": "p9-embeddings-sequence-models",
+          "title": "Embeddings and sequence models",
+          "depth": "core",
+          "prerequisites": "Linear algebra, deep learning, tokenization.",
+          "firstAction": "Find the nearest neighbors of one word embedding and sanity-check them.",
+          "mustCover": ["Dense vectors and similarity", "Word and sentence embeddings", "RNN intuition", "LSTM", "GRU awareness", "Sequence bottlenecks and long-range weaknesses"],
+          "handsOn": "Visualize embedding neighbors and train a small sequence baseline.",
+          "masteryGate": "Explain why sequence models existed and where they struggle."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-6-sentiment-analysis",
+        "title": "Sentiment Analysis System",
+        "purpose": "Transfer evaluation and error-analysis habits to text.",
+        "build": "Compare Bag of Words, TF-IDF, logistic regression, SVM, and embedding-based representations on real review data.",
+        "bossChallenge": "Evaluate negation, sarcasm, domain slang, short texts, and class imbalance.",
+        "passGate": "The report contains meaningful slices and a justified baseline; a transformer comparison is optional until Phase 10."
+      }
+    },
+
+    {
+      "id": "p10",
+      "order": 10,
+      "title": "Transformers and Generative AI",
+      "duration": "4-5 weeks",
+      "purpose": "Understand attention, transformer workflows, retrieval, and GenAI reliability with enough depth to build and evaluate systems.",
+      "prerequisites": ["Deep learning, embeddings, NLP basics, matrix multiplication, probability, evaluation"],
+      "modules": [
+        {
+          "id": "p10-attention-transformer-architecture",
+          "title": "Attention and transformer architecture",
+          "depth": "core",
+          "prerequisites": "Sequence-model limitations and linear algebra.",
+          "firstAction": "Calculate a tiny attention score matrix by hand for a 3-token sequence.",
+          "mustCover": ["Self-attention", "Query, key, value", "Attention scores", "Positional information", "Encoder, decoder, encoder-decoder", "Residuals and normalization", "Causal masking"],
+          "handsOn": "Calculate a tiny attention example and inspect attention shapes in code.",
+          "masteryGate": "Explain information flow and computational cost without relying on slogans."
+        },
+        {
+          "id": "p10-llm-lifecycle",
+          "title": "LLM lifecycle",
+          "depth": "core",
+          "prerequisites": "Transformer architecture and PyTorch concepts.",
+          "firstAction": "Try the same prompt three ways and compare outputs before touching fine-tuning.",
+          "mustCover": ["Tokenization", "Pretraining and next-token prediction", "Context windows", "Instruction tuning", "Fine-tuning", "PEFT and LoRA intuition", "Inference controls", "Quantization awareness"],
+          "handsOn": "Fine-tune or adapt a small model only after establishing a prompt and retrieval baseline.",
+          "masteryGate": "Choose prompting, retrieval, or tuning based on evidence and constraints."
+        },
+        {
+          "id": "p10-embeddings-search-rag",
+          "title": "Embeddings, search, and RAG",
+          "depth": "core",
+          "prerequisites": "Embeddings, APIs or local models, data pipelines.",
+          "firstAction": "Embed 5 short documents and retrieve the nearest one for a test query.",
+          "mustCover": ["Semantic similarity", "Search and clustering", "Ingestion and chunking", "Vector stores", "Retrieval", "Reranking intuition", "Prompt construction", "Citations", "Retrieval and answer evaluation"],
+          "handsOn": "Build a small cited question-answering system over a controlled document set.",
+          "masteryGate": "Measure retrieval separately from answer quality and surface unsupported answers."
+        },
+        {
+          "id": "p10-genai-reliability-agents",
+          "title": "GenAI reliability and agents",
+          "depth": "core",
+          "prerequisites": "RAG pipeline and evaluation discipline.",
+          "firstAction": "Ask your RAG system a question with no supporting document and see what it does.",
+          "mustCover": ["Hallucinations and grounding", "Prompt injection awareness", "Guardrails", "Human-in-the-loop", "Tool use", "Agent loop intuition", "State and memory", "Cost, latency, and failure handling"],
+          "handsOn": "Create adversarial and out-of-scope tests for the RAG system.",
+          "masteryGate": "The system refuses or escalates when evidence is absent and logs tool failures."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-7-rag-assistant",
+        "title": "Evaluated RAG Assistant",
+        "purpose": "Build a GenAI system with explicit evidence and failure analysis.",
+        "build": "Ingest documents, chunk and embed them, retrieve and optionally rerank, generate cited answers, evaluate retrieval and answer faithfulness.",
+        "bossChallenge": "Add conflicting documents, prompt injection text, and unanswerable questions.",
+        "passGate": "Unsupported claims are detected; evaluation set, latency, cost, and known limitations are documented."
+      }
+    },
+
+    {
+      "id": "p11",
+      "order": 11,
+      "title": "Computer Vision Foundations",
+      "duration": "4-5 weeks",
+      "purpose": "Understand images as data and build reliable classical vision pipelines before deep vision.",
+      "prerequisites": ["Python, NumPy, linear algebra, statistics, data pipelines, evaluation"],
+      "modules": [
+        {
+          "id": "p11-image-representation-geometry",
+          "title": "Image representation and geometry",
+          "depth": "core",
+          "prerequisites": "NumPy shapes, matrices, coordinate systems.",
+          "firstAction": "Predict an image's array shape before loading it, then check.",
+          "mustCover": ["Pixels, channels, bit depth, dynamic range", "RGB, BGR, HSV, grayscale, color conversion", "Image coordinates", "Resize, crop, pad, rotate, affine transforms", "Interpolation", "Aspect ratio and letterboxing"],
+          "handsOn": "Implement resize, crop, and color transforms; predict shape and coordinate changes.",
+          "masteryGate": "Transform a point or bounding box correctly through an image pipeline."
+        },
+        {
+          "id": "p11-filtering-image-formation",
+          "title": "Filtering and image formation",
+          "depth": "core",
+          "prerequisites": "Image arrays and basic calculus.",
+          "firstAction": "Apply a blur kernel and a Canny edge detector to the same image and compare.",
+          "mustCover": ["Convolution", "Kernels", "Blur and denoise", "Gradients and edges", "Sobel and Canny intuition", "Morphology", "Thresholding", "Histograms", "Noise, lighting, blur, compression, lens distortion"],
+          "handsOn": "Build a classical defect or document-cleanup pipeline and test lighting changes.",
+          "masteryGate": "Explain each operator and tune it from visual evidence."
+        },
+        {
+          "id": "p11-features-contours-geometry",
+          "title": "Features, contours, and geometry",
+          "depth": "core",
+          "prerequisites": "Filtering, thresholding, linear algebra.",
+          "firstAction": "Detect contours in a thresholded image and draw bounding boxes around them.",
+          "mustCover": ["Contours and connected components", "Shape descriptors", "Corners and keypoints", "Feature descriptors and matching", "Homography", "Perspective correction", "Camera calibration awareness"],
+          "handsOn": "Detect and rectify a document or planar object from a camera image.",
+          "masteryGate": "Handle failed matches and explain geometric assumptions."
+        },
+        {
+          "id": "p11-vision-data-annotation",
+          "title": "Vision data and annotation",
+          "depth": "core",
+          "prerequisites": "Data engineering, splitting, image formats.",
+          "firstAction": "Write a one-page annotation guideline for one label type before labeling anything.",
+          "mustCover": ["Classification, box, mask, keypoint, track labels", "Annotation guidelines", "Inter-annotator agreement", "Dataset sampling", "Near-duplicate detection", "Grouped splits", "Class and condition balance", "Augmentation vs real diversity"],
+          "handsOn": "Write an annotation guide and audit 100 labels for consistency.",
+          "masteryGate": "Split by scene/entity so near duplicates cannot inflate evaluation."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "vision-lab-document-scanner",
+        "title": "Vision Lab - Document Scanner or Visual Inspection",
+        "purpose": "Connect image geometry, classical operations, and evaluation.",
+        "build": "Build a pipeline that detects, rectifies, cleans, and exports a document, or detects a simple visual defect under controlled conditions.",
+        "bossChallenge": "Test glare, shadows, rotation, blur, compression, and clutter.",
+        "passGate": "Failure cases are categorized and the geometry remains correct across transformations."
+      }
+    },
+
+    {
+      "id": "p12",
+      "order": 12,
+      "title": "CNNs, Classification, and Transfer Learning",
+      "duration": "5-6 weeks",
+      "purpose": "Master the deep-learning workflow for images, from convolution through deployment-aware classification.",
+      "prerequisites": ["Phases 8 and 11", "Reliable PyTorch training and vision datasets"],
+      "modules": [
+        {
+          "id": "p12-cnns",
+          "title": "Convolutional neural networks",
+          "depth": "deep",
+          "prerequisites": "Convolution math, neural networks, tensors.",
+          "firstAction": "Calculate a conv layer's output shape by hand from kernel/stride/padding, then verify.",
+          "mustCover": ["Convolution, stride, padding, dilation", "Receptive field", "Pooling", "Feature maps", "Channels", "Hierarchical representations", "Parameter sharing", "CNN architecture patterns"],
+          "handsOn": "Calculate output shapes and receptive fields; train a small CNN from scratch.",
+          "masteryGate": "Predict tensor shapes and diagnose a shape or capacity failure."
+        },
+        {
+          "id": "p12-image-classification-pipeline",
+          "title": "Image classification pipeline",
+          "depth": "core",
+          "prerequisites": "CNNs, DataLoader, metrics, image preprocessing.",
+          "firstAction": "Set up train vs eval transforms and check they differ appropriately.",
+          "mustCover": ["Label design", "Normalization", "Augmentation", "Train/validation transforms", "Class imbalance", "Top-k metrics", "Confusion matrix", "Per-class and condition slices", "Test-time behavior"],
+          "handsOn": "Build a reproducible classifier and manually inspect confident errors.",
+          "masteryGate": "Evaluation includes real deployment conditions and no transform leakage."
+        },
+        {
+          "id": "p12-transfer-learning-fine-tuning",
+          "title": "Transfer learning and fine-tuning",
+          "depth": "core",
+          "prerequisites": "Working classifier and pretrained-model concept.",
+          "firstAction": "Freeze a pretrained backbone and train only the head; compare to full fine-tune.",
+          "mustCover": ["Feature extraction vs fine-tuning", "Freezing and unfreezing", "Differential learning rates", "Domain shift", "Small-data strategy", "Checkpoint selection", "Catastrophic forgetting awareness"],
+          "handsOn": "Compare scratch, frozen-backbone, and fine-tuned models on the same data.",
+          "masteryGate": "Select the simplest approach that meets the validated requirement."
+        },
+        {
+          "id": "p12-interpretability-robustness",
+          "title": "Interpretability and robustness",
+          "depth": "core",
+          "prerequisites": "Trained CNN and error-analysis practice.",
+          "firstAction": "Run Grad-CAM on one correct and one wrong prediction and compare.",
+          "mustCover": ["Saliency and Grad-CAM intuition", "Spurious correlations", "Occlusion tests", "Corruption tests", "Adversarial-example awareness", "Uncertainty and abstention", "Model cards"],
+          "handsOn": "Reveal and mitigate one shortcut feature in the dataset.",
+          "masteryGate": "Document intended use, limits, and condition-specific performance."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-8-production-image-classifier",
+        "title": "Production-Style Image Classifier",
+        "purpose": "Create the first major CV portfolio project.",
+        "build": "Collect or curate data; define labels; train baselines and transfer-learning models; perform error analysis; test corruptions; package inference.",
+        "bossChallenge": "A hidden background cue causes high validation accuracy but poor field performance.",
+        "passGate": "The shortcut is identified, the dataset or training procedure is corrected, and the final model has a model card and reproducible inference."
+      }
+    },
+
+    {
+      "id": "p13",
+      "order": 13,
+      "title": "Object Detection, Segmentation, and Pose",
+      "duration": "6-8 weeks",
+      "purpose": "Learn localization tasks, their metrics, data formats, architectures, and failure modes.",
+      "prerequisites": ["Phases 11-12", "CNNs, transfer learning, rigorous evaluation"],
+      "modules": [
+        {
+          "id": "p13-detection-foundations",
+          "title": "Detection foundations",
+          "depth": "deep",
+          "prerequisites": "Image coordinates, bounding boxes, CNN features, classification.",
+          "firstAction": "Implement IoU between two boxes by hand and check against a library.",
+          "mustCover": ["Bounding-box formats", "IoU", "Anchors and anchor-free intuition", "Objectness and class scores", "Non-maximum suppression", "One-stage vs two-stage detectors", "YOLO and Faster R-CNN concepts", "Small-object and crowded-scene issues"],
+          "handsOn": "Implement IoU and NMS; visualize every target transform.",
+          "masteryGate": "Boxes remain correct through resize, crop, flip, and letterbox operations."
+        },
+        {
+          "id": "p13-detection-evaluation-tuning",
+          "title": "Detection evaluation and tuning",
+          "depth": "deep",
+          "prerequisites": "A trained detector and ground-truth boxes.",
+          "firstAction": "Compute per-class AP for one class by hand from a small prediction set.",
+          "mustCover": ["Precision-recall by IoU", "Average precision and mAP", "Per-class AP", "Confidence and NMS thresholds", "Size and condition slices", "Localization vs classification errors", "Latency and throughput"],
+          "handsOn": "Build an error taxonomy using matched and unmatched predictions.",
+          "masteryGate": "Choose operating thresholds from task costs and latency constraints."
+        },
+        {
+          "id": "p13-segmentation",
+          "title": "Semantic and instance segmentation",
+          "depth": "core",
+          "prerequisites": "CNN feature maps, detection basics, mask labels.",
+          "firstAction": "Compute Dice score for one predicted mask against ground truth by hand.",
+          "mustCover": ["Semantic, instance, panoptic tasks", "Pixel-wise loss", "Dice and IoU", "Encoder-decoder and U-Net", "Mask R-CNN intuition", "Boundary errors", "Class imbalance", "Mask postprocessing"],
+          "handsOn": "Train a U-Net-style baseline and inspect boundary and small-region errors.",
+          "masteryGate": "Report class-wise mask metrics and visual failure categories."
+        },
+        {
+          "id": "p13-keypoints-pose",
+          "title": "Keypoints and pose",
+          "depth": "core",
+          "prerequisites": "Image geometry, heatmaps, detection or segmentation concepts.",
+          "firstAction": "Visualize a heatmap for one keypoint on one image before building anything.",
+          "mustCover": ["Keypoint labels and visibility", "Heatmaps", "Top-down vs bottom-up pose", "Pose metrics intuition", "Occlusion", "Skeletal constraints", "Application limits"],
+          "handsOn": "Build or adapt a small keypoint pipeline and visualize uncertainty.",
+          "masteryGate": "Handle missing and occluded points without silently treating them as negatives."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-9-detection-segmentation-system",
+        "title": "Detection and Segmentation System",
+        "purpose": "Build a real localization system with defensible data and metrics.",
+        "build": "Choose a domain; create annotation guidance; train a detector and one segmentation or pose component; analyze errors; benchmark latency; expose inference.",
+        "bossChallenge": "Evaluate on a new camera, environment, or object scale.",
+        "passGate": "The report separates data, classification, localization, and postprocessing failures and proposes prioritized fixes."
+      }
+    },
+
+    {
+      "id": "p14",
+      "order": 14,
+      "title": "Advanced Computer Vision and Multimodal Systems",
+      "duration": "6-8 weeks",
+      "purpose": "Broaden from single images to modern representation learning, video, geometry, and vision-language systems.",
+      "prerequisites": ["Phases 10-13, especially transformers, detection, segmentation"],
+      "modules": [
+        {
+          "id": "p14-vits-representation-learning",
+          "title": "Vision transformers and representation learning",
+          "depth": "core",
+          "prerequisites": "CNNs, attention, transfer learning.",
+          "firstAction": "Split an image into patches by hand and see how a ViT would embed them.",
+          "mustCover": ["Patch embeddings", "Vision Transformer", "CNN vs ViT tradeoffs", "Self-supervised learning intuition", "Contrastive learning", "Foundation-model adaptation", "Linear probing"],
+          "handsOn": "Compare a CNN and transformer backbone under matched data and compute.",
+          "masteryGate": "Explain data, latency, and transfer tradeoffs from evidence."
+        },
+        {
+          "id": "p14-vision-language-multimodal",
+          "title": "Vision-language and multimodal models",
+          "depth": "core",
+          "prerequisites": "Embeddings, transformers, image classification.",
+          "firstAction": "Try zero-shot classification with a few candidate text prompts and compare.",
+          "mustCover": ["Joint image-text embeddings", "CLIP concepts", "Zero-shot classification", "Prompt sensitivity", "Image-text retrieval", "Open-vocabulary detection awareness", "Grounding and hallucination risks"],
+          "handsOn": "Build a zero-shot or retrieval baseline and evaluate prompt variants.",
+          "masteryGate": "Separate semantic usefulness from calibrated confidence and deployment safety."
+        },
+        {
+          "id": "p14-video-tracking",
+          "title": "Video and multi-object tracking",
+          "depth": "deep",
+          "prerequisites": "Detection, time sequences, data association basics.",
+          "firstAction": "Manually match boxes across 2 consecutive frames before touching a real tracker.",
+          "mustCover": ["Frame sampling and codecs", "Motion and optical-flow intuition", "Tracking-by-detection", "Kalman filter intuition", "Data association and Hungarian matching", "SORT and DeepSORT concepts", "MOTA, IDF1, HOTA awareness", "Occlusion and identity switches"],
+          "handsOn": "Track objects in video and build an identity-switch error reel.",
+          "masteryGate": "Measure detection, association, and system latency separately."
+        },
+        {
+          "id": "p14-ocr-documents-visual-search",
+          "title": "OCR, documents, and visual search",
+          "depth": "core",
+          "prerequisites": "Classical vision, detection, text basics, embeddings.",
+          "firstAction": "Run OCR on one clean and one noisy image and compare error rates.",
+          "mustCover": ["Text detection and recognition", "Layout analysis", "Document preprocessing", "OCR metrics", "Image embeddings", "Nearest-neighbor search", "Duplicate and similarity detection"],
+          "handsOn": "Build an OCR or image-search pipeline with condition-specific tests.",
+          "masteryGate": "Errors are traced to detection, recognition, layout, or retrieval."
+        },
+        {
+          "id": "p14-depth-3d-camera-geometry",
+          "title": "Depth, 3D, and camera geometry",
+          "depth": "deep",
+          "prerequisites": "Linear algebra, image geometry, calibration awareness.",
+          "firstAction": "Project one known 3D point into image coordinates using an intrinsic matrix.",
+          "mustCover": ["Pinhole camera model", "Intrinsics and extrinsics", "Calibration", "Epipolar geometry intuition", "Stereo and depth", "Point clouds", "PnP and pose estimation awareness", "3D evaluation and uncertainty"],
+          "handsOn": "Calibrate a camera or use known parameters to estimate simple geometry.",
+          "masteryGate": "State coordinate frames, units, assumptions, and uncertainty correctly."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-10-video-perception-prototype",
+        "title": "Video Perception Prototype",
+        "purpose": "Integrate detection, tracking, events, and performance measurement.",
+        "build": "Process video, detect and track objects, define zones or lines, generate events, visualize tracks, record metrics and latency.",
+        "bossChallenge": "Handle occlusion, camera motion, low light, and dropped frames.",
+        "passGate": "Identity switches and missed events are analyzed; the prototype has a clear path to production."
+      }
+    },
+
+    {
+      "id": "p15",
+      "order": 15,
+      "title": "ML Software Engineering and MLOps",
+      "duration": "5-6 weeks",
+      "purpose": "Turn experiments into reproducible, testable, deployable, and observable ML systems.",
+      "prerequisites": ["At least one classical ML and one deep-learning project", "Python engineering and Git"],
+      "modules": [
+        {
+          "id": "p15-repo-testing-architecture",
+          "title": "Repository and testing architecture",
+          "depth": "core",
+          "prerequisites": "Python packages, Git, pytest, a trained model.",
+          "firstAction": "Write one real pytest test for an existing predict() function.",
+          "mustCover": ["Separate configuration, data, training, evaluation, inference", "Unit, integration, and data tests", "Type hints and linting", "Configuration management", "Secrets boundaries", "Reproducible environments", "CI basics"],
+          "handsOn": "Refactor one project into a clean package with automated checks.",
+          "masteryGate": "A clean checkout can run tests, train a small sample, and perform inference."
+        },
+        {
+          "id": "p15-experiment-data-model-management",
+          "title": "Experiment, data, and model management",
+          "depth": "core",
+          "prerequisites": "Reproducible training pipeline.",
+          "firstAction": "Log one training run's config and metrics to an experiment tracker.",
+          "mustCover": ["Experiment tracking", "Artifacts and metadata", "Data and model versioning", "Model registry concepts", "Lineage", "Reproducible seeds and environments", "Promotion criteria"],
+          "handsOn": "Reproduce a selected model from its recorded configuration and data version.",
+          "masteryGate": "The exact model decision can be audited from inputs to metrics."
+        },
+        {
+          "id": "p15-serving-apis",
+          "title": "Serving and APIs",
+          "depth": "core",
+          "prerequisites": "Packaged inference function and basic networking concepts.",
+          "firstAction": "Wrap an existing model in a single FastAPI /predict endpoint.",
+          "mustCover": ["Batch vs online inference", "REST API basics", "Request validation", "Preprocess-predict-postprocess contract", "Concurrency and batching", "Timeouts and errors", "Latency percentiles", "Load testing"],
+          "handsOn": "Expose a model behind a tested API and benchmark it.",
+          "masteryGate": "The service handles invalid inputs, timeouts, and concurrent requests predictably."
+        },
+        {
+          "id": "p15-containers-cloud-orchestration",
+          "title": "Containers, cloud, and orchestration",
+          "depth": "core",
+          "prerequisites": "Command line, networking basics, API service.",
+          "firstAction": "Write a minimal Dockerfile for the existing API and build it locally.",
+          "mustCover": ["Docker image and container concepts", "Volumes, ports, environment configuration", "CPU/GPU images", "Cloud storage, compute, IAM concepts", "Jobs vs services", "Autoscaling and orchestration awareness", "Cost controls"],
+          "handsOn": "Containerize training or inference and run it from documented commands.",
+          "masteryGate": "The container is minimal, repeatable, and contains no embedded secrets."
+        },
+        {
+          "id": "p15-monitoring-retraining",
+          "title": "Monitoring and retraining",
+          "depth": "deep",
+          "prerequisites": "Deployed service, logging, evaluation, data lineage.",
+          "firstAction": "Simulate a distribution shift on one feature and see if you'd notice it.",
+          "mustCover": ["Service health", "Input and prediction drift", "Data-quality checks", "Performance monitoring with delayed labels", "Alert design", "Shadow and canary release", "Rollback", "Retraining triggers", "Incident response"],
+          "handsOn": "Simulate distribution shift and design detection plus response.",
+          "masteryGate": "Alerts map to an owner, action, and rollback or investigation path."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-4b-deploy-fraud-system",
+        "title": "Deploy the Fraud System",
+        "purpose": "Complete the earlier major project as a production-style service.",
+        "build": "Add a package, tests, experiment tracking, versioned artifacts, API, container, monitoring plan, drift simulation, CI, and rollback procedure.",
+        "bossChallenge": "A schema change and distribution shift occur after deployment.",
+        "passGate": "The service fails safely, alerts clearly, and can be rolled back or retrained from traceable artifacts."
+      }
+    },
+
+    {
+      "id": "p16",
+      "order": 16,
+      "title": "Production Computer Vision and Edge Systems",
+      "duration": "4-6 weeks",
+      "purpose": "Meet real-time, hardware, privacy, and reliability constraints unique to vision systems.",
+      "prerequisites": ["Phases 13-15", "A working detector or video pipeline and containerized service"],
+      "modules": [
+        {
+          "id": "p16-inference-optimization",
+          "title": "Inference optimization",
+          "depth": "deep",
+          "prerequisites": "PyTorch model, profiling, hardware basics.",
+          "firstAction": "Profile the existing model's inference time before changing anything.",
+          "mustCover": ["Profiling before optimization", "Export formats and graph conversion concepts", "ONNX awareness", "Runtime engines", "Quantization", "Pruning awareness", "Batching", "Mixed precision", "Accuracy-latency-size tradeoffs"],
+          "handsOn": "Profile and optimize one model while tracking quality changes.",
+          "masteryGate": "Meet a declared latency target without hiding accuracy regressions."
+        },
+        {
+          "id": "p16-streaming-realtime-pipelines",
+          "title": "Streaming and real-time pipelines",
+          "depth": "deep",
+          "prerequisites": "Video I/O, tracking, serving.",
+          "firstAction": "Build a capture->infer->emit loop with a bounded queue and watch it under load.",
+          "mustCover": ["Capture, decode, preprocess, infer, postprocess, emit stages", "Queues and backpressure", "Frame dropping and sampling", "Synchronization", "Throughput vs end-to-end latency", "Resource monitoring", "Graceful degradation"],
+          "handsOn": "Build an instrumented streaming pipeline with bounded queues.",
+          "masteryGate": "The system remains stable when input rate exceeds processing rate."
+        },
+        {
+          "id": "p16-edge-deployment",
+          "title": "Edge deployment",
+          "depth": "core",
+          "prerequisites": "Containers, model export, inference optimization.",
+          "firstAction": "List the compute/memory constraints of your closest available edge target.",
+          "mustCover": ["Device constraints", "CPU, GPU, accelerator, memory tradeoffs", "Offline operation", "Remote updates", "Health checks", "Telemetry", "Power and thermal awareness", "Fleet versioning"],
+          "handsOn": "Create an edge deployment plan and run on the closest available constrained target.",
+          "masteryGate": "The plan covers upgrade, rollback, offline behavior, and device observability."
+        },
+        {
+          "id": "p16-cv-safety-privacy-responsible-deployment",
+          "title": "CV safety, privacy, and responsible deployment",
+          "depth": "core",
+          "prerequisites": "Evaluation, monitoring, application context.",
+          "firstAction": "List the worst plausible false-negative harm for your current CV project.",
+          "mustCover": ["Privacy by design", "Data retention and access", "Face and biometric sensitivity", "Demographic and condition slices", "Human review", "False-positive and false-negative harms", "Abstention and fail-safe behavior", "Security and adversarial awareness", "Documentation and governance"],
+          "handsOn": "Perform a pre-deployment risk review and define unacceptable failure conditions.",
+          "masteryGate": "The system has explicit use limits, escalation paths, and privacy controls."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "project-11-optimized-realtime-cv-service",
+        "title": "Optimized Real-Time CV Service",
+        "purpose": "Prove deployment-aware CV engineering.",
+        "build": "Export and optimize a detector or classifier; integrate it into a streaming service; benchmark quality and p50/p95 latency; add health, backpressure, and monitoring behavior.",
+        "bossChallenge": "Run under constrained compute and degraded input quality.",
+        "passGate": "The service meets a measurable SLO or transparently degrades and raises an actionable alert."
+      }
+    },
+
+    {
+      "id": "p17",
+      "order": 17,
+      "title": "Portfolio, Interview Readiness, and Final Capstone",
+      "duration": "6-10 weeks",
+      "purpose": "Integrate the entire curriculum into evidence of independent engineering judgment.",
+      "prerequisites": ["All core phases at Level 2", "Phases 7, 13, 15, 16 approaching Level 3"],
+      "modules": [
+        {
+          "id": "p17-portfolio-engineering",
+          "title": "Portfolio engineering",
+          "depth": "core",
+          "prerequisites": "Three completed projects with reproducible code.",
+          "firstAction": "Pick your single strongest project as the one to polish first.",
+          "mustCover": ["Select quality over quantity", "Problem and user framing", "Architecture diagram", "Data and model cards", "Reproducible setup", "Tests and demo", "Metrics and failure analysis", "Tradeoff narrative", "Clean repository history"],
+          "handsOn": "Turn one project into a five-minute demo and two-page technical case study.",
+          "masteryGate": "A reviewer can understand, run, and critique the work without a private explanation."
+        },
+        {
+          "id": "p17-ml-cv-system-design",
+          "title": "ML and CV system design",
+          "depth": "deep",
+          "prerequisites": "Training, serving, monitoring, data, and CV pipeline experience.",
+          "firstAction": "Whiteboard the requirements and constraints for one system before designing it.",
+          "mustCover": ["Clarify requirements", "Data acquisition and labeling", "Offline and online evaluation", "Architecture and interfaces", "Latency, throughput, and cost", "Failure modes", "Monitoring and rollback", "Privacy and safety", "Capacity estimates"],
+          "handsOn": "Design three systems: batch ML, online prediction, and real-time video perception.",
+          "masteryGate": "Tradeoffs are quantified and the design connects metrics to user outcomes."
+        },
+        {
+          "id": "p17-technical-interviews-communication",
+          "title": "Technical interviews and communication",
+          "depth": "deep",
+          "prerequisites": "Level 2 recall across core phases.",
+          "firstAction": "Run one mock interview question with no source open before scheduling a real one.",
+          "mustCover": ["Python and data structures", "SQL", "ML theory and metrics", "Deep learning", "CV concepts", "Debugging", "Coding from requirements", "Project storytelling", "Unknown-question protocol"],
+          "handsOn": "Run weekly mock interviews with no source open, followed by reconstruction and targeted repair.",
+          "masteryGate": "Explain core topics clearly, reason through unfamiliar questions, and correct mistakes without collapse."
+        },
+        {
+          "id": "p17-job-search-operating-system",
+          "title": "Job-search operating system",
+          "depth": "core",
+          "prerequisites": "Portfolio and target-role definition.",
+          "firstAction": "List 5 target roles and mark which evidence you already have for each.",
+          "mustCover": ["Role and company targeting", "Skills evidence matrix", "Resume bullets with impact", "Application tracking", "Networking and referrals", "Interview feedback loop", "Weekly output goals", "Protecting study depth during search"],
+          "handsOn": "Map 20 target roles to demonstrated and missing evidence.",
+          "masteryGate": "Applications are tailored around evidence, and interview gaps feed the curriculum without triggering a full restart."
+        }
+      ],
+      "boss": null,
+      "project": {
+        "id": "final-capstone-realtime-perception-system",
+        "title": "Final Capstone - Real-Time Perception System",
+        "purpose": "Demonstrate end-to-end AI/ML and deep CV specialization in one production-style system.",
+        "prerequisites": "Core phases at Level 2; detection, tracking, MLOps, and production CV at Level 3 or near it.",
+        "build": "Choose a responsible domain (traffic flow, warehouse safety, manufacturing inspection, wildlife monitoring, sports analytics). Build data/annotation workflow; detection or segmentation; tracking when relevant; event logic; API or dashboard output; reproducible training; containerized inference; monitoring; optimization; documentation.",
+        "deliverables": ["Problem brief", "Dataset card", "Annotation guide", "Versioned data manifest", "Baseline", "Experiment log", "Model card", "Error taxonomy", "Architecture diagram", "Tested repository", "Container", "API or stream demo", "Benchmark report", "Monitoring and rollback runbook", "Privacy/safety review", "Final presentation and demo video"],
+        "bossChallenge": "A hidden evaluation set introduces new lighting, camera angle, object scale, occlusion, and load conditions. Then simulate schema drift, a service slowdown, and a model rollback.",
+        "passGate": "The system meets declared quality and latency targets, exposes known limitations, behaves safely under failure, and can be reproduced and defended in a 30-minute design review."
+      }
+    }
+  ],
+
+  "appendices": {
+    "stuckProtocolWorksheet": [
+      "What is the problem asking? Restate it in your own words.",
+      "What do I know? Include facts, inputs, constraints, and working components.",
+      "What exactly do I not know? Name the smallest uncertainty.",
+      "What do I expect to happen? Make a falsifiable prediction.",
+      "What are at least two possible causes or approaches?",
+      "What one test best separates those possibilities?",
+      "What happened? Record observation, not interpretation.",
+      "What changed in my model of the problem?",
+      "Do I need documentation, a hint, or a full solution? Why?",
+      "After help: why did the fix work, and what regression test prevents recurrence?"
+    ],
+    "experimentRecordTemplate": [
+      "Question and hypothesis",
+      "Baseline and why it is reasonable",
+      "Data version, split rule, and leakage checks",
+      "Single intended change",
+      "Configuration, seed, environment, and code revision",
+      "Primary metric plus guardrail metrics",
+      "Expected result before running",
+      "Observed result and uncertainty",
+      "Error slices and representative examples",
+      "Decision: keep, reject, or investigate",
+      "Next discriminating experiment",
+      "Resume note"
+    ],
+    "projectReadmeChecklist": [
+      "Problem, user, decision, and success criteria are explicit.",
+      "Data source, consent/license, schema, labels, splits, and known gaps are documented.",
+      "A naive baseline appears before complex models.",
+      "Training and evaluation are reproducible from commands.",
+      "Tests cover core transformations, interfaces, and a past bug.",
+      "Metrics connect to real costs; thresholds are justified.",
+      "Actual errors are inspected and categorized.",
+      "Latency, throughput, memory, and cost are measured when relevant.",
+      "Model card, limitations, privacy, safety, and misuse risks are included.",
+      "The demo works from a clean environment and contains no secrets.",
+      "A short postmortem explains what failed, what changed, and what remains."
+    ],
+    "capstoneStageGates": [
+      { "gate": "Gate 1 - Problem", "evidence": "User, decision, risks, quality target, latency target, and non-goals approved." },
+      { "gate": "Gate 2 - Data", "evidence": "Annotation guide, legal/privacy review, data card, split policy, and baseline dataset audit complete." },
+      { "gate": "Gate 3 - Baseline", "evidence": "Naive and simple model baselines established with reproducible evaluation." },
+      { "gate": "Gate 4 - Model", "evidence": "Detection/segmentation/tracking model chosen through controlled experiments and error analysis." },
+      { "gate": "Gate 5 - System", "evidence": "Streaming or API pipeline, event logic, tests, container, and observability function end to end." },
+      { "gate": "Gate 6 - Optimization", "evidence": "Quality-latency-memory tradeoffs measured on target-like hardware." },
+      { "gate": "Gate 7 - Reliability", "evidence": "Shift, corruptions, overload, restart, rollback, and fail-safe behavior tested." },
+      { "gate": "Gate 8 - Review", "evidence": "Model card, system design, safety/privacy review, demo, and 30-minute defense complete." }
+    ]
+  }
+}
