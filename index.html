@@ -1630,7 +1630,7 @@ function topicLoopState(topic, record, depthLoopMap){
 }
 
 function phasePrerequisitesSatisfied(topic, topics, progressById){
-  if(topic.phaseId === 'p0' || topic.phaseId === 'p1') return true;
+  if(topic.phaseId === 'p1') return true;
   const priorOrders = topics.map(item=>item.phaseOrder).filter(order=>order < topic.phaseOrder);
   if(!priorOrders.length) return true;
   const previousOrder = Math.max.apply(null, priorOrders);

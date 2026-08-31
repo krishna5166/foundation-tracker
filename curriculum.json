@@ -194,200 +194,13 @@
   },
   "phases": [
     {
-      "id": "p0",
-      "order": 0,
-      "title": "Cognitive Operating System for Technical Learning",
-      "duration": "1 week to install, then ongoing",
-      "purpose": "Build attention, active learning, uncertainty tolerance, independent problem-solving, and reliable re-entry while technical study begins Day 1.",
-      "prerequisites": [],
-      "modules": [
-        {
-          "id": "p0-attention-single-tasking",
-          "title": "Attention and single-tasking",
-          "depth": "core",
-          "prerequisites": "A quiet place, a timer, one clearly chosen task.",
-          "firstAction": "Set a 15-20 minute timer and work one task with no other tabs open.",
-          "mustCover": [
-            "Five-minute settling practice",
-            "15-20 minute single-task block",
-            "Notice wandering without self-attack",
-            "Return attention as the actual repetition",
-            "Reduce multi-source and phone switching"
-          ],
-          "handsOn": "Complete one protected focus block and record distractions without opening them.",
-          "masteryGate": "Resume the chosen task after three distractions without changing sources.",
-          "conceptChunks": [
-            [
-              "Five-minute settling practice",
-              "15-20 minute single-task block",
-              "Notice wandering without self-attack"
-            ],
-            [
-              "Return attention as the actual repetition",
-              "Reduce multi-source and phone switching"
-            ]
-          ],
-          "predictPrompt": "Predict how many times your attention will drift in the next 15 minutes before you start the timer.",
-          "breakScenario": "Deliberately open a second tab mid-block, then try to return without closing it first.",
-          "diagnosePrompt": "Was the return slower because of the tab itself, or because you judged yourself for opening it? Name which."
-        },
-        {
-          "id": "p0-active-reading-retrieval",
-          "title": "Active reading, retrieval, and articulation",
-          "depth": "core",
-          "prerequisites": "One short technical explanation and paper or digital notes.",
-          "firstAction": "Read 300-500 words, close the source, write the central idea from memory.",
-          "mustCover": [
-            "Read one small chunk",
-            "Close the source",
-            "Reconstruct the idea",
-            "Draw a mental model",
-            "Give a 60-second explanation",
-            "Compare explanation with source",
-            "Spaced retrieval next day and next week"
-          ],
-          "handsOn": "Read 300-500 words, close the source, write the central idea and three details, then teach it aloud.",
-          "masteryGate": "Achieve at least 80% factual coverage without rereading first.",
-          "conceptChunks": [
-            [
-              "Read one small chunk",
-              "Close the source",
-              "Reconstruct the idea"
-            ],
-            [
-              "Draw a mental model",
-              "Give a 60-second explanation",
-              "Compare explanation with source"
-            ],
-            [
-              "Spaced retrieval next day and next week"
-            ]
-          ],
-          "predictPrompt": "Before reading, guess how many of the 3 details you'll be able to recall without looking.",
-          "breakScenario": "Try to teach the idea aloud with the source still open next to you, then closed.",
-          "diagnosePrompt": "Where did the explanation get vague or hand-wavy \u2014 that's the actual gap, not the parts you recited fine."
-        },
-        {
-          "id": "p0-think-first-stuck-protocol",
-          "title": "Think-first and stuck protocol",
-          "depth": "deep",
-          "prerequisites": "A concrete problem and permission to be temporarily wrong.",
-          "firstAction": "Before any search, write what you think the answer or cause is.",
-          "mustCover": [
-            "Define what the problem asks",
-            "List knowns and unknowns",
-            "State an expected outcome",
-            "Generate two or three causes",
-            "Select one test",
-            "Observe and update",
-            "Increase attempt window from 3 to 5, 10, then 15 minutes"
-          ],
-          "handsOn": "Use the protocol on one coding or math problem before any search.",
-          "masteryGate": "Produce a testable hypothesis before external help.",
-          "conceptChunks": [
-            [
-              "Define what the problem asks",
-              "List knowns and unknowns",
-              "State an expected outcome"
-            ],
-            [
-              "Generate two or three causes",
-              "Select one test",
-              "Observe and update"
-            ],
-            [
-              "Increase attempt window from 3 to 5, 10, then 15 minutes"
-            ]
-          ],
-          "predictPrompt": "Before writing anything, predict which of your two hypotheses is more likely correct and why.",
-          "breakScenario": "Pick a problem you don't already half-know the answer to, so the protocol has real work to do.",
-          "diagnosePrompt": "Check: did you write a testable hypothesis, or a restatement of the problem disguised as one?",
-          "curveballTask": "Apply the exact same worksheet to a non-technical decision (e.g. a scheduling conflict) and see if it still produces a real test."
-        },
-        {
-          "id": "p0-pause-uncertainty-handling",
-          "title": "Pause, uncertainty, and unwanted-thought handling",
-          "depth": "core",
-          "prerequisites": "Basic attention practice; professional support when distress or impairment is significant.",
-          "firstAction": "Before answering anything nontrivial, pause one second and restate the question.",
-          "mustCover": [
-            "One-second pause before answering",
-            "Say what is known and unknown",
-            "Separate involuntary thoughts from chosen actions",
-            "Notice without suppression or moral self-attack",
-            "Return to the intended action",
-            "Direct communication instead of internal story-building"
-          ],
-          "handsOn": "Answer an unfamiliar question using: restate, pause, tentative model, evidence, next check.",
-          "masteryGate": "Remain engaged with uncertainty for the current attempt window without immediate escape.",
-          "conceptChunks": [
-            [
-              "One-second pause before answering",
-              "Say what is known and unknown",
-              "Separate involuntary thoughts from chosen actions"
-            ],
-            [
-              "Notice without suppression or moral self-attack",
-              "Return to the intended action",
-              "Direct communication instead of internal story-building"
-            ]
-          ],
-          "predictPrompt": "Before answering an unfamiliar question, predict whether your first instinct will turn out right.",
-          "breakScenario": "Ask yourself a question you genuinely don't know, and notice the urge to escape into search.",
-          "diagnosePrompt": "Name the exact moment uncertainty appeared \u2014 was it before or after you understood the question?"
-        },
-        {
-          "id": "p0-resume-not-restart",
-          "title": "Resume, do not restart",
-          "depth": "core",
-          "prerequisites": "A resume note from the previous session.",
-          "firstAction": "Write today's resume note before closing the session: stop point, what works, blocker, next action.",
-          "mustCover": [
-            "Write exact next action",
-            "Record last working state",
-            "Name one blocker",
-            "Use a minimum viable day",
-            "No full revision before re-entry",
-            "No streak penalty or Monday reset"
-          ],
-          "handsOn": "After a simulated three-day break, continue from the resume note in under five minutes.",
-          "masteryGate": "Continue work without restarting the phase or rereading everything.",
-          "conceptChunks": [
-            [
-              "Write exact next action",
-              "Record last working state",
-              "Name one blocker"
-            ],
-            [
-              "Use a minimum viable day",
-              "No full revision before re-entry",
-              "No streak penalty or Monday reset"
-            ]
-          ],
-          "predictPrompt": "Before reopening the note, predict what your last resume note actually says.",
-          "breakScenario": "Wait a simulated 3 days, then try to continue without rereading anything except the resume note.",
-          "diagnosePrompt": "If you needed more than the note to continue, the note itself was incomplete \u2014 say what was missing."
-        }
-      ],
-      "boss": {
-        "id": "p0-boss-unfamiliar-problem",
-        "title": "Boss 0 - Unfamiliar Problem Under Uncertainty",
-        "purpose": "Demonstrate the learning process before technical mastery.",
-        "build": "Solve a small unfamiliar logic or coding task while logging the think-first protocol, one failed test, one search decision, and a resume note.",
-        "challenge": "A new variation is supplied after the first solution.",
-        "passGate": "The attempt shows independent hypotheses, evidence-based updates, and a clear explanation even if the final answer is imperfect."
-      },
-      "project": null
-    },
-    {
       "id": "p1",
       "order": 1,
       "title": "Python for AI/ML",
       "duration": "3-4 weeks",
       "purpose": "Become productive in Python through comparison, implementation, testing, and data work rather than passive beginner lectures.",
       "prerequisites": [
-        "General programming experience helpful, not required",
-        "Phase 0 practices active"
+        "General programming experience helpful, not required"
       ],
       "modules": [
         {
@@ -1486,7 +1299,7 @@
       "duration": "2-3 weeks",
       "purpose": "Train hypothesis-driven diagnosis of broken experiments and suspicious results.",
       "prerequisites": [
-        "At least two complete ML pipelines and Phase 0 think-first practice"
+        "At least two complete ML pipelines and consistent think-first debugging practice"
       ],
       "modules": [
         {
