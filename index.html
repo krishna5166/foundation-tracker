@@ -699,20 +699,19 @@ async function initCurriculumData(){
         tradeoff: m.masteryGate ? ('Mastery gate: ' + m.masteryGate) : '',
         example: m.firstAction ? ('First action: ' + m.firstAction) : '',
         skill: depthLabel(m.depth),
+        depth: m.depth || 'core', // raw value ('core'/'deep') — drives promotion rules in the progress model
         mustCover: m.mustCover || []
       });
     });
   });
 
   TOPICS_BY_ID = new Map(TOPICS.map(t=>[t.id, t]));
-  TOPICS.forEach(t=>{ if(!(t.id in state)) state[t.id] = 0; });
 }
 
 // Kicked off immediately so the fetch is well underway (usually finished)
 // by the time a human has typed the password — tryUnlock() and the
 // auto-unlock branch below both await this same promise before calling
 // init(), so there's no race regardless of timing.
-let state = {};
 const curriculumReady = initCurriculumData();
 
 let activePhase='all';
@@ -725,16 +724,164 @@ function toggleCoreOnly(){
   applyFilters();
 }
 
-function levelOf(id){return state[id]||0}
+// ===== Evidence-based progress model =====
+// Replaces the old state[topicId]=0-3 direct-set model entirely.
+// masteryLevel is NEVER written directly — it's always the output of
+// computeMasteryLevel(), a pure function over recorded evidence. One record
+// per topic, stored at localStorage key `progress:{topicId}`.
+// getTopicProgress()/recordEvidence() are the only functions that touch
+// that storage directly, same swappable-boundary pattern as
+// loadCurriculum() from Step 1 — pointing this at Firestore later means
+// rewriting only these two functions' bodies.
 
-function saveState(){
-  localStorage.setItem('fnd-topic-levels', JSON.stringify(state));
-  pushCloudState();
+function defaultProgressRecord(topicId, depth){
+  return {
+    topicId: topicId,
+    depth: depth || 'core',
+    masteryLevel: 0,
+    masteryLevelLastComputedAt: null,
+    evidence: {
+      learn: { done:false, timestamp:null },
+      recall: [],
+      predict: [],
+      build: [],
+      break: [],
+      diagnose: [],
+      curveball: [],
+      resumeNote: null
+    },
+    helpLevels: { highestUsedEver: 0, log: [] },
+    rebuild: { required:false, reason:null, completedAt:null },
+    attemptCounts: { independent:0, assisted:0 },
+    review: { nextDueAt:null, history:[] },
+    lastStudiedAt: null
+  };
 }
 
+function getTopicProgress(topicId){
+  let record = null;
+  try{
+    const raw = localStorage.getItem('progress:'+topicId);
+    if(raw) record = JSON.parse(raw);
+  } catch(e){ record = null; }
+  if(!record){
+    const t = TOPICS_BY_ID.get(topicId);
+    record = defaultProgressRecord(topicId, t ? t.depth : 'core');
+  }
+  return record;
+}
+
+function saveProgressRecord(record){
+  localStorage.setItem('progress:'+record.topicId, JSON.stringify(record));
+}
+
+// Pure function: same (record, depth) in, same masteryLevel out, always.
+// Exposed standalone (not buried inside recordEvidence) so a future
+// test/debug view can call it directly. Follows promotionRules in
+// progress-schema.json exactly.
+function computeMasteryLevel(record, depth){
+  const ev = (record && record.evidence) || {};
+  const learnDone = !!(ev.learn && ev.learn.done);
+  if(!learnDone) return 0;
+
+  const hasBuild = !!(ev.build && ev.build.length);
+  const hasRecall = !!(ev.recall && ev.recall.length);
+  if(!(hasBuild && hasRecall)) return 0; // level0 Exposed only
+
+  const rebuildBlocking = !!(record.rebuild && record.rebuild.required);
+  if(rebuildBlocking) return 1; // capped at Assisted no matter what else exists
+
+  const recallPassed = (ev.recall||[]).some(r=>r && r.passed===true);
+  const predictExists = !!(ev.predict && ev.predict.length);
+  const buildIndependent = (ev.build||[]).some(b=>b && b.independent===true);
+  const breakExists = !!(ev.break && ev.break.length);
+  const diagnoseValid = (ev.diagnose||[]).some(d=>d && d.rootCause && String(d.rootCause).trim()!=='');
+
+  const level2Met = recallPassed && predictExists && buildIndependent && breakExists && diagnoseValid;
+  if(!level2Met) return 1; // Assisted
+
+  // Level 3: deep topics require a passed curveball; core topics don't
+  // require one but are still granted Level 3 if a passed curveball exists.
+  const curveballPassed = (ev.curveball||[]).some(c=>c && c.passed===true);
+  return curveballPassed ? 3 : 2;
+}
+
+// entry may include helpLevelUsed (0-5, per curriculum.json meta.helpLadder).
+// A 5 (full solution) on ANY activity flags rebuild.required=true; the next
+// independent build (helpLevelUsed<=1) recorded afterward clears it. This
+// lives here, not in the UI, so nothing can bypass it.
+function recordEvidence(topicId, activityType, entry){
+  const t = TOPICS_BY_ID.get(topicId);
+  const record = getTopicProgress(topicId);
+  const now = new Date().toISOString();
+  entry = entry || {};
+
+  if(activityType === 'learn' || activityType === 'resumeNote'){
+    record.evidence[activityType] = Object.assign({timestamp: now}, entry);
+  } else {
+    if(!Array.isArray(record.evidence[activityType])) record.evidence[activityType] = [];
+    record.evidence[activityType].push(Object.assign({timestamp: now}, entry));
+  }
+
+  record.lastStudiedAt = now;
+
+  if(typeof entry.helpLevelUsed === 'number'){
+    record.helpLevels.log.push({timestamp: now, activityType, level: entry.helpLevelUsed});
+    if(entry.helpLevelUsed > record.helpLevels.highestUsedEver){
+      record.helpLevels.highestUsedEver = entry.helpLevelUsed;
+    }
+    if(entry.helpLevelUsed === 5){
+      record.rebuild.required = true;
+      record.rebuild.reason = `Full solution used on ${activityType} attempt (${now})`;
+    }
+    if(activityType === 'build' && entry.helpLevelUsed <= 1 && record.rebuild.required){
+      record.rebuild.completedAt = now;
+      record.rebuild.required = false;
+    }
+  }
+
+  if(activityType === 'build'){
+    if(entry.helpLevelUsed <= 1) record.attemptCounts.independent = (record.attemptCounts.independent||0) + 1;
+    else record.attemptCounts.assisted = (record.attemptCounts.assisted||0) + 1;
+  }
+
+  const depth = record.depth || (t ? t.depth : 'core');
+  record.masteryLevel = computeMasteryLevel(record, depth);
+  record.masteryLevelLastComputedAt = now;
+
+  saveProgressRecord(record);
+  pushCloudState();
+  return record;
+}
+
+function levelOf(id){
+  return getTopicProgress(id).masteryLevel;
+}
+
+// Clicking a mastery-ladder rung records plausible evidence for whichever
+// activities that level implies, rather than writing a raw number directly
+// (no code is allowed to set masteryLevel itself — see computeMasteryLevel
+// above). The displayed level is always the DERIVED result, never the raw
+// clicked value, so this is additive: evidence already on record for a
+// higher level doesn't get erased by clicking a lower rung again — there's
+// no "undo" in an evidence log, only more evidence. The real per-activity
+// entry forms (predict/break/diagnose) are a later step; this keeps the
+// tracker fully working end to end until then.
 function setLevel(id, lvl){
-  state[id] = (state[id]===lvl) ? 0 : lvl; // click again to clear
-  saveState();
+  recordEvidence(id, 'learn', {done:true});
+  if(lvl >= 1){
+    recordEvidence(id, 'recall', {passed:true, helpLevel:0});
+    recordEvidence(id, 'build', {helpLevelUsed:3, independent:false, notes:'Marked via mastery ladder (Assisted).'});
+  }
+  if(lvl >= 2){
+    recordEvidence(id, 'predict', {predictionText:'Self-assessed via mastery ladder — no specific prediction recorded.', actualOutcome:'', wasCorrect:true});
+    recordEvidence(id, 'build', {helpLevelUsed:0, independent:true, notes:'Marked independent via mastery ladder.'});
+    recordEvidence(id, 'break', {whatBroke:'Self-assessed via mastery ladder — no specific break scenario recorded.', notes:''});
+    recordEvidence(id, 'diagnose', {rootCause:'Self-assessed via mastery ladder.', evidenceText:'Marked independently capable via manual ladder selection.', helpLevelUsed:0});
+  }
+  if(lvl >= 3){
+    recordEvidence(id, 'curveball', {scenario:'Self-assessed via mastery ladder.', passed:true, notes:''});
+  }
   renderTopicCard(id);
   updateStats();
   applyFilters();
@@ -865,7 +1012,7 @@ function renderModalLadder(id){
   const lvl = levelOf(id);
   const ladder = document.getElementById('modal-ladder');
   ladder.innerHTML = LADDER.map(o=>`
-    <div class="ladder-opt ${o.l===lvl?'selected':''}" data-l="${o.l}" onclick="setLevel(${id},${o.l})">
+    <div class="ladder-opt ${o.l===lvl?'selected':''}" data-l="${o.l}" onclick="setLevel('${id}',${o.l})">
       <span class="ladder-dot"></span>${o.label}
     </div>`).join('');
 }
@@ -911,7 +1058,7 @@ function renderVerifySection(t){
         <button class="pomo-btn" onclick="revealVerifyKey(this)">Reveal what to check for</button>
         <div class="vk-key" style="display:none">${k.keyText}</div>
         <label class="verify-check">
-          <input type="checkbox" ${vstate[k.key] ? 'checked' : ''} onchange="toggleVerifyCheck(${t.id},'${k.key}',this.checked)">
+          <input type="checkbox" ${vstate[k.key] ? 'checked' : ''} onchange="toggleVerifyCheck('${t.id}','${k.key}',this.checked)">
           I worked through this honestly
         </label>
       </div>`).join('');
@@ -978,7 +1125,7 @@ function render(){
       if(t.secondary) card.setAttribute('data-secondary', 'true');
 
       card.innerHTML = `
-        <div class="topic-header" onclick="openTopicModal(${t.id})">
+        <div class="topic-header" onclick="openTopicModal('${t.id}')">
           <div class="ring" id="ring${t.id}" data-lvl="0"></div>
           <div class="topic-title" id="title${t.id}">${t.title}</div>
           ${qtag}${skilltag}${extTag}
@@ -1049,7 +1196,7 @@ function openDailyLogModal(){
   const body = document.getElementById('daily-modal-body');
   body.innerHTML = TOPICS.map(t=>`
     <label class="daily-check">
-      <input type="checkbox" ${dailyLog.completedIds.includes(t.id)?'checked':''} onchange="toggleDailyComplete(${t.id}, this.checked)">
+      <input type="checkbox" ${dailyLog.completedIds.includes(t.id)?'checked':''} onchange="toggleDailyComplete('${t.id}', this.checked)">
       ${t.title}
     </label>`).join('');
   const btn = document.getElementById('modal-save-btn');
@@ -1291,7 +1438,8 @@ function importFromGist(){
 }
 
 function init(){
-  try{ const v = localStorage.getItem('fnd-topic-levels'); if(v) state = JSON.parse(v); }catch(e){}
+  // Topic progress is no longer preloaded into one blob — getTopicProgress()
+  // reads each topic's own `progress:{topicId}` key on demand.
   try{ const v = localStorage.getItem('fnd-daily-log:'+todayStr()); if(v) dailyLog = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-quiz-results'); if(v) quizResults = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-verified'); if(v) verifiedState = JSON.parse(v); }catch(e){}
@@ -1324,12 +1472,25 @@ function init(){
 // bonus layer on top of localStorage, never a requirement for the tracker
 // to work.
 function pushCloudState(){
-  if(window.__cloudSync) window.__cloudSync.push({state, quizResults, verifiedState});
+  if(!window.__cloudSync) return;
+  const progress = {};
+  TOPICS.forEach(t=>{
+    try{
+      const raw = localStorage.getItem('progress:'+t.id);
+      if(raw) progress[t.id] = JSON.parse(raw);
+    } catch(e){}
+  });
+  window.__cloudSync.push({progress, quizResults, verifiedState});
 }
 
 function applyCloudState(data){
   let changed = false;
-  if(data.state){ state = data.state; localStorage.setItem('fnd-topic-levels', JSON.stringify(state)); changed = true; }
+  if(data.progress){
+    Object.keys(data.progress).forEach(topicId=>{
+      localStorage.setItem('progress:'+topicId, JSON.stringify(data.progress[topicId]));
+    });
+    changed = true;
+  }
   if(data.quizResults){ quizResults = data.quizResults; localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults)); changed = true; }
   if(data.verifiedState){ verifiedState = data.verifiedState; localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); changed = true; }
   if(!changed) return;
