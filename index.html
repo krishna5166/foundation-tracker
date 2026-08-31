@@ -491,7 +491,7 @@
   .topic-modal-tags{margin-bottom:14px}
   .topic-modal-tags .skilltag{display:inline-block}
   .topic-modal-timer{
-    width:190px;flex-shrink:0;align-self:flex-start;
+    width:230px;flex-shrink:0;align-self:flex-start;
     background:var(--board);border:1px solid var(--rule);border-radius:8px;
     padding:16px;text-align:center;
   }
@@ -499,6 +499,42 @@
     .topic-modal-grid{flex-direction:column}
     .topic-modal-timer{width:100%}
   }
+
+  /* ===== Focus session (notice-and-return) ===== */
+  .focus-card{display:flex;flex-direction:column;gap:10px;text-align:center}
+  .focus-topic-label{
+    font-size:12.5px;color:var(--chalk-dim2);line-height:1.4;
+    overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  }
+  .duration-chips{display:flex;gap:6px;justify-content:center}
+  .duration-chip{
+    font-family:'Space Mono',monospace;font-size:12px;padding:7px 12px;border-radius:99px;
+    border:1px solid var(--rule);background:transparent;color:var(--chalk-dim2);cursor:pointer;
+  }
+  .duration-chip.active{background:var(--blue);color:var(--board);border-color:var(--blue);font-weight:700}
+  .drift-btn{
+    width:100%;min-height:58px;font-size:16.5px;font-weight:600;
+    background:var(--board-panel);border:1.5px solid var(--rule);border-radius:10px;
+    color:var(--chalk);cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  }
+  .drift-btn:hover{border-color:var(--blue)}
+  .drift-ack{min-height:20px;font-size:13.5px;color:var(--chalk-dim2)}
+  .focus-secondary{display:flex;gap:8px;justify-content:center}
+  .focus-secondary .pomo-btn{font-size:11px;padding:6px 10px;opacity:.75}
+  .focus-summary{font-size:14.5px;color:var(--chalk-dim);line-height:1.6}
+  .focus-end-form{display:flex;flex-direction:column;gap:8px;text-align:left}
+  .focus-end-form label{font-size:12.5px;font-weight:600;color:var(--chalk-dim)}
+  .focus-input{
+    width:100%;background:var(--board-panel);border:1px solid var(--rule);border-radius:6px;
+    color:var(--chalk);font:inherit;font-size:14px;padding:9px 11px;
+  }
+  .focus-input:focus{outline:none;border-color:var(--blue)}
+  textarea.focus-input{min-height:56px;resize:vertical;line-height:1.45}
+  .focus-suggest{
+    font-size:13px;color:var(--chalk-dim);line-height:1.5;
+    padding:10px 12px;background:var(--board-panel);border:1px solid var(--rule);border-radius:7px;
+  }
+  .focus-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
   .topic-modal-footer{
     display:flex;justify-content:flex-end;
     margin-top:16px;padding-top:14px;border-top:1px solid var(--rule);
@@ -650,13 +686,8 @@
       </div>
     </div>
     <div class="today-card">
-      <div class="tcard-title">Pomodoro</div>
-      <div class="pomo-display" id="pomo-time">25:00</div>
-      <div class="pomo-mode-label" id="pomo-mode">Work session</div>
-      <div class="pomo-controls">
-        <button class="pomo-btn primary" id="pomo-startpause" onclick="pomoToggle()">Start</button>
-        <button class="pomo-btn" onclick="pomoReset()">Reset</button>
-      </div>
+      <div class="tcard-title">Focus block</div>
+      <div id="focus-card-side"></div>
     </div>
 
     <div class="stats-row">
@@ -704,9 +735,8 @@
         <div id="modal-loop"></div>
       </div>
       <div class="topic-modal-timer">
-        <div class="tcard-title">Timer</div>
-        <div class="pomo-display" id="modal-pomo-time" style="font-size:26px">25:00</div>
-        <div class="pomo-mode-label" id="modal-pomo-mode">Work session</div>
+        <div class="tcard-title">Focus block</div>
+        <div id="focus-card-modal"></div>
       </div>
     </div>
     <div class="topic-modal-footer">
@@ -1445,6 +1475,7 @@ function renderTodayDashboard(){
   currentTodayAction = action;
   const dueCount = getDueReviews(todayStr()).length;
   const activeDays = deriveActiveDayKeys(TOPICS, snapshot);
+  sessionActiveDayKeys().forEach(key=>activeDays.add(key)); // completed focus blocks count too
   const momentum = lastSevenDayKeys(new Date()).map(key=>
     '<span class="momentum-dot ' + (activeDays.has(key) ? 'filled' : '') +
       '" title="' + escapeHtml(key) + '" aria-label="' + escapeHtml(key + (activeDays.has(key) ? ' active' : '')) + '"></span>'
@@ -1465,11 +1496,15 @@ function renderTodayDashboard(){
       html += '<div class="loop-actions"><button class="pomo-btn" onclick="skipComebackWarmup()">Continue</button></div>';
     }
   }
+  const focusable = action.topicId || (action.type !== 'done' && focusBoundTopicId());
   html += '<div class="today-primary">' +
     '<div class="loop-eyebrow">Continue</div>' +
     '<div class="loop-title">' + escapeHtml(action.label) + '</div>' +
     '<div class="today-sublabel">' + escapeHtml(action.sublabel) + '</div>' +
-    '<button class="pomo-btn primary" onclick="handleTodayContinue()">Open</button>' +
+    '<div class="loop-actions">' +
+      '<button class="pomo-btn primary" onclick="handleTodayContinue()">Open</button>' +
+      (focusable ? '<button class="pomo-btn" onclick="startFocusFromToday()">Start a focus block</button>' : '') +
+    '</div>' +
   '</div>';
   if(dueCount){
     html += '<button class="today-review-card" onclick="openReviewFlow()">' +
@@ -1618,7 +1653,7 @@ function openTopicModal(id){
   const extTag = t.secondary ? '<span class="extended-tag">Extended — come back to this after the core path</span>' : '';
   document.getElementById('modal-topic-tags').innerHTML = qtag + skilltag + extTag;
   renderLearningLoop();
-  updatePomoDisplay();
+  renderFocusUI();
   document.getElementById('topic-modal-overlay').classList.add('open');
 }
 
@@ -2571,67 +2606,420 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 1800);
 }
 
-// ===== Pomodoro timer (global, keeps running across modal opens) =====
-// Uses an absolute end timestamp rather than pure tick-counting so it stays
-// accurate even if the browser throttles setInterval in a backgrounded tab.
-let pomo = {remaining:25*60, mode:'work', running:false, timerId:null, endTime:null};
+// ===== Focus session (notice-and-return) =====
+// Replaces the old Pomodoro. The unit of value is not unbroken minutes —
+// it's noticing drift and returning without self-attack. The "I drifted"
+// button IS the rep: tapping it means attention already came back. Hard
+// rules from the spec: no live drift count, no escalating/warning styling
+// no matter how many taps, and the timer never pauses or penalizes a tap.
+// Keeps the old absolute-end-timestamp countdown so backgrounded tabs
+// stay accurate.
 
-function updatePomoDisplay(){
-  const m = Math.floor(pomo.remaining/60).toString().padStart(2,'0');
-  const s = (pomo.remaining%60).toString().padStart(2,'0');
-  const timeStr = `${m}:${s}`;
-  const modeStr = pomo.mode==='work' ? 'Work session' : 'Break';
-  ['pomo-time','modal-pomo-time'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.textContent = timeStr;
-  });
-  ['pomo-mode','modal-pomo-mode'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.textContent = modeStr;
-  });
-  const startBtn = document.getElementById('pomo-startpause');
-  if(startBtn) startBtn.textContent = pomo.running ? 'Pause' : 'Start';
-}
+const FOCUS_DURATIONS = [15, 20, 25];
 
-function pomoToggle(){
-  if(pomo.running){
-    clearInterval(pomo.timerId);
-    pomo.running=false;
-  } else {
-    pomo.running=true;
-    pomo.endTime = Date.now() + pomo.remaining*1000;
-    pomo.timerId=setInterval(pomoTick, 1000);
-  }
-  updatePomoDisplay();
-}
-
-function pomoTick(){
-  pomo.remaining = Math.max(0, Math.round((pomo.endTime - Date.now())/1000));
-  if(pomo.remaining<=0){
-    if(pomo.mode==='work'){
-      dailyLog.minutes += 25;
-      saveDailyLog();
-      pomo.mode='break';
-      pomo.remaining=5*60;
-      pomo.endTime = Date.now() + pomo.remaining*1000;
-      showToast('Work session complete — take a break!');
-      drawRings();
-    } else {
-      clearInterval(pomo.timerId);
-      pomo.running=false;
-      pomo.mode='work';
-      pomo.remaining=25*60;
-      pomo.endTime=null;
-      showToast('Break over — ready for another round');
+let focusPrefs = {defaultMinutes: 20, suggestSuppressedUntil: null};
+function loadFocusPrefs(){
+  try{
+    const raw = localStorage.getItem('focusPrefs');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(FOCUS_DURATIONS.includes(parsed.defaultMinutes)) focusPrefs.defaultMinutes = parsed.defaultMinutes;
+      focusPrefs.suggestSuppressedUntil = parsed.suggestSuppressedUntil || null;
     }
-  }
-  updatePomoDisplay();
+  } catch(e){}
+}
+function saveFocusPrefs(){
+  localStorage.setItem('focusPrefs', JSON.stringify(focusPrefs));
+  pushCloudState();
 }
 
-function pomoReset(){
-  clearInterval(pomo.timerId);
-  pomo.running=false; pomo.mode='work'; pomo.remaining=25*60; pomo.endTime=null;
-  updatePomoDisplay();
+// Append-only session log. Same swappable-boundary pattern as the other
+// stores: these are the only functions that touch the `sessions` key.
+function getSessions(){
+  try{
+    const raw = localStorage.getItem('sessions');
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){ return []; }
+}
+function saveSessions(list){
+  localStorage.setItem('sessions', JSON.stringify(list));
+}
+function appendSessionRecord(record){
+  const list = getSessions();
+  list.push(record);
+  saveSessions(list);
+  pushCloudState();
+}
+function updateSessionRecord(id, patch){
+  const list = getSessions();
+  const idx = list.findIndex(s=>s.id === id);
+  if(idx < 0) return;
+  Object.assign(list[idx], patch);
+  saveSessions(list);
+  pushCloudState();
+}
+
+function newSessionId(){
+  return (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+    : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+// Momentum hook: a completed session counts the day as active for the
+// Today view's dots, in addition to evidence entries already counting.
+function sessionActiveDayKeys(){
+  const days = new Set();
+  getSessions().forEach(s=>{
+    if(s.endedEarly) return;
+    const key = localDayKey(s.endedAt);
+    if(key) days.add(key);
+  });
+  return days;
+}
+
+let focusSession = null;   // {id, topicId, plannedMinutes, startedAt, endTime, remainingSec, running, timerId, noticeReturns[]}
+let focusEndFlow = null;   // {sessionId, topicId, minutes, catches, step:'outcome'|'resume'|'break'}
+let focusBreak = null;     // {endTime, timerId}
+let driftAckTimer = null;
+
+function focusBoundTopicId(){
+  if(currentModalTopicId) return currentModalTopicId;
+  if(!currentTodayAction) currentTodayAction = buildTodayAction();
+  if(currentTodayAction.topicId) return currentTodayAction.topicId;
+  // CONTINUE card points at a review batch (no single topic) — bind the
+  // next actual topic instead, same fallback openLearnView uses.
+  const snapshot = progressSnapshot();
+  const action = pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, []);
+  return action.topicId || null;
+}
+
+function startFocusSession(topicId){
+  if(focusSession || focusBreak) return;
+  if(!topicId) return;
+  focusEndFlow = null;
+  focusSession = {
+    id: newSessionId(),
+    topicId: topicId,
+    plannedMinutes: focusPrefs.defaultMinutes,
+    startedAt: new Date().toISOString(),
+    remainingSec: focusPrefs.defaultMinutes * 60,
+    endTime: Date.now() + focusPrefs.defaultMinutes * 60 * 1000,
+    running: true,
+    timerId: setInterval(focusTick, 1000),
+    noticeReturns: []
+  };
+  renderFocusUI();
+}
+
+// Starting the recommended task and starting a block are one motion.
+function startFocusFromToday(){
+  const topicId = focusBoundTopicId();
+  if(!topicId) return;
+  comebackPending = false;
+  openTopicModal(topicId);
+  startFocusSession(topicId);
+}
+
+function focusTick(){
+  if(!focusSession || !focusSession.running) return;
+  focusSession.remainingSec = Math.max(0, Math.round((focusSession.endTime - Date.now()) / 1000));
+  if(focusSession.remainingSec <= 0){
+    finishFocusSession(false);
+    return;
+  }
+  updateFocusCountdown();
+}
+
+function focusPauseToggle(){
+  if(!focusSession) return;
+  if(focusSession.running){
+    clearInterval(focusSession.timerId);
+    focusSession.timerId = null;
+    focusSession.running = false;
+  } else {
+    focusSession.running = true;
+    focusSession.endTime = Date.now() + focusSession.remainingSec * 1000;
+    focusSession.timerId = setInterval(focusTick, 1000);
+  }
+  renderFocusUI();
+}
+
+// The tap is the rep: noticing + tapping means attention already returned.
+// Identical acknowledgement every time, no count shown, timer untouched.
+function driftTap(){
+  if(!focusSession) return;
+  focusSession.noticeReturns.push(new Date().toISOString());
+  document.querySelectorAll('.drift-ack').forEach(el=>{ el.textContent = 'Noted. Back to it.'; });
+  if(driftAckTimer) clearTimeout(driftAckTimer);
+  driftAckTimer = setTimeout(()=>{
+    document.querySelectorAll('.drift-ack').forEach(el=>{ el.textContent = ''; });
+  }, 2000);
+}
+
+function endFocusEarly(){
+  finishFocusSession(true);
+}
+
+// One path for both outcomes — an ended-early block records endedEarly:true
+// and nothing else different. Same end screen, same tone.
+function finishFocusSession(endedEarly){
+  if(!focusSession) return;
+  clearInterval(focusSession.timerId);
+  const workedSec = focusSession.plannedMinutes * 60 - focusSession.remainingSec;
+  const actualMinutes = endedEarly ? Math.max(1, Math.round(workedSec / 60)) : focusSession.plannedMinutes;
+  const record = {
+    id: focusSession.id,
+    startedAt: focusSession.startedAt,
+    endedAt: new Date().toISOString(),
+    plannedMinutes: focusSession.plannedMinutes,
+    actualMinutes: actualMinutes,
+    topicId: focusSession.topicId,
+    noticeReturns: focusSession.noticeReturns.slice(),
+    endedEarly: !!endedEarly,
+    outcomeNote: null
+  };
+  appendSessionRecord(record);
+  dailyLog.minutes += actualMinutes;
+  saveDailyLog();
+  drawRings();
+  focusEndFlow = {
+    sessionId: record.id,
+    topicId: record.topicId,
+    startedAt: record.startedAt,
+    minutes: actualMinutes,
+    catches: record.noticeReturns.length,
+    step: 'outcome'
+  };
+  focusSession = null;
+  renderFocusUI();
+  const outcomeInput = document.getElementById('focus-outcome-input');
+  if(outcomeInput) outcomeInput.focus();
+  if(activeAppView === 'today') renderTodayDashboard();
+}
+
+function submitFocusOutcome(){
+  if(!focusEndFlow) return;
+  const input = document.getElementById('focus-outcome-input');
+  const text = input ? input.value.trim() : '';
+  if(text) updateSessionRecord(focusEndFlow.sessionId, {outcomeNote: text});
+  advanceFocusEndFlow();
+}
+
+function skipFocusOutcome(){
+  advanceFocusEndFlow();
+}
+
+// Offer the standard resume note only when the bound topic's loop is still
+// incomplete AND this session didn't already capture one (never two).
+function focusNeedsResumeNote(){
+  if(!focusEndFlow) return false;
+  const topic = TOPICS_BY_ID.get(focusEndFlow.topicId);
+  if(!topic) return false;
+  const progress = getTopicProgress(topic.id);
+  const loop = topicLoopState(topic, progress, CURRICULUM_META.depthLoopMap || {});
+  if(loop.complete) return false;
+  const note = progress.evidence && progress.evidence.resumeNote;
+  if(note && note.timestamp && new Date(note.timestamp) >= new Date(focusEndFlow.startedAt)) return false;
+  return true;
+}
+
+function advanceFocusEndFlow(){
+  if(!focusEndFlow) return;
+  if(focusEndFlow.step === 'outcome'){
+    focusEndFlow.step = focusNeedsResumeNote() ? 'resume' : 'break';
+  } else if(focusEndFlow.step === 'resume'){
+    focusEndFlow.step = 'break';
+  }
+  renderFocusUI();
+}
+
+function submitFocusResumeNote(){
+  if(!focusEndFlow) return;
+  const nextAction = (document.getElementById('focus-rn-next') || {value:''}).value.trim();
+  if(!nextAction){
+    const err = document.getElementById('focus-rn-error');
+    if(err) err.textContent = 'Enter an exact next action, or skip.';
+    return;
+  }
+  recordEvidence(focusEndFlow.topicId, 'resumeNote', {
+    stoppedAt: (document.getElementById('focus-rn-stopped') || {value:''}).value.trim(),
+    whatWorks: (document.getElementById('focus-rn-works') || {value:''}).value.trim(),
+    confusedAbout: (document.getElementById('focus-rn-confused') || {value:''}).value.trim(),
+    nextAction: nextAction
+  });
+  if(currentModalTopicId === focusEndFlow.topicId) renderLearningLoop();
+  advanceFocusEndFlow();
+}
+
+function startFocusBreak(){
+  focusEndFlow = null;
+  focusBreak = {
+    endTime: Date.now() + 5 * 60 * 1000,
+    remainingSec: 5 * 60,
+    timerId: setInterval(focusBreakTick, 1000)
+  };
+  renderFocusUI();
+}
+
+function focusBreakTick(){
+  if(!focusBreak) return;
+  focusBreak.remainingSec = Math.max(0, Math.round((focusBreak.endTime - Date.now()) / 1000));
+  if(focusBreak.remainingSec <= 0){
+    clearInterval(focusBreak.timerId);
+    focusBreak = null;
+    showToast('Break over — ready for another round');
+    renderFocusUI();
+    return;
+  }
+  updateFocusCountdown();
+}
+
+function dismissFocusEndFlow(){
+  focusEndFlow = null;
+  renderFocusUI();
+}
+
+function setFocusDuration(minutes){
+  if(!FOCUS_DURATIONS.includes(minutes)) return;
+  focusPrefs.defaultMinutes = minutes;
+  saveFocusPrefs();
+  renderFocusUI();
+}
+
+// After 5 completed blocks at the current length within 7 days, one gentle
+// nudge to try +5. Never automatic, never past 25, never a nudge downward.
+function getProgressionSuggestion(){
+  if(focusPrefs.defaultMinutes >= 25) return null;
+  if(focusPrefs.suggestSuppressedUntil && Date.now() < new Date(focusPrefs.suggestSuppressedUntil).getTime()) return null;
+  const atLength = getSessions()
+    .filter(s=>s.plannedMinutes === focusPrefs.defaultMinutes)
+    .sort((a,b)=>new Date(b.endedAt) - new Date(a.endedAt))
+    .slice(0, 5);
+  if(atLength.length < 5) return null;
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const allGood = atLength.every(s=>!s.endedEarly && new Date(s.endedAt).getTime() >= weekAgo);
+  if(!allGood) return null;
+  return {from: focusPrefs.defaultMinutes, to: focusPrefs.defaultMinutes + 5};
+}
+
+function acceptProgressionSuggestion(){
+  const suggestion = getProgressionSuggestion();
+  if(suggestion) setFocusDuration(suggestion.to);
+}
+
+function deferProgressionSuggestion(){
+  focusPrefs.suggestSuppressedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  saveFocusPrefs();
+  renderFocusUI();
+}
+
+function formatCountdown(totalSec){
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const s = (totalSec % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+function updateFocusCountdown(){
+  const value = focusSession ? formatCountdown(focusSession.remainingSec)
+    : focusBreak ? formatCountdown(focusBreak.remainingSec) : null;
+  if(value == null) return;
+  document.querySelectorAll('.focus-countdown').forEach(el=>{ el.textContent = value; });
+}
+
+function focusTopicTitle(topicId){
+  const t = TOPICS_BY_ID.get(topicId);
+  return t ? t.title : '';
+}
+
+function renderFocusCardHTML(surface){
+  if(focusSession){
+    return '<div class="focus-card">' +
+      '<div class="focus-topic-label">' + escapeHtml(focusTopicTitle(focusSession.topicId)) + '</div>' +
+      '<div class="pomo-display focus-countdown" style="font-size:30px">' + formatCountdown(focusSession.remainingSec) + '</div>' +
+      '<button class="drift-btn" onclick="driftTap()">I drifted</button>' +
+      '<div class="drift-ack"></div>' +
+      '<div class="focus-secondary">' +
+        '<button class="pomo-btn" onclick="focusPauseToggle()">' + (focusSession.running ? 'Pause' : 'Resume') + '</button>' +
+        '<button class="pomo-btn" onclick="endFocusEarly()">End early</button>' +
+      '</div>' +
+    '</div>';
+  }
+  if(focusBreak){
+    return '<div class="focus-card">' +
+      '<div class="focus-topic-label">Break</div>' +
+      '<div class="pomo-display focus-countdown" style="font-size:30px">' + formatCountdown(focusBreak.remainingSec) + '</div>' +
+    '</div>';
+  }
+  if(focusEndFlow){
+    const catchesLine = focusEndFlow.catches > 0
+      ? '<div class="focus-summary">' + focusEndFlow.catches + ' catch' + (focusEndFlow.catches === 1 ? '' : 'es') + ' and returns</div>'
+      : '';
+    let body = '<div class="focus-summary">' + focusEndFlow.minutes + ' minutes on ' +
+      escapeHtml(focusTopicTitle(focusEndFlow.topicId)) + '</div>' + catchesLine;
+    if(focusEndFlow.step === 'outcome'){
+      body += '<div class="focus-end-form">' +
+        '<label for="focus-outcome-input">What did you get done?</label>' +
+        '<textarea class="focus-input" id="focus-outcome-input"></textarea>' +
+        '</div>' +
+        '<div class="focus-actions">' +
+          '<button class="pomo-btn primary" onclick="submitFocusOutcome()">Save</button>' +
+          '<button class="pomo-btn" onclick="skipFocusOutcome()">Skip</button>' +
+        '</div>';
+    } else if(focusEndFlow.step === 'resume'){
+      body += '<div class="focus-end-form">' +
+        '<label for="focus-rn-stopped">Where you stopped</label>' +
+        '<textarea class="focus-input" id="focus-rn-stopped"></textarea>' +
+        '<label for="focus-rn-works">What currently works</label>' +
+        '<textarea class="focus-input" id="focus-rn-works"></textarea>' +
+        '<label for="focus-rn-confused">What you are confused about</label>' +
+        '<textarea class="focus-input" id="focus-rn-confused"></textarea>' +
+        '<label for="focus-rn-next">Exact next action</label>' +
+        '<textarea class="focus-input" id="focus-rn-next"></textarea>' +
+        '<div class="loop-error" id="focus-rn-error"></div>' +
+        '</div>' +
+        '<div class="focus-actions">' +
+          '<button class="pomo-btn primary" onclick="submitFocusResumeNote()">Save note</button>' +
+          '<button class="pomo-btn" onclick="advanceFocusEndFlow()">Skip</button>' +
+        '</div>';
+    } else {
+      body += '<div class="focus-actions">' +
+        '<button class="pomo-btn primary" onclick="startFocusBreak()">Start 5-minute break</button>' +
+        '<button class="pomo-btn" onclick="dismissFocusEndFlow()">Done</button>' +
+      '</div>';
+    }
+    return '<div class="focus-card">' + body + '</div>';
+  }
+  // Idle: pick a length, start a block. In the topic modal the block binds
+  // to the open topic; in the sidebar it binds to the recommended next task.
+  const suggestion = getProgressionSuggestion();
+  const suggestHtml = suggestion
+    ? '<div class="focus-suggest">These ' + suggestion.from + '-minute blocks have been landing. Try ' + suggestion.to + '?' +
+      '<div class="focus-actions" style="margin-top:8px">' +
+        '<button class="pomo-btn primary" onclick="acceptProgressionSuggestion()">Yes</button>' +
+        '<button class="pomo-btn" onclick="deferProgressionSuggestion()">Not yet</button>' +
+      '</div></div>'
+    : '';
+  const chips = '<div class="duration-chips">' + FOCUS_DURATIONS.map(min=>
+    '<button class="duration-chip ' + (min === focusPrefs.defaultMinutes ? 'active' : '') + '" onclick="setFocusDuration(' + min + ')">' + min + 'm</button>'
+  ).join('') + '</div>';
+  if(surface === 'modal' && currentModalTopicId){
+    return '<div class="focus-card">' + suggestHtml + chips +
+      '<button class="pomo-btn primary" onclick="startFocusSession(currentModalTopicId)">Start</button>' +
+    '</div>';
+  }
+  const bindable = focusBoundTopicId();
+  if(!bindable) return '<div class="focus-card"><div class="focus-topic-label">Open a topic to start a block.</div></div>';
+  return '<div class="focus-card">' + suggestHtml + chips +
+    '<div class="focus-topic-label">Next: ' + escapeHtml(focusTopicTitle(bindable)) + '</div>' +
+    '<button class="pomo-btn primary" onclick="startFocusFromToday()">Start a focus block</button>' +
+  '</div>';
+}
+
+function renderFocusUI(){
+  const modalCard = document.getElementById('focus-card-modal');
+  if(modalCard) modalCard.innerHTML = renderFocusCardHTML('modal');
+  const sideCard = document.getElementById('focus-card-side');
+  if(sideCard) sideCard.innerHTML = renderFocusCardHTML('side');
 }
 
 // ===== Activity rings =====
@@ -2788,7 +3176,8 @@ function init(){
   render();
   markPassedQuizButtons();
   drawRings();
-  updatePomoDisplay();
+  loadFocusPrefs();
+  renderFocusUI();
   showAppView('today');
   // On mobile, start collapsed to a fast, glanceable overview — the full
   // topic list only loads in once you tap a phase, since studying on a
@@ -2823,7 +3212,7 @@ function pushCloudState(){
       if(raw) progress[t.id] = JSON.parse(raw);
     } catch(e){}
   });
-  window.__cloudSync.push({progress, quizResults, verifiedState, appState});
+  window.__cloudSync.push({progress, quizResults, verifiedState, appState, sessions: getSessions(), focusPrefs});
 }
 
 function applyCloudState(data){
@@ -2844,6 +3233,21 @@ function applyCloudState(data){
     saveAppState();
     changed = true;
   }
+  if(Array.isArray(data.sessions)){
+    // Sessions are an append-only log, so merge by id (local ∪ cloud) —
+    // a wholesale replace could drop entries recorded on this device.
+    const merged = new Map();
+    getSessions().forEach(s=>{ if(s && s.id) merged.set(s.id, s); });
+    data.sessions.forEach(s=>{ if(s && s.id) merged.set(s.id, s); });
+    saveSessions([...merged.values()].sort((a,b)=>new Date(a.startedAt) - new Date(b.startedAt)));
+    changed = true;
+  }
+  if(data.focusPrefs){
+    if(FOCUS_DURATIONS.includes(data.focusPrefs.defaultMinutes)) focusPrefs.defaultMinutes = data.focusPrefs.defaultMinutes;
+    focusPrefs.suggestSuppressedUntil = data.focusPrefs.suggestSuppressedUntil || null;
+    localStorage.setItem('focusPrefs', JSON.stringify(focusPrefs));
+    changed = true;
+  }
   if(!changed) return;
   if(document.getElementById('main-wrap').style.display === 'none') return; // still on the lock screen — nothing to refresh yet
   render();
@@ -2852,6 +3256,9 @@ function applyCloudState(data){
     renderLearningLoop();
   }
   if(activeAppView === 'today') renderTodayDashboard();
+  // Don't re-render the focus card mid-session or mid-end-flow — that would
+  // clobber a running countdown's ack text or a half-typed outcome note.
+  if(!focusSession && !focusEndFlow && !focusBreak) renderFocusUI();
   showToast('Synced from another device');
 }
 

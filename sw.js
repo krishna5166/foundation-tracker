@@ -1,6 +1,6 @@
 // Minimal offline cache — lets the tracker still open with no signal.
 // Bump CACHE_NAME when index.html changes meaningfully so old shells don't stick.
-const CACHE_NAME = 'aiml-roadmap-v4';
+const CACHE_NAME = 'aiml-roadmap-v5';
 const SHELL_FILES = ['./', './index.html', './curriculum.json', './manifest.json'];
 
 self.addEventListener('install', event => {
