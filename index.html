@@ -624,6 +624,11 @@
   .loop-radio input{accent-color:var(--blue)}
   .loop-complete{text-align:center;padding:24px 14px}
   .loop-complete .ring{margin:0 auto 12px;width:42px;height:42px}
+  .loop-gaps{margin-top:16px;padding:14px;background:var(--board-panel);border:1px solid var(--rule);border-left:3px solid var(--coral);border-radius:6px;text-align:left}
+  .loop-gaps-title{font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);margin-bottom:10px}
+  .loop-gap-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--rule)}
+  .loop-gap-row:first-of-type{border-top:none;padding-top:0}
+  .loop-gap-reason{font-size:13.5px;color:var(--chalk-dim2);line-height:1.5}
   .review-modal-box{max-width:820px}
   .review-progress{
     font-family:'Space Mono',monospace;font-size:11px;color:var(--chalk-dim2);
@@ -2504,7 +2509,9 @@ function openTopicModal(id){
     learnChunkIndex: 0,
     recallAnswer: null,
     reflectDone: false,
-    reflectText: ''
+    reflectText: '',
+    redoStep: null,
+    redoChain: null
   };
   document.getElementById('modal-topic-title').textContent = t.title;
   const qtag = t.q ? '<span class="qtag">' + escapeHtml(t.q) + '</span>' : '';
@@ -2567,6 +2574,19 @@ function firstIncompleteLoopStep(t, progress){
   return sequence.find(step=>!isLoopStepComplete(t, step, progress)) || null;
 }
 
+// Normally the loop only ever shows the first step with zero recorded
+// entries. That's correct for first-time progression, but it means a
+// "complete" loop (every step attempted, at least once) has no way back in
+// even when an attempt didn't clear the independent bar for mastery — see
+// loopCompletionGaps(). redoStep is a deliberate, explicit override the
+// student opts into (via a "Try again" button), never automatic.
+function effectiveCurrentStep(t, progress){
+  if(loopSession && loopSession.topicId === t.id && loopSession.redoStep){
+    return loopSession.redoStep;
+  }
+  return firstIncompleteLoopStep(t, progress);
+}
+
 function isLoopStepUnlocked(t, step, progress){
   const sequence = topicLoopSequence(t);
   const index = sequence.indexOf(step);
@@ -2578,8 +2598,9 @@ function currentLoopContext(expectedStep){
   const t = TOPICS_BY_ID.get(currentModalTopicId);
   if(!t || !loopSession || loopSession.topicId !== t.id) return null;
   const progress = getTopicProgress(t.id);
-  const current = firstIncompleteLoopStep(t, progress);
-  if(current !== expectedStep || !isLoopStepUnlocked(t, expectedStep, progress)){
+  const current = effectiveCurrentStep(t, progress);
+  const redoing = loopSession.redoStep === expectedStep;
+  if(current !== expectedStep || (!redoing && !isLoopStepUnlocked(t, expectedStep, progress))){
     showToast('Complete the current step first');
     return null;
   }
@@ -2588,9 +2609,11 @@ function currentLoopContext(expectedStep){
 
 function renderLoopStepNav(t, progress, current){
   const sequence = topicLoopSequence(t);
+  const redoing = loopSession && loopSession.topicId === t.id ? loopSession.redoStep : null;
   return sequence.map(step=>{
     let status = 'locked';
-    if(isLoopStepComplete(t, step, progress)) status = 'done';
+    if(step === redoing) status = 'current';
+    else if(isLoopStepComplete(t, step, progress)) status = 'done';
     else if(step === current && isLoopStepUnlocked(t, step, progress)) status = 'current';
     const marker = status === 'done' ? ' ✓' : '';
     return '<span class="loop-step ' + status + '">' +
@@ -2609,16 +2632,17 @@ function renderLearningLoop(){
   const t = TOPICS_BY_ID.get(currentModalTopicId);
   if(!container || !t) return;
   if(!loopSession || loopSession.topicId !== t.id){
-    loopSession = {topicId:t.id, orientDone:false, learnChunkIndex:0, recallAnswer:null, reflectDone:false, reflectText:''};
+    loopSession = {topicId:t.id, orientDone:false, learnChunkIndex:0, recallAnswer:null, reflectDone:false, reflectText:'', redoStep:null, redoChain:null};
   }
   const progress = getTopicProgress(t.id);
   const sequence = topicLoopSequence(t);
-  const current = firstIncompleteLoopStep(t, progress);
+  const current = effectiveCurrentStep(t, progress);
   if(!sequence.length){
     container.innerHTML = '<div class="loop-panel"><div class="loop-error">No loop sequence is configured for this topic depth.</div></div>';
     return;
   }
-  const currentIndex = current ? sequence.indexOf(current) : sequence.length;
+  const firstIncomplete = firstIncompleteLoopStep(t, progress);
+  const currentIndex = firstIncomplete ? sequence.indexOf(firstIncomplete) : sequence.length;
   container.innerHTML =
     '<div class="loop-shell">' +
       '<div class="loop-status">' +
@@ -2630,12 +2654,83 @@ function renderLearningLoop(){
     '</div>';
 }
 
+// Every loop step being "done" (has at least one entry) does not mean
+// mastery reached this topic's target — recall/build/diagnose/curveball
+// each have a quality bar (passed/independent/real rootCause) that a
+// single attempt can miss. This surfaces exactly which bar wasn't cleared,
+// so "loop complete but still Assisted" isn't a silent mystery.
+function loopCompletionGaps(t, progress){
+  const target = targetMasteryForTopic(t);
+  if(progress.masteryLevel >= target) return [];
+  const ev = progress.evidence || {};
+  const gaps = [];
+  if(progress.rebuild && progress.rebuild.required){
+    gaps.push({
+      step:'build', label:'Rebuild needed',
+      reason:'A full solution was used before — mastery is capped at Assisted until you build this independently.',
+      redoLabel:'Attempt an independent build'
+    });
+    return gaps; // rebuild blocks promotion outright — nothing else to list yet
+  }
+  if(!(ev.recall||[]).some(r=>r && r.passed===true)){
+    gaps.push({step:'recall', label:'Recall', reason:'No recall attempt has been rated "Solid" yet.', redoLabel:'Try recall again'});
+  }
+  if(!(ev.build||[]).some(b=>b && b.independent===true)){
+    gaps.push({step:'build', label:'Build', reason:'No build attempt was independent (help level 0-1) yet.', redoLabel:'Try build again'});
+  }
+  if(!(ev.diagnose||[]).some(d=>d && d.rootCause && String(d.rootCause).trim()!=='')){
+    gaps.push({step:'diagnose', label:'Diagnose', reason:'No diagnosis recorded a real root cause yet.', redoLabel:'Try diagnose again'});
+  }
+  if(t.depth === 'deep' && !(ev.curveball||[]).some(c=>c && c.passed===true)){
+    gaps.push({step:'curveball', label:'Curveball', reason:'No curveball passed yet — required for Adaptive on a deep topic.', redoLabel:'Try curveball again'});
+  }
+  return gaps;
+}
+
+function redoLoopStep(step){
+  if(!loopSession || loopSession.topicId !== currentModalTopicId) return;
+  if(step === 'build'){
+    // submitBuild() always resolves the most recent UNRESOLVED predict
+    // entry (actualOutcome still null) — an old, already-resolved
+    // prediction has nothing pending to attach to. Route through a fresh
+    // predict first, then chain into build once that's recorded — this is
+    // also just the correct sequence pedagogically (predict, then build).
+    loopSession.redoStep = 'predict';
+    loopSession.redoChain = 'build';
+  } else {
+    loopSession.redoStep = step;
+    loopSession.redoChain = null;
+  }
+  if(step === 'recall') loopSession.recallAnswer = null; // re-enter closed-book, don't show the stale comparison
+  renderLearningLoop();
+}
+
+function continueFromLoopComplete(){
+  closeTopicModal();
+  showAppView('today');
+}
+
 function renderLoopStepPanel(t, step, progress){
   if(!step){
+    const gaps = loopCompletionGaps(t, progress);
+    const gapsHtml = gaps.length
+      ? '<div class="loop-gaps"><div class="loop-gaps-title">Not yet at target mastery</div>' +
+          gaps.map(g=>
+            '<div class="loop-gap-row">' +
+              '<div class="loop-gap-reason"><b>' + escapeHtml(g.label) + '.</b> ' + escapeHtml(g.reason) + '</div>' +
+              '<button class="pomo-btn" onclick="redoLoopStep(\'' + g.step + '\')">' + escapeHtml(g.redoLabel) + '</button>' +
+            '</div>'
+          ).join('') +
+        '</div>'
+      : '';
     return '<div class="loop-complete">' +
       '<div class="ring" data-lvl="' + progress.masteryLevel + '">' + (progress.masteryLevel === 3 ? '✓' : progress.masteryLevel) + '</div>' +
       '<div class="loop-title">Loop complete</div>' +
       '<div class="loop-copy">Your evidence is saved. Mastery is derived from what you recorded, including independence and curveball results.</div>' +
+      gapsHtml +
+      '<div class="loop-actions" style="margin-top:16px;justify-content:center">' +
+        '<button class="pomo-btn primary" onclick="continueFromLoopComplete()">Continue</button>' +
+      '</div>' +
     '</div>';
   }
   if(!isLoopStepUnlocked(t, step, progress)){
@@ -2844,6 +2939,16 @@ function setLoopError(message){
 }
 
 function refreshLoopAfterEvidence(message){
+  if(loopSession){
+    if(loopSession.redoChain){
+      // e.g. predict->build: advance into the chained step instead of
+      // falling back to "loop complete" mid-chain.
+      loopSession.redoStep = loopSession.redoChain;
+      loopSession.redoChain = null;
+    } else {
+      loopSession.redoStep = null; // one-shot: clear once the redo attempt is actually recorded
+    }
+  }
   renderTopicCard(currentModalTopicId);
   updateStats();
   applyFilters();
