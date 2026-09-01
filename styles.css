@@ -7,13 +7,16 @@
     --chalk-dim2:#5B6B62;
     --rule:#E0E3DD;
     --yellow:#B8862E;
-    --blue:#3B76A0;
     --coral:#B0473C;
     --green-ok:#4C9650;
-    /* Single accent driving the Today boxes, progress bars, and any
-       "current selection" state — user-configurable via the swatch in
-       the topbar, persisted to localStorage. Defaults to the old blue. */
+    /* The app's one configurable primary/interactive color — buttons,
+       active tabs/filters, focus rings, links, progress bars, the topic
+       ring at "in review", all of it. Set via the swatch in the topbar
+       and persisted to localStorage. --blue is kept as an alias so every
+       existing var(--blue) reference across this file (there are ~25)
+       follows it automatically instead of needing to be hunted down. */
     --accent:#3B76A0;
+    --blue:var(--accent);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
