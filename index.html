@@ -2084,11 +2084,38 @@ function renderTopicChecklist(){
       '<div class="loop-copy">' + escapeHtml(t.masteryGate) + '</div></div>';
   }
   if(complete){
+    const next = nextIncompleteTopicAfter(t.id);
     html += '<div class="loop-panel"><div class="loop-title">Topic complete</div>' +
-      '<div class="loop-copy">Nice. Talk it through with your AI TA if you want it verified for real.</div></div>';
+      '<div class="loop-copy">Nice. Talk it through with your AI TA if you want it verified for real.</div>' +
+      '<div class="loop-actions" style="margin-top:12px">' +
+        (next
+          ? '<button class="pomo-btn primary" onclick="openNextTopic()">Next: ' + escapeHtml(next.title) + '</button>'
+          : '<button class="pomo-btn primary" onclick="closeTopicModal();showAppView(\'today\')">Back to Today</button>') +
+      '</div></div>';
   }
   html += '</div>';
   container.innerHTML = html;
+}
+
+// Strictly the next topic after this one in curriculum order — distinct
+// from pickNextAction's Today-dashboard suggestion, which may prioritize
+// resuming a different in-progress topic instead.
+function nextIncompleteTopicAfter(topicId){
+  const ordered = [...TOPICS].sort((a,b)=>
+    a.phaseOrder - b.phaseOrder || a.moduleOrder - b.moduleOrder || a.id.localeCompare(b.id)
+  );
+  const idx = ordered.findIndex(item=>item.id === topicId);
+  if(idx === -1) return null;
+  for(let i = idx + 1; i < ordered.length; i++){
+    if(!isTopicComplete(getTopicProgress(ordered[i].id), ordered[i])) return ordered[i];
+  }
+  return null;
+}
+
+function openNextTopic(){
+  const next = nextIncompleteTopicAfter(currentModalTopicId);
+  if(next) openTopicModal(next.id);
+  else { closeTopicModal(); showAppView('today'); }
 }
 
 function toggleChunkRead(topicId, index, checked){
