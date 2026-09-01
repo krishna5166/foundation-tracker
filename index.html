@@ -2505,20 +2505,57 @@ function setStatusFilter(val, btn){
 let currentModalTopicId = null;
 let loopSession = null;
 
+// In-progress loop state (which concept chunk you're on, orient/reflect
+// draft) used to live only in `loopSession` and vanished on modal close or
+// reload — you had to finish the whole topic loop in one sitting for
+// anything to hit localStorage. This mirrors it to a small per-topic
+// draft key so a chunk you've already read stays read.
+function loopDraftKey(topicId){ return 'loopDraft:'+topicId; }
+
+function loadLoopDraft(topicId){
+  try{
+    const raw = localStorage.getItem(loopDraftKey(topicId));
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return null;
+}
+
+function saveLoopDraft(){
+  if(!loopSession) return;
+  try{
+    localStorage.setItem(loopDraftKey(loopSession.topicId), JSON.stringify({
+      orientDone: loopSession.orientDone,
+      learnChunkIndex: loopSession.learnChunkIndex,
+      recallAnswer: loopSession.recallAnswer,
+      reflectDone: loopSession.reflectDone,
+      reflectText: loopSession.reflectText
+    }));
+  } catch(e){}
+}
+
+function clearLoopDraft(topicId){
+  try{ localStorage.removeItem(loopDraftKey(topicId)); } catch(e){}
+}
+
+function freshLoopSession(topicId){
+  const draft = loadLoopDraft(topicId) || {};
+  return {
+    topicId: topicId,
+    orientDone: !!draft.orientDone,
+    learnChunkIndex: Number.isInteger(draft.learnChunkIndex) ? draft.learnChunkIndex : 0,
+    recallAnswer: draft.recallAnswer || null,
+    reflectDone: !!draft.reflectDone,
+    reflectText: draft.reflectText || '',
+    redoStep: null,
+    redoChain: null
+  };
+}
+
 function openTopicModal(id){
   currentModalTopicId = id;
   const t = TOPICS_BY_ID.get(id);
   if(!t) return;
-  loopSession = {
-    topicId: id,
-    orientDone: false,
-    learnChunkIndex: 0,
-    recallAnswer: null,
-    reflectDone: false,
-    reflectText: '',
-    redoStep: null,
-    redoChain: null
-  };
+  loopSession = freshLoopSession(id);
   document.getElementById('modal-topic-title').textContent = t.title;
   const qtag = t.q ? '<span class="qtag">' + escapeHtml(t.q) + '</span>' : '';
   const skilltag = t.skill ? '<span class="skilltag">' + escapeHtml(t.skill) + '</span>' : '';
@@ -2638,7 +2675,7 @@ function renderLearningLoop(){
   const t = TOPICS_BY_ID.get(currentModalTopicId);
   if(!container || !t) return;
   if(!loopSession || loopSession.topicId !== t.id){
-    loopSession = {topicId:t.id, orientDone:false, learnChunkIndex:0, recallAnswer:null, reflectDone:false, reflectText:'', redoStep:null, redoChain:null};
+    loopSession = freshLoopSession(t.id);
   }
   const progress = getTopicProgress(t.id);
   const sequence = topicLoopSequence(t);
@@ -2965,6 +3002,7 @@ function refreshLoopAfterEvidence(message){
 function completeOrient(){
   if(!currentLoopContext('orient')) return;
   loopSession.orientDone = true;
+  saveLoopDraft();
   renderLearningLoop();
 }
 
@@ -2974,11 +3012,13 @@ function advanceLearnChunk(){
   const chunks = Array.isArray(ctx.topic.conceptChunks) && ctx.topic.conceptChunks.length ? ctx.topic.conceptChunks : [[]];
   if(loopSession.learnChunkIndex < chunks.length - 1){
     loopSession.learnChunkIndex += 1;
+    saveLoopDraft();
     renderLearningLoop();
     return;
   }
   recordEvidence(ctx.topic.id, 'learn', {done:true});
   loopSession.recallAnswer = null;
+  saveLoopDraft();
   refreshLoopAfterEvidence('Learning chunks complete');
 }
 
@@ -2990,6 +3030,7 @@ function revealRecallComparison(){
     return;
   }
   loopSession.recallAnswer = answer;
+  saveLoopDraft();
   renderLearningLoop();
 }
 
@@ -3112,6 +3153,7 @@ function submitReflection(){
   }
   loopSession.reflectText = reflection;
   loopSession.reflectDone = true;
+  saveLoopDraft();
   renderLearningLoop();
 }
 
@@ -3411,6 +3453,10 @@ function renderVerifySection(t){
 }
 
 function closeTopicModal(){
+  if(currentModalTopicId){
+    const t = TOPICS_BY_ID.get(currentModalTopicId);
+    if(t && !firstIncompleteLoopStep(t, getTopicProgress(t.id))) clearLoopDraft(t.id);
+  }
   document.getElementById('topic-modal-overlay').classList.remove('open');
   currentModalTopicId = null;
   loopSession = null;
