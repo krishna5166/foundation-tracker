@@ -1138,7 +1138,8 @@ function getTopicProgress(topicId){
   if(record.masteryLevel >= 2 && !record.review.nextDueAt){
     // Upgrade path for level 2+ evidence earned before the Review Engine
     // existed. New crossings are scheduled directly inside recordEvidence.
-    record.review.nextDueAt = reviewDueAtEndOfDay(new Date(), 0);
+    // Same tomorrow-not-today reasoning as there — see that comment.
+    record.review.nextDueAt = reviewDueAtEndOfDay(new Date(), 1);
     saveProgressRecord(record);
   }
   return record;
@@ -1529,7 +1530,12 @@ function recordEvidence(topicId, activityType, entry){
   record.masteryLevelLastComputedAt = now;
   if(previousMasteryLevel < 2 && record.masteryLevel >= 2 && !record.review.nextDueAt){
     record.review.currentRung = 0;
-    record.review.nextDueAt = reviewDueAtEndOfDay(now, 0);
+    // Due tomorrow, not today: scheduling it same-day means a topic you
+    // just finished immediately jumps the review queue ahead of anything
+    // new, and reviewing something seconds after learning it has ~zero
+    // spacing benefit anyway. Rung 0's actual 0-day interval still applies
+    // normally to every review *after* this first one.
+    record.review.nextDueAt = reviewDueAtEndOfDay(now, 1);
   }
 
   markAppActivity(topicId, now);
