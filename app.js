@@ -2036,7 +2036,28 @@ function importFromGist(){
   }).catch(()=>{});
 }
 
+const ACCENT_COLOR_KEY = 'accentColor';
+const DEFAULT_ACCENT = '#3B76A0';
+
+function loadAccentColor(){
+  let color = DEFAULT_ACCENT;
+  try{
+    const stored = localStorage.getItem(ACCENT_COLOR_KEY);
+    if(stored && /^#[0-9a-fA-F]{6}$/.test(stored)) color = stored;
+  } catch(e){}
+  document.documentElement.style.setProperty('--accent', color);
+  const picker = document.getElementById('accent-picker');
+  if(picker) picker.value = color;
+}
+
+function setAccentColor(color){
+  if(!/^#[0-9a-fA-F]{6}$/.test(color)) return;
+  document.documentElement.style.setProperty('--accent', color);
+  try{ localStorage.setItem(ACCENT_COLOR_KEY, color); } catch(e){}
+}
+
 function init(){
+  loadAccentColor();
   loadAppState();
   recomputeXPState();
   initializeComebackState();

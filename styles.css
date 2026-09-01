@@ -10,6 +10,10 @@
     --blue:#3B76A0;
     --coral:#B0473C;
     --green-ok:#4C9650;
+    /* Single accent driving the Today boxes, progress bars, and any
+       "current selection" state — user-configurable via the swatch in
+       the topbar, persisted to localStorage. Defaults to the old blue. */
+    --accent:#3B76A0;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
@@ -48,7 +52,14 @@
     border:1px solid transparent;background:transparent;color:var(--chalk-dim2);cursor:pointer;
   }
   .app-tab:hover{border-color:var(--rule);color:var(--chalk)}
-  .app-tab.active{background:var(--blue);border-color:var(--blue);color:var(--board);font-weight:700}
+  .app-tab.active{background:var(--accent);border-color:var(--accent);color:var(--board);font-weight:700}
+  .accent-picker{
+    width:26px;height:26px;padding:0;border:1.5px solid var(--rule);border-radius:50%;
+    cursor:pointer;background:none;overflow:hidden;margin-left:4px;
+  }
+  .accent-picker::-webkit-color-swatch-wrapper{padding:0}
+  .accent-picker::-webkit-color-swatch{border:none;border-radius:50%}
+  .accent-picker::-moz-color-swatch{border:none;border-radius:50%}
   .roadmap-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
   .roadmap-actions .search-box{max-width:360px}
   [hidden]{display:none!important}
@@ -61,41 +72,41 @@
   .today-view{grid-column:1/-1;width:100%;max-width:820px;margin:18px auto 0}
   .today-stack{display:flex;flex-direction:column;gap:14px}
   .today-primary{
-    background:var(--board-panel);border:1px solid var(--rule);border-radius:10px;
+    background:var(--board);border:1.5px solid var(--accent);border-radius:10px;
     padding:24px;box-shadow:0 2px 8px rgba(30,43,36,.06);
   }
   .today-primary .loop-title{font-size:clamp(24px,4vw,32px)}
   .today-sublabel{font-size:16px;color:var(--chalk-dim);line-height:1.55;margin:8px 0 18px}
   .today-review-card{
-    width:100%;text-align:left;background:var(--board);border:1px solid var(--rule);
+    width:100%;text-align:left;background:var(--board);border:1.5px solid var(--accent);
     border-radius:8px;padding:16px;cursor:pointer;color:var(--chalk);
   }
-  .today-review-card:hover{border-color:var(--blue)}
+  .today-review-card:hover{opacity:.85}
   .today-review-card .today-sublabel{margin:4px 0 0;font-size:14px}
-  .momentum-card{padding:16px 18px;background:var(--board);border:1px solid var(--rule);border-radius:8px}
+  .momentum-card{padding:16px 18px;background:var(--board);border:1.5px solid var(--accent);border-radius:8px}
   .momentum-dots{display:flex;gap:14px;align-items:center}
   .momentum-dot{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--rule);background:transparent}
-  .momentum-dot.filled{background:var(--blue);border-color:var(--blue)}
+  .momentum-dot.filled{background:var(--accent);border-color:var(--accent)}
   .comeback-banner{
     font-family:'Fraunces',serif;font-size:24px;font-weight:600;
-    padding:16px 18px;background:var(--board-panel);border:1px solid var(--rule);border-radius:8px;
+    padding:16px 18px;background:var(--board);border:1.5px solid var(--accent);border-radius:8px;
   }
   .resume-context{padding:16px 18px;background:var(--board);border:1px solid var(--rule);border-radius:8px}
   .resume-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
   .resume-field{min-width:0}
   .resume-field-label{font-family:'Space Mono',monospace;font-size:10.5px;text-transform:uppercase;color:var(--chalk-dim2);margin-bottom:4px}
   .resume-field-value{font-size:14.5px;line-height:1.5;color:var(--chalk-dim);white-space:pre-wrap;overflow-wrap:anywhere}
-  .warmup-card{padding:16px 18px;background:var(--board-panel);border:1px solid var(--rule);border-radius:8px}
+  .warmup-card{padding:16px 18px;background:var(--board);border:1.5px solid var(--accent);border-radius:8px}
   .today-project-card{
-    width:100%;text-align:left;background:var(--board-panel);border:1px solid var(--yellow);
+    width:100%;text-align:left;background:var(--board);border:1.5px solid var(--accent);
     border-radius:8px;padding:18px;cursor:pointer;color:var(--chalk);
   }
-  .today-project-card:hover{border-color:var(--blue)}
+  .today-project-card:hover{opacity:.85}
   .today-project-card .today-sublabel{margin:5px 0 0;font-size:14px}
   .xp-rank-line{padding:10px 2px 0;color:var(--chalk-dim2);font-family:'Space Mono',monospace;font-size:11.5px}
   .xp-rank-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
   .xp-rank-track{height:3px;background:var(--rule);border-radius:99px;overflow:hidden}
-  .xp-rank-fill{height:100%;background:var(--blue);border-radius:99px}
+  .xp-rank-fill{height:100%;background:var(--accent);border-radius:99px}
   .projects-view{grid-column:1/-1;width:100%;max-width:980px;margin:18px auto 0}
   .projects-heading{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin-bottom:6px}
   .projects-intro{color:var(--chalk-dim);line-height:1.55;margin-bottom:20px}
@@ -210,7 +221,7 @@
 
   .progress-wrap{background:var(--rule);border-radius:99px;height:6px;margin-bottom:8px;overflow:hidden}
   .readiness-line{font-family:'Space Mono',monospace;font-size:13px;color:var(--chalk-dim2);margin-bottom:28px}
-  .progress-fill{background:linear-gradient(90deg,var(--blue),var(--green-ok));height:100%;border-radius:99px;transition:width .4s}
+  .progress-fill{background:var(--accent);height:100%;border-radius:99px;transition:width .4s}
 
   /* ===== Controls ===== */
   .search-box{
