@@ -5,151 +5,30 @@
     "pace": "3-5 focused hours/day",
     "duration": "9-12+ months; mastery decides, not calendar",
     "method": "Learn -> Recall -> Predict -> Build -> Break -> Diagnose -> Curveball -> Resume",
-    "masteryLevels": [
-      {
-        "level": 0,
-        "name": "Exposed",
-        "meaning": "Encountered the concept. No advancement credit by itself."
-      },
-      {
-        "level": 1,
-        "name": "Assisted",
-        "meaning": "Can use it with examples or documentation. Acceptable for peripheral/light topics."
-      },
-      {
-        "level": 2,
-        "name": "Independent",
-        "meaning": "Can explain and implement the important parts without a tutorial. Required for core topics."
-      },
-      {
-        "level": 3,
-        "name": "Adaptive",
-        "meaning": "Can debug, make tradeoffs, handle curveballs, and apply it in an unfamiliar situation. Required for deep/specialization topics."
-      }
-    ],
-    "helpLadder": [
-      {
-        "level": 0,
-        "name": "Independent",
-        "gives": "No assistance.",
-        "consequence": "Eligible for strongest independent evidence."
-      },
-      {
-        "level": 1,
-        "name": "Error clarification",
-        "gives": "Explain the error/message, not the solution.",
-        "consequence": "Still largely independent."
-      },
-      {
-        "level": 2,
-        "name": "Guiding question",
-        "gives": "A question that points attention to the right area.",
-        "consequence": "Assistance recorded."
-      },
-      {
-        "level": 3,
-        "name": "Small hint",
-        "gives": "One concrete hint.",
-        "consequence": "Assisted evidence."
-      },
-      {
-        "level": 4,
-        "name": "Concept support",
-        "gives": "Relevant concept/docs/explanation.",
-        "consequence": "Assisted evidence."
-      },
-      {
-        "level": 5,
-        "name": "Full solution",
-        "gives": "Complete solution.",
-        "consequence": "Cannot count as independent until rebuilt later. Auto-schedules a rebuild task."
-      }
-    ],
-    "learningLoopSteps": [
-      "orient",
-      "learn",
-      "recall",
-      "predict",
-      "build",
-      "break",
-      "diagnose",
-      "curveball",
-      "reflect",
-      "resumeNote"
-    ],
-    "depthLoopMap": {
-      "light": [
-        "learn",
-        "recall",
-        "build"
-      ],
-      "core": [
-        "learn",
-        "recall",
-        "predict",
-        "build",
-        "break",
-        "diagnose",
-        "resumeNote"
-      ],
-      "deep": [
-        "orient",
-        "learn",
-        "recall",
-        "predict",
-        "build",
-        "break",
-        "diagnose",
-        "curveball",
-        "reflect",
-        "resumeNote"
-      ]
-    },
     "xpTable": [
       {
-        "action": "Start and protect one focus block",
-        "xp": 5,
-        "evidence": "No multitasking; distractions logged."
+        "action": "Chunk read",
+        "xp": 5
       },
       {
-        "action": "Closed-source recall",
-        "xp": 10,
-        "evidence": "Must happen before rereading."
+        "action": "Hands-on completed",
+        "xp": 15
       },
       {
-        "action": "Prediction before execution",
-        "xp": 5,
-        "evidence": "Specific enough to be wrong."
+        "action": "Topic completed",
+        "xp": 10
       },
       {
-        "action": "Independent build",
-        "xp": 20,
-        "evidence": "Core work is yours; docs allowed."
+        "action": "Quiz passed",
+        "xp": 20
       },
       {
-        "action": "Intentional break plus diagnosis",
-        "xp": 20,
-        "evidence": "Root cause and evidence recorded."
+        "action": "Project milestone",
+        "xp": 25
       },
       {
-        "action": "Curveball solved",
-        "xp": 30,
-        "evidence": "Unfamiliar variation without tutorial."
-      },
-      {
-        "action": "Project milestone shipped",
-        "xp": 50,
-        "evidence": "Tested artifact and README update."
-      },
-      {
-        "action": "Boss battle passed",
-        "xp": 100,
-        "evidence": "Mastery gate evidence retained."
-      },
-      {
-        "action": "Resume note",
-        "xp": 5,
-        "evidence": "Exact next action and current state."
+        "action": "Capstone passed",
+        "xp": 150
       }
     ],
     "ranks": [
@@ -178,18 +57,6 @@
         "xp": 9000
       }
     ],
-    "stuckProtocol": [
-      "What is the problem asking? Restate it in your own words.",
-      "What do I know? Facts, inputs, constraints, working components.",
-      "What exactly do I not know? Name the smallest uncertainty.",
-      "What do I expect to happen? Make a falsifiable prediction.",
-      "What are at least two possible causes or approaches?",
-      "What one test best separates those possibilities?",
-      "What happened? Record observation, not interpretation.",
-      "What changed in my model of the problem?",
-      "Do I need documentation, a hint, or a full solution? Why?",
-      "After help: why did the fix work, and what regression test prevents recurrence?"
-    ],
     "schemaNote": "Every module has conceptChunks (mustCover split into groups of ~3 for sequential bounded reading, not one flat dump). Every core/deep module has predictPrompt, breakScenario, and diagnosePrompt to drive the loop directly instead of the UI inventing them generically. Every deep module additionally has curveballTask. Projects have milestones[] instead of one build paragraph."
   },
   "phases": [
@@ -217,7 +84,10 @@
             "Modules, packages, and imports",
             "Exceptions, file handling, and context managers"
           ],
-          "handsOn": "Translate three familiar programs from another language into idiomatic Python.",
+          "handsOn": [
+            "Write a small command-line program using only variables, conditionals, loops, and functions with *args/**kwargs — no comprehensions or imports yet.",
+            "Rewrite that program's loops as comprehensions, split it into modules, and wrap its file I/O in context managers with proper exception handling."
+          ],
           "masteryGate": "Write and explain a multi-file program without tutorial copying.",
           "conceptChunks": [
             [
@@ -230,10 +100,7 @@
               "Modules, packages, and imports",
               "Exceptions, file handling, and context managers"
             ]
-          ],
-          "predictPrompt": "Predict what a *args/**kwargs function signature will accept before calling it with mixed arguments.",
-          "breakScenario": "Call a function with the wrong argument order or a missing default and read the traceback.",
-          "diagnosePrompt": "What does the traceback's actual line number tell you versus what you assumed broke?"
+          ]
         },
         {
           "id": "p1-data-structures-object-model",
@@ -249,7 +116,10 @@
             "Classes, inheritance, dataclasses, type hints",
             "Iterators, generators, decorator intuition"
           ],
-          "handsOn": "Build a small inventory model and deliberately trigger aliasing and mutation bugs.",
+          "handsOn": [
+            "Build a small inventory model using lists, dicts, sets, and tuples, and deliberately trigger a mutable-default-argument or shared-reference bug.",
+            "Refactor the inventory model into typed dataclasses with inheritance, then write a custom iterator/generator over it and one small decorator."
+          ],
           "masteryGate": "Select the correct structure and explain time/memory tradeoffs.",
           "conceptChunks": [
             [
@@ -262,10 +132,7 @@
               "Classes, inheritance, dataclasses, type hints",
               "Iterators, generators, decorator intuition"
             ]
-          ],
-          "predictPrompt": "Predict whether two variables pointing at the same list will both change after mutating one.",
-          "breakScenario": "Assign one list to a second variable, mutate it, and check if the first changed too.",
-          "diagnosePrompt": "Is it a reference-sharing bug or a copy bug? Print id() on both to be sure, don't guess."
+          ]
         },
         {
           "id": "p1-complexity-engineering",
@@ -284,7 +151,11 @@
             "Command-line execution",
             "Git basics"
           ],
-          "handsOn": "Package a command-line tool with tests, logs, and reproducible setup instructions.",
+          "handsOn": [
+            "Time two implementations of the same task (e.g. O(n^2) vs O(n log n) dedupe) on growing input sizes and explain the tradeoff in memory vs speed; set up a fresh virtual environment for it.",
+            "Add a requirements file, structured logging, and a pytest suite (including a deliberately failing case) to that script.",
+            "Turn it into a proper package with a CLI entrypoint, commit it with meaningful git history, and write a README with reproducible setup instructions."
+          ],
           "masteryGate": "A fresh environment can run the tests and tool from the README.",
           "conceptChunks": [
             [
@@ -302,10 +173,7 @@
               "Command-line execution",
               "Git basics"
             ]
-          ],
-          "predictPrompt": "Predict which of two duplicate-finding approaches will be faster on 100,000 items before timing them.",
-          "breakScenario": "Run the O(n^2) version on a large input and let it actually run long enough to hurt.",
-          "diagnosePrompt": "Time both versions and calculate the actual speedup \u2014 don't just eyeball 'faster'."
+          ]
         },
         {
           "id": "p1-numpy",
@@ -323,7 +191,11 @@
             "Performance vs Python loops",
             "Randomness and reproducibility"
           ],
-          "handsOn": "Implement image-like array transformations with loops, then vectorize them.",
+          "handsOn": [
+            "Build a small image-like 3D array (H,W,C) and practice slicing, reshaping, and broadcasting a per-channel adjustment onto it.",
+            "Vectorize a loop-based pixel transform using boolean masks and matrix operations instead of explicit for-loops.",
+            "Benchmark the loop version against the vectorized version and explain the speedup; make the random parts reproducible with a fixed seed."
+          ],
           "masteryGate": "Predict output shapes and broadcasting behavior before execution.",
           "conceptChunks": [
             [
@@ -340,10 +212,7 @@
               "Performance vs Python loops",
               "Randomness and reproducibility"
             ]
-          ],
-          "predictPrompt": "Predict the output shape of a broadcasted operation on two differently-shaped arrays before running it.",
-          "breakScenario": "Try to broadcast two arrays with incompatible shapes and read the actual error.",
-          "diagnosePrompt": "Which dimension exactly didn't broadcast, and what shape would have fixed it?"
+          ]
         },
         {
           "id": "p1-pandas",
@@ -360,7 +229,11 @@
             "apply vs vectorization",
             "Schema and dtype checks"
           ],
-          "handsOn": "Clean a deliberately messy transaction table and produce summary statistics.",
+          "handsOn": [
+            "Load a messy transaction CSV into a DataFrame and answer five questions using filtering, grouping, joining, and sorting.",
+            "Clean the same table: handle missing values and duplicates, and rewrite one slow .apply() as a vectorized operation, timing both.",
+            "Add schema and dtype validation checks that fail loudly if the cleaned table doesn't match expectations."
+          ],
           "masteryGate": "Create a reproducible pipeline that handles new bad rows without manual edits.",
           "conceptChunks": [
             [
@@ -376,10 +249,7 @@
             [
               "Schema and dtype checks"
             ]
-          ],
-          "predictPrompt": "Predict how many rows will survive after a .dropna() call before running it.",
-          "breakScenario": "Introduce a mixed dtype column (numbers and strings together) and try to aggregate it.",
-          "diagnosePrompt": "What did the dtype actually resolve to, and why did pandas pick that over what you expected?"
+          ]
         }
       ],
       "boss": null,
@@ -432,7 +302,11 @@
             "Basis and linear transformation intuition",
             "Eigenvector and SVD awareness"
           ],
-          "handsOn": "Visualize a 2D linear transformation and implement cosine similarity.",
+          "handsOn": [
+            "Implement dot product and matrix multiplication from scratch with nested loops, then verify against NumPy on random matrices of matching/mismatched shapes.",
+            "Visualize a 2D linear transformation (rotation + scale matrix) applied to a set of points, and implement cosine similarity from scratch to compare two vectors.",
+            "Run SVD on a small matrix/image, reconstruct it from the top-k singular values, and observe how quality degrades as k shrinks."
+          ],
           "masteryGate": "Explain shapes and meaning for each matrix operation without guessing.",
           "conceptChunks": [
             [
@@ -448,10 +322,7 @@
             [
               "Eigenvector and SVD awareness"
             ]
-          ],
-          "predictPrompt": "Predict the output shape of a matrix multiplication before running it, from the two input shapes alone.",
-          "breakScenario": "Try to multiply two matrices with mismatched inner dimensions.",
-          "diagnosePrompt": "State exactly which dimension mismatched and what shape would resolve it."
+          ]
         },
         {
           "id": "p2-statistics",
@@ -468,7 +339,11 @@
             "Sampling bias",
             "Confidence interval intuition"
           ],
-          "handsOn": "Simulate sampling distributions and demonstrate why correlation is not causation.",
+          "handsOn": [
+            "Compute mean, median, variance, and quantiles by hand on a small skewed dataset and identify outliers using IQR.",
+            "Simulate sampling distributions from a population, then construct a biased sample and show how its statistics diverge from the true population.",
+            "Bootstrap a confidence interval for a sample mean and demonstrate why correlation between two simulated variables doesn't imply causation."
+          ],
           "masteryGate": "Choose and interpret descriptive statistics for skewed and noisy data.",
           "conceptChunks": [
             [
@@ -484,10 +359,7 @@
             [
               "Confidence interval intuition"
             ]
-          ],
-          "predictPrompt": "Predict whether the mean or median will be more affected by one outlier you add to the data.",
-          "breakScenario": "Add one extreme outlier to a small dataset and recompute mean vs median.",
-          "diagnosePrompt": "Quantify how much each statistic moved \u2014 that gap is the actual lesson, not just 'outliers are bad'."
+          ]
         },
         {
           "id": "p2-probability",
@@ -504,7 +376,11 @@
             "Expectation",
             "Common discrete and continuous distributions"
           ],
-          "handsOn": "Build a small Bayesian spam or diagnostic update simulation.",
+          "handsOn": [
+            "Solve and code three conditional-probability puzzles (e.g. a Monty Hall variant) by simulation and verify against the analytical answer.",
+            "Build a small Bayesian spam/diagnostic updater: start with a prior, feed it evidence, and update to a posterior using likelihoods.",
+            "Sample from and plot binomial, Poisson, and normal distributions, and match each to a real scenario it models well."
+          ],
           "masteryGate": "Calculate and explain a conditional-probability result and its assumptions.",
           "conceptChunks": [
             [
@@ -520,10 +396,7 @@
             [
               "Common discrete and continuous distributions"
             ]
-          ],
-          "predictPrompt": "Before calculating, predict whether the posterior will be closer to the prior or the new evidence.",
-          "breakScenario": "Set the prior to something extreme (very rare or very common) and rerun the Bayes update.",
-          "diagnosePrompt": "Explain in one sentence why an extreme prior dominates the result even with strong evidence."
+          ]
         },
         {
           "id": "p2-calculus-optimization",
@@ -540,7 +413,11 @@
             "Learning rate",
             "Convergence and local/global behavior"
           ],
-          "handsOn": "Implement gradient descent manually; compare learning rates too high, too low, and reasonable.",
+          "handsOn": [
+            "Compute derivatives and gradients by hand for a simple multivariable function, then verify numerically with finite differences.",
+            "Implement gradient descent manually on a toy loss function and run it with a too-high, too-low, and reasonable learning rate.",
+            "Plot the loss surface of a non-convex toy function and show gradient descent getting stuck in a local minimum from one starting point but not another."
+          ],
           "masteryGate": "Predict and diagnose convergence behavior from the loss curve.",
           "conceptChunks": [
             [
@@ -556,11 +433,7 @@
             [
               "Convergence and local/global behavior"
             ]
-          ],
-          "predictPrompt": "Predict what happens to convergence if you set the learning rate 100x higher than a working value.",
-          "breakScenario": "Run gradient descent with a learning rate that's clearly too high and watch the loss.",
-          "diagnosePrompt": "Is the loss oscillating, diverging, or just slow? Each implies a different fix \u2014 say which you see.",
-          "curveballTask": "Apply the same manual gradient descent to a loss surface with two local minima and explain what changes."
+          ]
         }
       ],
       "boss": {
@@ -600,7 +473,11 @@
             "Index intuition",
             "Query plans and performance basics"
           ],
-          "handsOn": "Build a feature table from normalized transaction and customer tables.",
+          "handsOn": [
+            "Write SELECT/WHERE/CASE queries and grouped aggregations against normalized customer and transaction tables using every join type.",
+            "Rewrite one of those queries using a CTE and add a window function (e.g. running total or rank per customer).",
+            "Run EXPLAIN on your slowest query, add an index that changes the plan, and measure the before/after."
+          ],
           "masteryGate": "Write and explain a multi-stage query and validate row counts after joins.",
           "conceptChunks": [
             [
@@ -617,10 +494,7 @@
               "Index intuition",
               "Query plans and performance basics"
             ]
-          ],
-          "predictPrompt": "Predict whether a join will increase or decrease row count before running it, based on the join type.",
-          "breakScenario": "Run an inner join where you expect a left join, on data with unmatched keys.",
-          "diagnosePrompt": "Compare row counts before/after the join \u2014 the missing rows tell you exactly what got dropped and why."
+          ]
         },
         {
           "id": "p3-cleaning-preprocessing",
@@ -639,7 +513,11 @@
             "Feature engineering",
             "Schema validation"
           ],
-          "handsOn": "Create a train-only preprocessing routine and compare alternative missing-data policies.",
+          "handsOn": [
+            "Take a messy dataset and handle missing values, duplicates, and outliers three different ways, comparing the effect on summary stats.",
+            "Encode categorical variables (one-hot, ordinal, target) and scale numeric ones, fitting all transforms on train only.",
+            "Add engineered features and a schema-validation step, then build the whole thing as a train-only preprocessing routine you can compare across missing-data policies."
+          ],
           "masteryGate": "Prevent preprocessing information from leaking across splits.",
           "conceptChunks": [
             [
@@ -657,10 +535,7 @@
               "Feature engineering",
               "Schema validation"
             ]
-          ],
-          "predictPrompt": "Predict whether dropping missing rows or imputing them will change the class balance more.",
-          "breakScenario": "Compare two missing-data policies (drop vs. impute) on the same dataset and check downstream distribution.",
-          "diagnosePrompt": "Did the missingness correlate with a specific segment? That's the real risk, not just 'some rows had gaps'."
+          ]
         },
         {
           "id": "p3-eda",
@@ -677,7 +552,11 @@
             "Segment analysis",
             "Data questions before model questions"
           ],
-          "handsOn": "Write an EDA report that ends with testable modeling risks and hypotheses.",
+          "handsOn": [
+            "Profile a dataset's distributions, class balance, and label quality, flagging anything suspicious.",
+            "Visualize correlations and segment the data by a key attribute, actively hunting for signs of leakage.",
+            "Write an EDA report that ends in concrete, testable modeling risks and hypotheses — not just charts."
+          ],
           "masteryGate": "Identify at least three actionable data risks, not just plots.",
           "conceptChunks": [
             [
@@ -693,10 +572,7 @@
             [
               "Data questions before model questions"
             ]
-          ],
-          "predictPrompt": "Before plotting, predict whether the target class is roughly balanced or skewed.",
-          "breakScenario": "Look for a feature that correlates suspiciously well with the target and question why.",
-          "diagnosePrompt": "Is that correlation a real signal or a leak? What would you need to check to tell the difference?"
+          ]
         },
         {
           "id": "p3-splitting-leakage",
@@ -712,7 +588,10 @@
             "Reproducibility",
             "Data lineage and version thinking"
           ],
-          "handsOn": "Deliberately create and then fix four leakage scenarios.",
+          "handsOn": [
+            "Deliberately construct four leakage scenarios (target, temporal, duplicate, preprocessing) on a dataset, then fix each one.",
+            "Set up raw/cleaned/feature dataset stages with reproducible splits and simple lineage tracking (what version produced what)."
+          ],
           "masteryGate": "Explain why the chosen split represents deployment reality.",
           "conceptChunks": [
             [
@@ -725,11 +604,7 @@
               "Reproducibility",
               "Data lineage and version thinking"
             ]
-          ],
-          "predictPrompt": "Predict how much the validation score will inflate if you fit a scaler on the full dataset before splitting.",
-          "breakScenario": "Deliberately fit a preprocessing step on all data before splitting, then compare scores to a leak-free version.",
-          "diagnosePrompt": "Quantify the score gap between the leaky and clean pipeline \u2014 that gap is the leak's actual cost.",
-          "curveballTask": "Given an unfamiliar dataset with a hidden temporal column, find the leakage risk without being told where to look."
+          ]
         }
       ],
       "boss": null,
@@ -776,7 +651,11 @@
             "Bias and variance",
             "Underfitting and overfitting"
           ],
-          "handsOn": "Create learning curves for an intentionally underfit and overfit model.",
+          "handsOn": [
+            "Frame the same small dataset as a supervised regression problem and, separately, as an unsupervised clustering problem — compare what each produces.",
+            "Train a model, distinguishing which values are learned parameters vs chosen hyperparameters, and separately time training vs inference.",
+            "Create learning curves for an intentionally underfit and an intentionally overfit model on the same data, and explain each in terms of bias/variance."
+          ],
           "masteryGate": "Diagnose bias/variance symptoms and recommend a justified next experiment.",
           "conceptChunks": [
             [
@@ -794,10 +673,7 @@
               "Bias and variance",
               "Underfitting and overfitting"
             ]
-          ],
-          "predictPrompt": "Predict, from a model's train/val loss gap alone, whether it's overfitting or underfitting before checking.",
-          "breakScenario": "Train the same model with far too little capacity, then far too much, on the same data.",
-          "diagnosePrompt": "Do train and val loss move together (underfit) or diverge (overfit)? State which and why."
+          ]
         },
         {
           "id": "p4-regression-models",
@@ -813,7 +689,10 @@
             "Tree regression",
             "Nonlinear feature effects"
           ],
-          "handsOn": "Compare linear, regularized, and tree regressors on the same split.",
+          "handsOn": [
+            "Fit linear regression, check its assumptions (linearity, residuals), then fit Ridge and Lasso and compare coefficients.",
+            "Plot the regularization path as alpha varies, then compare linear vs tree regression on data with a nonlinear feature effect."
+          ],
           "masteryGate": "Explain when each model is appropriate and how it can fail.",
           "conceptChunks": [
             [
@@ -826,10 +705,7 @@
               "Tree regression",
               "Nonlinear feature effects"
             ]
-          ],
-          "predictPrompt": "Predict which model (linear, Ridge, or tree) will overfit fastest on a small noisy dataset.",
-          "breakScenario": "Add several irrelevant noisy features and see which model's performance degrades most.",
-          "diagnosePrompt": "Check the coefficients or feature importances \u2014 which model actually ignored the noise, and why?"
+          ]
         },
         {
           "id": "p4-classification-models",
@@ -845,7 +721,10 @@
             "Decision trees",
             "Random forests"
           ],
-          "handsOn": "Build decision boundaries on a small 2D dataset and test sensitivity to scaling.",
+          "handsOn": [
+            "Fit logistic regression, k-NN, and Naive Bayes on the same 2D dataset and plot their decision boundaries.",
+            "Add an SVM, a decision tree, and a random forest to the same comparison, and test how sensitive each is to feature scaling."
+          ],
           "masteryGate": "Select a classifier based on data size, geometry, interpretability, and latency.",
           "conceptChunks": [
             [
@@ -858,10 +737,7 @@
               "Decision trees",
               "Random forests"
             ]
-          ],
-          "predictPrompt": "Predict whether kNN's decision boundary will change if you don't scale the features first.",
-          "breakScenario": "Run kNN on unscaled features where one feature has a much larger numeric range.",
-          "diagnosePrompt": "Compare boundaries before/after scaling \u2014 which feature was silently dominating distance, and why?"
+          ]
         },
         {
           "id": "p4-ensembles",
@@ -878,7 +754,11 @@
             "Hyperparameter interactions",
             "Early stopping"
           ],
-          "handsOn": "Compare a single tree, forest, and boosted model under controlled experiments.",
+          "handsOn": [
+            "Compare a single decision tree, a bagged ensemble, and a random forest under otherwise identical settings.",
+            "Train a gradient boosting model (XGBoost/LightGBM) and tune two interacting hyperparameters together instead of one at a time.",
+            "Add early stopping to the boosted model using a validation set and show the effect on overfitting."
+          ],
           "masteryGate": "Explain performance, calibration, interpretability, and runtime tradeoffs.",
           "conceptChunks": [
             [
@@ -894,10 +774,7 @@
             [
               "Early stopping"
             ]
-          ],
-          "predictPrompt": "Predict whether a single deep tree or a random forest will generalize better on noisy data.",
-          "breakScenario": "Train an unconstrained single tree on noisy data next to a random forest, same data.",
-          "diagnosePrompt": "Compare val performance and variance across seeds \u2014 quantify how much averaging trees actually helped."
+          ]
         },
         {
           "id": "p4-unsupervised",
@@ -913,7 +790,10 @@
             "Anomaly detection awareness",
             "Limits of interpreting clusters"
           ],
-          "handsOn": "Cluster a dataset after scaling, visualize with PCA, and test stability.",
+          "handsOn": [
+            "Run k-means on unscaled vs scaled data and evaluate cluster quality (e.g. silhouette) for both.",
+            "Reduce the data with PCA before clustering, visualize it in 2D, run a simple anomaly detector, and note where cluster interpretation breaks down."
+          ],
           "masteryGate": "Avoid claiming meaningful segments without evidence and stability checks.",
           "conceptChunks": [
             [
@@ -926,10 +806,7 @@
               "Anomaly detection awareness",
               "Limits of interpreting clusters"
             ]
-          ],
-          "predictPrompt": "Predict how many clusters k-means will find useful before running it, and why you picked that number.",
-          "breakScenario": "Run k-means with a k that's obviously wrong (too high or too low) for the visible structure.",
-          "diagnosePrompt": "Use a stability check (rerun with different seeds) \u2014 did the clusters hold up, or was it noise?"
+          ]
         }
       ],
       "boss": null,
@@ -975,7 +852,11 @@
             "Macro, micro, weighted averaging",
             "Metric failure modes"
           ],
-          "handsOn": "Compute metrics from scratch and verify against a library.",
+          "handsOn": [
+            "Compute a confusion matrix and accuracy from scratch on model predictions, then verify against sklearn.",
+            "Compute precision, recall, specificity, and F1 by hand from the same confusion matrix and verify against sklearn.",
+            "Compute macro/micro/weighted averages on an imbalanced multiclass problem and find a case where accuracy is misleading."
+          ],
           "masteryGate": "Choose metrics from the real cost of each error type.",
           "conceptChunks": [
             [
@@ -992,10 +873,7 @@
               "Macro, micro, weighted averaging",
               "Metric failure modes"
             ]
-          ],
-          "predictPrompt": "Predict which will be higher on your model, precision or recall, before computing either.",
-          "breakScenario": "Compute metrics on a model that always predicts the majority class.",
-          "diagnosePrompt": "Which metric looked fine despite the model being useless? That's the metric you can't trust alone."
+          ]
         },
         {
           "id": "p5-curves-thresholds-calibration",
@@ -1012,7 +890,11 @@
             "Probability calibration",
             "Reliability diagrams"
           ],
-          "handsOn": "Plot threshold tradeoffs and create a cost curve.",
+          "handsOn": [
+            "Plot ROC and PR curves for a classifier and pick a decision threshold other than 0.5, justifying it.",
+            "Build a cost curve for a scenario with asymmetric costs (e.g. fraud) and a capacity constraint, and calibrate the model's probabilities.",
+            "Plot a reliability diagram before and after calibration and explain what changed."
+          ],
           "masteryGate": "Defend an operating threshold and check whether confidence is calibrated.",
           "conceptChunks": [
             [
@@ -1028,10 +910,7 @@
             [
               "Reliability diagrams"
             ]
-          ],
-          "predictPrompt": "Predict how precision and recall will move if you lower the decision threshold from 0.5 to 0.3.",
-          "breakScenario": "Move the threshold to an extreme (0.01 or 0.99) and watch precision/recall collapse.",
-          "diagnosePrompt": "At the extreme threshold, which metric hit its ceiling and which collapsed \u2014 does that match your prediction?"
+          ]
         },
         {
           "id": "p5-validation-discipline",
@@ -1048,7 +927,11 @@
             "Ablation studies",
             "Experiment tables"
           ],
-          "handsOn": "Run a controlled ablation where one factor changes at a time.",
+          "handsOn": [
+            "Compare holdout, stratified k-fold, and grouped/temporal validation on the same dataset and show where they disagree.",
+            "Run the same experiment across 5 random seeds and report variance, then run a controlled ablation changing exactly one factor at a time.",
+            "Log every experiment (config, seed, metric) into a single experiment table you can compare at a glance."
+          ],
           "masteryGate": "Results are reproducible and claims match uncertainty and validation design.",
           "conceptChunks": [
             [
@@ -1064,10 +947,7 @@
             [
               "Experiment tables"
             ]
-          ],
-          "predictPrompt": "Predict how much the reported metric will vary just from changing the random seed.",
-          "breakScenario": "Rerun the exact same training with 5 different seeds and compare the metric spread.",
-          "diagnosePrompt": "Is the spread small enough that a 1-point improvement from a new idea is even believable?"
+          ]
         },
         {
           "id": "p5-error-analysis",
@@ -1084,7 +964,11 @@
             "Error taxonomy",
             "Next-experiment selection"
           ],
-          "handsOn": "Manually review at least 50 errors and build an error taxonomy.",
+          "handsOn": [
+            "Manually review at least 50 of your model's wrong predictions and note which subgroups fail most.",
+            "Classify each error as a label error, data error, model error, or threshold error, and build a small taxonomy from the patterns.",
+            "From the taxonomy, pick the single next experiment most likely to fix the biggest error bucket, and justify why."
+          ],
           "masteryGate": "Convert the largest actionable error class into a prioritized experiment.",
           "conceptChunks": [
             [
@@ -1100,11 +984,7 @@
             [
               "Next-experiment selection"
             ]
-          ],
-          "predictPrompt": "Before reading errors, predict what the most common failure pattern will be.",
-          "breakScenario": "Pull the 10 most confidently wrong predictions instead of a random sample of errors.",
-          "diagnosePrompt": "Do the confidently-wrong cases share a feature or condition? Name the specific pattern, not 'various reasons'.",
-          "curveballTask": "Given an unfamiliar model's error set with no context, build an error taxonomy from scratch in under 30 minutes."
+          ]
         }
       ],
       "boss": null,
@@ -1149,7 +1029,11 @@
             "fit vs transform",
             "Serialization and schema checks"
           ],
-          "handsOn": "Refactor an ad hoc notebook into a single reproducible training pipeline.",
+          "handsOn": [
+            "Rebuild an ad hoc preprocessing notebook as a single sklearn Pipeline + ColumnTransformer handling encoding and scaling.",
+            "Write one custom transformer implementing fit/transform, and confirm it doesn't leak test-set information into fit.",
+            "Serialize the full pipeline, reload it, and add a schema check that fails if incoming data doesn't match what it was fit on."
+          ],
           "masteryGate": "Raw validation data can flow through the pipeline without manual preprocessing.",
           "conceptChunks": [
             [
@@ -1165,10 +1049,7 @@
             [
               "Serialization and schema checks"
             ]
-          ],
-          "predictPrompt": "Predict whether feeding raw, un-preprocessed validation data through the pipeline will work or crash.",
-          "breakScenario": "Feed a single raw, unpreprocessed row through the fitted pipeline directly.",
-          "diagnosePrompt": "If it crashed, which step exactly assumed preprocessing had already happened?"
+          ]
         },
         {
           "id": "p6-imbalanced-learning",
@@ -1184,7 +1065,10 @@
             "Resampling inside validation folds",
             "Precision-recall tradeoffs"
           ],
-          "handsOn": "Compare class weights, resampling, and thresholding without leakage.",
+          "handsOn": [
+            "Train the same model with class weights, then with oversampling, then with SMOTE, and compare precision/recall for each.",
+            "Move the resampling inside cross-validation folds (not before splitting) and show how the earlier (leaky) numbers were inflated; identify a case where SMOTE is a bad fit."
+          ],
           "masteryGate": "Recommend a method based on data geometry, calibration, and deployment cost.",
           "conceptChunks": [
             [
@@ -1197,10 +1081,7 @@
               "Resampling inside validation folds",
               "Precision-recall tradeoffs"
             ]
-          ],
-          "predictPrompt": "Predict whether class weighting or SMOTE will change precision more on your specific dataset.",
-          "breakScenario": "Apply SMOTE inside the full dataset before splitting, then compare to applying it inside the train fold only.",
-          "diagnosePrompt": "Quantify the score inflation from resampling before the split \u2014 that's synthetic-data leakage."
+          ]
         },
         {
           "id": "p6-feature-creation-selection",
@@ -1217,7 +1098,11 @@
             "Regularization",
             "Feature importance stability"
           ],
-          "handsOn": "Create a feature registry with definition, source, availability time, and risk.",
+          "handsOn": [
+            "Engineer five new features (a domain feature, an interaction/ratio, and temporal/aggregation features) for a dataset.",
+            "Select a feature subset three ways — filter method, model-based selection, and L1 regularization — and compare which features each keeps.",
+            "Re-run feature importance across multiple random seeds/bootstraps and check whether the top features stay stable."
+          ],
           "masteryGate": "Every feature is available at inference time and improves validated performance or understanding.",
           "conceptChunks": [
             [
@@ -1233,10 +1118,7 @@
             [
               "Feature importance stability"
             ]
-          ],
-          "predictPrompt": "Predict whether a new engineered feature will actually move the validation metric before adding it.",
-          "breakScenario": "Add a feature that's only knowable after the outcome (a future leak) and see the score jump.",
-          "diagnosePrompt": "Would this feature actually exist at prediction time in production? If not, the score gain is fake."
+          ]
         },
         {
           "id": "p6-explainability",
@@ -1253,7 +1135,11 @@
             "Correlated-feature caveats",
             "Explanation vs causation"
           ],
-          "handsOn": "Explain five correct and five incorrect predictions using two methods.",
+          "handsOn": [
+            "Extract and compare feature importance three ways: raw coefficients, tree-based importance, and permutation importance.",
+            "Use SHAP to explain five correct and five incorrect predictions, both globally and per-instance, and note where correlated features distort the explanation.",
+            "Pick one 'important' feature and argue explicitly why its importance is not evidence of causation."
+          ],
           "masteryGate": "Explanations are stable enough for the claim and never presented as causal proof.",
           "conceptChunks": [
             [
@@ -1269,10 +1155,7 @@
             [
               "Explanation vs causation"
             ]
-          ],
-          "predictPrompt": "Predict which feature will show as most important before running any explainability method.",
-          "breakScenario": "Explain the same prediction with two different methods (e.g. coefficients vs. SHAP) and compare.",
-          "diagnosePrompt": "Where do the two explanations disagree, and what does that disagreement reveal about correlated features?"
+          ]
         }
       ],
       "boss": null,
@@ -1317,7 +1200,11 @@
             "Duplicate entities across splits",
             "Feature distribution shifts"
           ],
-          "handsOn": "Diagnose a suite of seeded data bugs without searching first.",
+          "handsOn": [
+            "Given a model with suspiciously high accuracy, find the label leakage or shuffled-label bug causing it — without being told where to look.",
+            "Diagnose a seeded bug where train and test preprocessing diverge or the same entity appears in both splits.",
+            "Detect a feature distribution shift between train and test and explain its likely real-world cause."
+          ],
           "masteryGate": "Each diagnosis contains three hypotheses, discriminating tests, and evidence.",
           "conceptChunks": [
             [
@@ -1333,11 +1220,7 @@
             [
               "Feature distribution shifts"
             ]
-          ],
-          "predictPrompt": "Given a suspiciously high accuracy, predict which of leakage, label shuffling, or preprocessing bugs is most likely before checking anything.",
-          "breakScenario": "Seed one of the three failure types into a working pipeline without telling yourself which one.",
-          "diagnosePrompt": "Which of your three hypotheses did the discriminating test actually rule out, and which confirmed the bug?",
-          "curveballTask": "Diagnose an unfamiliar pipeline with a data bug you didn't plant yourself and don't get a hint about the category."
+          ]
         },
         {
           "id": "p7-model-optimization-failures",
@@ -1354,7 +1237,11 @@
             "Bad learning rate",
             "Silent shape and dtype issues"
           ],
-          "handsOn": "Create a minimal reproduction and instrument inputs, outputs, loss, and gradients.",
+          "handsOn": [
+            "Given a model that always predicts one class or produces NaN losses, build a minimal reproduction and instrument it to find the cause.",
+            "Diagnose a case where the reported metric, threshold, or learning rate is silently wrong and fix it.",
+            "Find a bug caused by a silent shape mismatch or dtype cast, using assertions rather than print-debugging alone."
+          ],
           "masteryGate": "Find the root cause instead of masking the symptom.",
           "conceptChunks": [
             [
@@ -1370,11 +1257,7 @@
             [
               "Silent shape and dtype issues"
             ]
-          ],
-          "predictPrompt": "Predict whether a NaN loss is more likely a bad learning rate or a data issue before inspecting anything.",
-          "breakScenario": "Force a NaN loss deliberately (e.g. divide by a zero-variance feature, or spike the learning rate).",
-          "diagnosePrompt": "Trace the NaN back to the exact op that produced it \u2014 inputs, loss, or gradients \u2014 don't just lower the LR and move on.",
-          "curveballTask": "Given a model that predicts one class only, find the root cause without being told if it's data or optimization."
+          ]
         },
         {
           "id": "p7-debugging-workflow-communication",
@@ -1392,7 +1275,11 @@
             "Separate fact from hypothesis",
             "Write a concise incident report"
           ],
-          "handsOn": "Reduce a broken training script to the smallest failing example.",
+          "handsOn": [
+            "Take a broken training script and reduce it to the smallest failing example, checking invariants at each step.",
+            "Bisect the pipeline stage by stage to isolate where it breaks, adding an assertion or test that would have caught it.",
+            "Write a concise incident report for the bug that separates observed facts from your hypotheses."
+          ],
           "masteryGate": "A teammate could reproduce the bug and understand why the fix works.",
           "conceptChunks": [
             [
@@ -1409,11 +1296,7 @@
               "Separate fact from hypothesis",
               "Write a concise incident report"
             ]
-          ],
-          "predictPrompt": "Predict how small you can shrink a failing script while still reproducing the bug.",
-          "breakScenario": "Take a real broken script and try to cut it in half repeatedly while the bug still reproduces.",
-          "diagnosePrompt": "What's the smallest version that still fails? That minimal repro is the actual evidence, not the full script.",
-          "curveballTask": "Hand your minimal repro and incident report to a rubber duck (or write it as if for someone else) and see if it's actually reproducible from the writeup alone."
+          ]
         }
       ],
       "boss": {
@@ -1451,7 +1334,10 @@
             "Logits and probabilities",
             "Loss functions"
           ],
-          "handsOn": "Calculate a tiny network manually, then reproduce it in NumPy and PyTorch.",
+          "handsOn": [
+            "Calculate a tiny 2-layer network's forward pass by hand (weights, biases, activation), then reproduce it in NumPy.",
+            "Extend it to output logits and probabilities (softmax), and compute a loss value by hand vs in PyTorch."
+          ],
           "masteryGate": "All three implementations agree and tensor shapes are explained.",
           "conceptChunks": [
             [
@@ -1463,10 +1349,7 @@
               "Logits and probabilities",
               "Loss functions"
             ]
-          ],
-          "predictPrompt": "Predict the output value of a 2-neuron forward pass by hand before running the NumPy version.",
-          "breakScenario": "Feed the wrong input shape into the layer and read the resulting error.",
-          "diagnosePrompt": "Does the manual calculation, NumPy, and PyTorch all agree? If not, which step diverged first?"
+          ]
         },
         {
           "id": "p8-backprop-autograd",
@@ -1482,7 +1365,10 @@
             "Gradient checking",
             "detach and no-grad intuition"
           ],
-          "handsOn": "Backpropagate through a tiny network manually and compare with autograd.",
+          "handsOn": [
+            "Backpropagate through your tiny network by hand using the chain rule, drawing out the computational graph.",
+            "Reproduce the same gradients with PyTorch autograd, verify them with numerical gradient checking, and show a case where detach()/no_grad() changes the result."
+          ],
           "masteryGate": "Numerical, manual, and autograd gradients agree within tolerance.",
           "conceptChunks": [
             [
@@ -1495,11 +1381,7 @@
               "Gradient checking",
               "detach and no-grad intuition"
             ]
-          ],
-          "predictPrompt": "Predict the sign (positive/negative) of a gradient before computing it, from which direction reduces loss.",
-          "breakScenario": "Compare your hand-computed gradient against autograd's \u2014 they should match within tolerance.",
-          "diagnosePrompt": "If they don't match, is it a chain-rule error in your manual math or a graph-tracking issue in the code?",
-          "curveballTask": "Backprop through a network with a branch (two paths merging) and verify gradients sum correctly at the merge."
+          ]
         },
         {
           "id": "p8-pytorch-training-system",
@@ -1517,7 +1399,11 @@
             "Checkpoints",
             "Mixed precision awareness"
           ],
-          "handsOn": "Build a reusable trainer with metrics, checkpointing, and deterministic seeds.",
+          "handsOn": [
+            "Build a custom Dataset/DataLoader for a small dataset and move tensors between CPU and GPU (or note why it's not available).",
+            "Write an nn.Module, choose a loss and optimizer, and implement a full training + validation loop.",
+            "Add checkpointing (save/resume) and deterministic seeds to the trainer; note where mixed precision would help."
+          ],
           "masteryGate": "Resume training from a checkpoint and reproduce a validation result.",
           "conceptChunks": [
             [
@@ -1534,10 +1420,7 @@
               "Checkpoints",
               "Mixed precision awareness"
             ]
-          ],
-          "predictPrompt": "Predict whether resuming from a checkpoint will reproduce the exact same validation loss.",
-          "breakScenario": "Resume training from a checkpoint without also restoring the optimizer state.",
-          "diagnosePrompt": "Did the loss jump right after resuming? That's what optimizer state (momentum, etc.) actually protects against."
+          ]
         },
         {
           "id": "p8-activations-optimization",
@@ -1553,7 +1436,10 @@
             "Batch size and epochs",
             "Normalization"
           ],
-          "handsOn": "Compare optimizers and schedules while controlling all other variables.",
+          "handsOn": [
+            "Train the same small network with ReLU vs sigmoid vs GELU, and with SGD vs Adam, holding everything else fixed.",
+            "Vary weight initialization, batch size, and add batch/layer normalization one at a time, controlling all other variables, and compare optimizers and LR schedules under this control."
+          ],
           "masteryGate": "Interpret the learning curves and recommend a configuration.",
           "conceptChunks": [
             [
@@ -1566,10 +1452,7 @@
               "Batch size and epochs",
               "Normalization"
             ]
-          ],
-          "predictPrompt": "Predict which optimizer (SGD or Adam) will converge faster on the same task before running both.",
-          "breakScenario": "Set a learning rate that's clearly too high for Adam specifically and watch the loss curve.",
-          "diagnosePrompt": "Compare the two loss curves \u2014 which converged faster, and did either overshoot? Quantify it."
+          ]
         },
         {
           "id": "p8-regularization-training-behavior",
@@ -1586,7 +1469,11 @@
             "Poor learning rate",
             "Data and model capacity"
           ],
-          "handsOn": "Intentionally underfit, overfit, and correctly fit the same task.",
+          "handsOn": [
+            "Train a model with and without weight decay and dropout on the same task and compare the train/val gap.",
+            "Deliberately underfit, overfit, and correctly fit the same task, and separately trigger vanishing/exploding gradients with a bad initialization or learning rate.",
+            "Show how changing dataset size and model capacity independently shifts the underfit/overfit boundary."
+          ],
           "masteryGate": "Explain the mechanism and evidence for each behavior.",
           "conceptChunks": [
             [
@@ -1602,10 +1489,7 @@
             [
               "Data and model capacity"
             ]
-          ],
-          "predictPrompt": "Predict whether adding dropout will increase or decrease the train/val loss gap.",
-          "breakScenario": "Train a model with no regularization until it clearly overfits, then add dropout and rerun.",
-          "diagnosePrompt": "Compare the train/val gap before and after \u2014 did dropout close it, or just slow down both?"
+          ]
         }
       ],
       "boss": null,
@@ -1648,7 +1532,10 @@
             "Vocabulary and OOV issues",
             "Data leakage in text"
           ],
-          "handsOn": "Build a deterministic tokenizer and inspect where normalization destroys meaning.",
+          "handsOn": [
+            "Build a deterministic tokenizer/normalizer for a text corpus and find a case where stemming or stop-word removal destroys meaning.",
+            "Build n-gram features, inspect out-of-vocabulary tokens on held-out text, and find a leakage risk specific to text (e.g. fitting vocab on the full corpus before splitting)."
+          ],
           "masteryGate": "Justify each preprocessing choice for the task and language.",
           "conceptChunks": [
             [
@@ -1661,10 +1548,7 @@
               "Vocabulary and OOV issues",
               "Data leakage in text"
             ]
-          ],
-          "predictPrompt": "Predict what a naive tokenizer will do to a sentence with a contraction (e.g. \"don't\") before running it.",
-          "breakScenario": "Run your tokenizer on text with contractions, emojis, or non-English characters.",
-          "diagnosePrompt": "Where exactly did meaning get destroyed \u2014 punctuation splitting, casing, or vocabulary coverage?"
+          ]
         },
         {
           "id": "p9-classical-nlp",
@@ -1680,7 +1564,10 @@
             "SVM intuition",
             "Sparse feature pipelines"
           ],
-          "handsOn": "Compare sparse baselines on the same reviews dataset.",
+          "handsOn": [
+            "Build Bag-of-Words and TF-IDF representations for a reviews dataset and classify with Naive Bayes.",
+            "Classify the same data with logistic regression and an SVM on the sparse TF-IDF features and compare all three baselines."
+          ],
           "masteryGate": "Perform slice and vocabulary error analysis, not score-only comparison.",
           "conceptChunks": [
             [
@@ -1693,10 +1580,7 @@
               "SVM intuition",
               "Sparse feature pipelines"
             ]
-          ],
-          "predictPrompt": "Predict whether TF-IDF or plain Bag-of-Words will separate two similar documents better.",
-          "breakScenario": "Feed a document full of common filler words with almost no distinctive vocabulary through both.",
-          "diagnosePrompt": "Which representation still distinguished the document, and which one drowned it in noise?"
+          ]
         },
         {
           "id": "p9-embeddings-sequence-models",
@@ -1712,7 +1596,10 @@
             "GRU awareness",
             "Sequence bottlenecks and long-range weaknesses"
           ],
-          "handsOn": "Visualize embedding neighbors and train a small sequence baseline.",
+          "handsOn": [
+            "Load pretrained word embeddings, visualize nearest neighbors for several words, and build a sentence embedding by averaging.",
+            "Train a small RNN and then an LSTM on the same sequence task and find an example where the RNN fails on a long-range dependency that the LSTM handles."
+          ],
           "masteryGate": "Explain why sequence models existed and where they struggle.",
           "conceptChunks": [
             [
@@ -1725,10 +1612,7 @@
               "GRU awareness",
               "Sequence bottlenecks and long-range weaknesses"
             ]
-          ],
-          "predictPrompt": "Predict which words will be nearest neighbors to a given word embedding before checking.",
-          "breakScenario": "Look up the nearest neighbors of an ambiguous word (e.g. 'bank') and see what sense won.",
-          "diagnosePrompt": "Does the neighbor set reflect the dominant training-data sense, or something unexpected? Why?"
+          ]
         }
       ],
       "boss": null,
@@ -1772,7 +1656,11 @@
             "Residuals and normalization",
             "Causal masking"
           ],
-          "handsOn": "Calculate a tiny attention example and inspect attention shapes in code.",
+          "handsOn": [
+            "Calculate a tiny self-attention example by hand (Q, K, V, scores) for 3 tokens, then reproduce it in code and inspect the attention weights.",
+            "Add positional encoding and residual+normalization layers to a minimal encoder block.",
+            "Add causal masking and show, on a toy sequence, how it prevents attending to future tokens."
+          ],
           "masteryGate": "Explain information flow and computational cost without relying on slogans.",
           "conceptChunks": [
             [
@@ -1788,10 +1676,7 @@
             [
               "Causal masking"
             ]
-          ],
-          "predictPrompt": "Predict which token pairs will get the highest attention score in a short sentence before computing scores.",
-          "breakScenario": "Remove positional information from the attention calculation and see what breaks.",
-          "diagnosePrompt": "What specifically does the model lose without position \u2014 is it order, distance, or both?"
+          ]
         },
         {
           "id": "p10-llm-lifecycle",
@@ -1809,7 +1694,11 @@
             "Inference controls",
             "Quantization awareness"
           ],
-          "handsOn": "Fine-tune or adapt a small model only after establishing a prompt and retrieval baseline.",
+          "handsOn": [
+            "Tokenize the same text with two different tokenizers and compare token counts; explain what a context-window limit means for a long document.",
+            "Establish a prompt-only and retrieval baseline for a task before considering fine-tuning; then read up on where PEFT/LoRA would fit if the baseline weren't enough.",
+            "Experiment with temperature/top-p/top-k on the same prompt and observe the tradeoffs; explain what quantization would change about serving this model."
+          ],
           "masteryGate": "Choose prompting, retrieval, or tuning based on evidence and constraints.",
           "conceptChunks": [
             [
@@ -1826,10 +1715,7 @@
               "Inference controls",
               "Quantization awareness"
             ]
-          ],
-          "predictPrompt": "Predict whether prompting or fine-tuning will handle a narrow task better before trying either.",
-          "breakScenario": "Try to solve a task with prompting alone that clearly needs retrieval or fine-tuning instead.",
-          "diagnosePrompt": "What evidence (not vibes) shows prompting hit its ceiling \u2014 hallucination, inconsistency, or missing knowledge?"
+          ]
         },
         {
           "id": "p10-embeddings-search-rag",
@@ -1848,7 +1734,11 @@
             "Citations",
             "Retrieval and answer evaluation"
           ],
-          "handsOn": "Build a small cited question-answering system over a controlled document set.",
+          "handsOn": [
+            "Chunk a small set of documents and embed them, then find nearest neighbors for a query by cosine similarity.",
+            "Store the embeddings in a vector store, retrieve top-k for a query, and add a reranking step on top of raw retrieval.",
+            "Build a small cited question-answering system over the document set and evaluate both retrieval quality and answer quality separately."
+          ],
           "masteryGate": "Measure retrieval separately from answer quality and surface unsupported answers.",
           "conceptChunks": [
             [
@@ -1866,10 +1756,7 @@
               "Citations",
               "Retrieval and answer evaluation"
             ]
-          ],
-          "predictPrompt": "Predict which of 5 documents will be retrieved as most relevant to a test query before embedding anything.",
-          "breakScenario": "Query with a question the document set doesn't actually answer.",
-          "diagnosePrompt": "Did retrieval return something anyway, and did generation hallucinate an answer from it? Trace exactly where it broke."
+          ]
         },
         {
           "id": "p10-genai-reliability-agents",
@@ -1887,7 +1774,11 @@
             "State and memory",
             "Cost, latency, and failure handling"
           ],
-          "handsOn": "Create adversarial and out-of-scope tests for the RAG system.",
+          "handsOn": [
+            "Write adversarial and out-of-scope test prompts for your RAG system and find a hallucination or a prompt-injection weakness.",
+            "Add a human-in-the-loop checkpoint and one tool call to a simple agent loop.",
+            "Add basic state/memory across turns and instrument cost, latency, and failure handling for the agent."
+          ],
           "masteryGate": "The system refuses or escalates when evidence is absent and logs tool failures.",
           "conceptChunks": [
             [
@@ -1904,10 +1795,7 @@
               "State and memory",
               "Cost, latency, and failure handling"
             ]
-          ],
-          "predictPrompt": "Predict whether the system will hallucinate or correctly refuse on a question with no supporting evidence.",
-          "breakScenario": "Ask a question with no supporting document, and separately try a prompt-injection string inside a document.",
-          "diagnosePrompt": "Did it refuse, hallucinate, or leak the injected instruction? Each is a different failure needing a different fix."
+          ]
         }
       ],
       "boss": null,
@@ -1951,7 +1839,10 @@
             "Interpolation",
             "Aspect ratio and letterboxing"
           ],
-          "handsOn": "Implement resize, crop, and color transforms; predict shape and coordinate changes.",
+          "handsOn": [
+            "Load an image, inspect its pixel/channel values, and convert between RGB, BGR, HSV, and grayscale, predicting what changes before you run each conversion.",
+            "Implement resize, crop, and an affine (rotate) transform, predicting the output shape/coordinates before running each, including a letterboxed resize that preserves aspect ratio."
+          ],
           "masteryGate": "Transform a point or bounding box correctly through an image pipeline.",
           "conceptChunks": [
             [
@@ -1964,10 +1855,7 @@
               "Interpolation",
               "Aspect ratio and letterboxing"
             ]
-          ],
-          "predictPrompt": "Predict an image's array shape (H, W, C) before loading it and checking .shape.",
-          "breakScenario": "Rotate an image 90 degrees and try to reuse a bounding box computed on the original orientation.",
-          "diagnosePrompt": "Exactly which coordinate transform was missing \u2014 did you rotate the pixels but forget the box?"
+          ]
         },
         {
           "id": "p11-filtering-image-formation",
@@ -1986,7 +1874,11 @@
             "Histograms",
             "Noise, lighting, blur, compression, lens distortion"
           ],
-          "handsOn": "Build a classical defect or document-cleanup pipeline and test lighting changes.",
+          "handsOn": [
+            "Implement 2D convolution from scratch with a blur kernel and compare it to a library denoise function.",
+            "Compute image gradients and run Sobel/Canny edge detection, then apply a morphological operation to clean up the result.",
+            "Build a classical defect or document-cleanup pipeline using thresholding and histogram analysis, and test it under lighting changes."
+          ],
           "masteryGate": "Explain each operator and tune it from visual evidence.",
           "conceptChunks": [
             [
@@ -2004,10 +1896,7 @@
               "Histograms",
               "Noise, lighting, blur, compression, lens distortion"
             ]
-          ],
-          "predictPrompt": "Predict whether a Canny edge detector will find more or fewer edges after blurring the image first.",
-          "breakScenario": "Run edge detection on a very noisy or very low-contrast image without any preprocessing.",
-          "diagnosePrompt": "Did the detector find real edges or noise? What operator/parameter change fixes it, and why?"
+          ]
         },
         {
           "id": "p11-features-contours-geometry",
@@ -2024,7 +1913,11 @@
             "Perspective correction",
             "Camera calibration awareness"
           ],
-          "handsOn": "Detect and rectify a document or planar object from a camera image.",
+          "handsOn": [
+            "Extract contours and connected components from a thresholded image and compute shape descriptors for each.",
+            "Detect corners/keypoints, match descriptors between two views of the same object, and compute a homography to rectify a document/planar object.",
+            "Read about camera calibration and identify which of your rectification errors would be explained by lens distortion."
+          ],
           "masteryGate": "Handle failed matches and explain geometric assumptions.",
           "conceptChunks": [
             [
@@ -2040,10 +1933,7 @@
             [
               "Camera calibration awareness"
             ]
-          ],
-          "predictPrompt": "Predict whether feature matching will succeed on a rotated version of the same object.",
-          "breakScenario": "Try to match keypoints between the original image and a heavily rotated/scaled version.",
-          "diagnosePrompt": "Did the matches fail from viewpoint change or from the descriptor not being rotation-invariant? Which?"
+          ]
         },
         {
           "id": "p11-vision-data-annotation",
@@ -2061,7 +1951,11 @@
             "Class and condition balance",
             "Augmentation vs real diversity"
           ],
-          "handsOn": "Write an annotation guide and audit 100 labels for consistency.",
+          "handsOn": [
+            "Write an annotation guide for one label type and annotate 20 images against it, noting ambiguous cases.",
+            "Find near-duplicate images in a small dataset and build a grouped train/test split that keeps duplicates together.",
+            "Audit class and condition balance in the dataset and show one example where augmentation can't substitute for real diversity."
+          ],
           "masteryGate": "Split by scene/entity so near duplicates cannot inflate evaluation.",
           "conceptChunks": [
             [
@@ -2078,10 +1972,7 @@
               "Class and condition balance",
               "Augmentation vs real diversity"
             ]
-          ],
-          "predictPrompt": "Predict how many of your 100 audited labels will have a consistency problem before checking.",
-          "breakScenario": "Have two different labeling passes (or two guideline readings) label the same 20 images.",
-          "diagnosePrompt": "Where did the two labelings disagree, and does the guideline actually resolve that ambiguity?"
+          ]
         }
       ],
       "boss": null,
@@ -2128,7 +2019,11 @@
             "Parameter sharing",
             "CNN architecture patterns"
           ],
-          "handsOn": "Calculate output shapes and receptive fields; train a small CNN from scratch.",
+          "handsOn": [
+            "Calculate output shapes and receptive fields by hand for a small conv stack with different stride/padding/dilation, then verify in code.",
+            "Visualize feature maps at different depths of a small trained CNN and describe how representations get more abstract.",
+            "Train a small CNN from scratch and explain, using parameter counts, how weight sharing keeps it smaller than a fully-connected equivalent."
+          ],
           "masteryGate": "Predict tensor shapes and diagnose a shape or capacity failure.",
           "conceptChunks": [
             [
@@ -2145,11 +2040,7 @@
               "Parameter sharing",
               "CNN architecture patterns"
             ]
-          ],
-          "predictPrompt": "Predict a conv layer's output shape by hand from kernel size, stride, and padding before verifying in code.",
-          "breakScenario": "Feed an input that produces a negative or zero output dimension given the chosen kernel/stride/padding.",
-          "diagnosePrompt": "Which exact dimension broke, and what padding/stride change restores a valid shape?",
-          "curveballTask": "Given an unfamiliar CNN architecture diagram, compute the full shape trace through every layer without running code first."
+          ]
         },
         {
           "id": "p12-image-classification-pipeline",
@@ -2168,7 +2059,11 @@
             "Per-class and condition slices",
             "Test-time behavior"
           ],
-          "handsOn": "Build a reproducible classifier and manually inspect confident errors.",
+          "handsOn": [
+            "Design labels, normalization, and an augmentation policy for an image classification dataset.",
+            "Split train/val with the right transforms on each, handle class imbalance, and report top-1/top-k accuracy.",
+            "Build a confusion matrix, slice errors by class and condition, and manually inspect the model's most confident wrong predictions."
+          ],
           "masteryGate": "Evaluation includes real deployment conditions and no transform leakage.",
           "conceptChunks": [
             [
@@ -2186,10 +2081,7 @@
               "Per-class and condition slices",
               "Test-time behavior"
             ]
-          ],
-          "predictPrompt": "Predict whether accuracy will look better or worse if augmentation is accidentally applied to validation data too.",
-          "breakScenario": "Accidentally (deliberately) apply train-time augmentation to the validation set.",
-          "diagnosePrompt": "Compare val metrics with and without the leak \u2014 that gap is the actual size of the mistake."
+          ]
         },
         {
           "id": "p12-transfer-learning-fine-tuning",
@@ -2206,7 +2098,11 @@
             "Checkpoint selection",
             "Catastrophic forgetting awareness"
           ],
-          "handsOn": "Compare scratch, frozen-backbone, and fine-tuned models on the same data.",
+          "handsOn": [
+            "Train a classifier three ways on the same data: from scratch, frozen-backbone feature extraction, and full fine-tuning.",
+            "Simulate domain shift (different image style) and pick a small-data fine-tuning strategy and checkpoint selection criterion for it.",
+            "Fine-tune aggressively enough to reveal catastrophic forgetting on the original domain, and describe how you'd detect it earlier."
+          ],
           "masteryGate": "Select the simplest approach that meets the validated requirement.",
           "conceptChunks": [
             [
@@ -2222,10 +2118,7 @@
             [
               "Catastrophic forgetting awareness"
             ]
-          ],
-          "predictPrompt": "Predict whether a frozen backbone or full fine-tune will do better with very little training data.",
-          "breakScenario": "Fine-tune the entire backbone on a tiny dataset and watch for overfitting or catastrophic forgetting.",
-          "diagnosePrompt": "Did the model forget pretrained features, or just overfit the small dataset? What evidence tells them apart?"
+          ]
         },
         {
           "id": "p12-interpretability-robustness",
@@ -2242,7 +2135,11 @@
             "Uncertainty and abstention",
             "Model cards"
           ],
-          "handsOn": "Reveal and mitigate one shortcut feature in the dataset.",
+          "handsOn": [
+            "Run Grad-CAM on several predictions and use occlusion tests to reveal (and mitigate) one shortcut/spurious feature the model is using.",
+            "Test the model under corruptions (blur, noise, brightness) and read about adversarial examples; add an uncertainty threshold where the model abstains.",
+            "Write a short model card documenting the model's known limitations, including the shortcut you found."
+          ],
           "masteryGate": "Document intended use, limits, and condition-specific performance.",
           "conceptChunks": [
             [
@@ -2258,10 +2155,7 @@
             [
               "Model cards"
             ]
-          ],
-          "predictPrompt": "Predict what Grad-CAM will highlight for a correct prediction before running it.",
-          "breakScenario": "Find a correctly classified image where Grad-CAM highlights something irrelevant to the actual object.",
-          "diagnosePrompt": "Is the model using a real feature or a spurious shortcut (background, watermark, etc.)? Name it specifically."
+          ]
         }
       ],
       "boss": null,
@@ -2308,7 +2202,11 @@
             "YOLO and Faster R-CNN concepts",
             "Small-object and crowded-scene issues"
           ],
-          "handsOn": "Implement IoU and NMS; visualize every target transform.",
+          "handsOn": [
+            "Implement IoU from scratch and convert between bounding-box formats (xyxy, xywh, normalized).",
+            "Implement non-maximum suppression from scratch on a set of overlapping predicted boxes and visualize before/after.",
+            "Run an existing YOLO or Faster R-CNN model on images with small or crowded objects and characterize where it fails."
+          ],
           "masteryGate": "Boxes remain correct through resize, crop, flip, and letterbox operations.",
           "conceptChunks": [
             [
@@ -2325,11 +2223,7 @@
               "YOLO and Faster R-CNN concepts",
               "Small-object and crowded-scene issues"
             ]
-          ],
-          "predictPrompt": "Predict the IoU value between two overlapping boxes by estimating the overlap area before calculating it.",
-          "breakScenario": "Apply a flip or crop transform to an image without updating its bounding box coordinates.",
-          "diagnosePrompt": "Where exactly did the box drift from the object \u2014 which transform step forgot to update coordinates?",
-          "curveballTask": "Given an unfamiliar detector's raw outputs with no NMS applied, implement and tune NMS to produce clean detections."
+          ]
         },
         {
           "id": "p13-detection-evaluation-tuning",
@@ -2346,7 +2240,11 @@
             "Localization vs classification errors",
             "Latency and throughput"
           ],
-          "handsOn": "Build an error taxonomy using matched and unmatched predictions.",
+          "handsOn": [
+            "Compute precision-recall at a given IoU threshold and mAP from scratch on a small set of predictions and ground truths.",
+            "Build an error taxonomy from matched/unmatched predictions, separating localization errors from classification errors, sliced by object size.",
+            "Measure the detector's latency and throughput and tie one accuracy-affecting choice (confidence/NMS threshold) to its speed tradeoff."
+          ],
           "masteryGate": "Choose operating thresholds from task costs and latency constraints.",
           "conceptChunks": [
             [
@@ -2362,11 +2260,7 @@
             [
               "Latency and throughput"
             ]
-          ],
-          "predictPrompt": "Predict whether raising the confidence threshold will increase or decrease mAP before testing it.",
-          "breakScenario": "Set the NMS IoU threshold to an extreme (very low or very high) and see detections collapse or duplicate.",
-          "diagnosePrompt": "Is the resulting error a localization error, a classification error, or a duplicate-detection error? Classify it.",
-          "curveballTask": "Given detections and ground truth from an unfamiliar dataset, compute per-class AP by hand for one class."
+          ]
         },
         {
           "id": "p13-segmentation",
@@ -2384,7 +2278,11 @@
             "Class imbalance",
             "Mask postprocessing"
           ],
-          "handsOn": "Train a U-Net-style baseline and inspect boundary and small-region errors.",
+          "handsOn": [
+            "Compute Dice and IoU from scratch for a predicted vs ground-truth mask, and explain the difference between semantic, instance, and panoptic tasks.",
+            "Train a small U-Net-style segmentation baseline and inspect its boundary errors on held-out images.",
+            "Address class imbalance in the segmentation loss and clean up predicted masks with postprocessing (e.g. morphology, small-region removal)."
+          ],
           "masteryGate": "Report class-wise mask metrics and visual failure categories.",
           "conceptChunks": [
             [
@@ -2401,10 +2299,7 @@
               "Class imbalance",
               "Mask postprocessing"
             ]
-          ],
-          "predictPrompt": "Predict whether Dice or pixel accuracy will look more misleading on a dataset with a tiny minority class.",
-          "breakScenario": "Evaluate a segmentation model on an image where the target object is very small relative to the frame.",
-          "diagnosePrompt": "Did pixel accuracy stay high while Dice collapsed? That gap shows exactly why the metric choice matters here."
+          ]
         },
         {
           "id": "p13-keypoints-pose",
@@ -2421,7 +2316,11 @@
             "Skeletal constraints",
             "Application limits"
           ],
-          "handsOn": "Build or adapt a small keypoint pipeline and visualize uncertainty.",
+          "handsOn": [
+            "Build heatmap targets from keypoint labels (including visibility) and compare top-down vs bottom-up pose framing.",
+            "Evaluate pose predictions with a distance-based metric, and handle an occluded-keypoint case using skeletal constraints.",
+            "Pick a real application and write down where this pose pipeline's limits (occlusion, unusual poses) would actually break it."
+          ],
           "masteryGate": "Handle missing and occluded points without silently treating them as negatives.",
           "conceptChunks": [
             [
@@ -2437,10 +2336,7 @@
             [
               "Application limits"
             ]
-          ],
-          "predictPrompt": "Predict what the heatmap will look like for a keypoint that's occluded in the image.",
-          "breakScenario": "Run the pipeline on an image where a keypoint is fully occluded and see how it's represented.",
-          "diagnosePrompt": "Was the occluded point silently treated as a confident wrong prediction, or correctly flagged as uncertain?"
+          ]
         }
       ],
       "boss": null,
@@ -2485,7 +2381,11 @@
             "Foundation-model adaptation",
             "Linear probing"
           ],
-          "handsOn": "Compare a CNN and transformer backbone under matched data and compute.",
+          "handsOn": [
+            "Implement patch embedding for a small image and describe how a ViT turns it into a token sequence; compare CNN vs ViT tradeoffs for your dataset size.",
+            "Read a contrastive self-supervised method (e.g. SimCLR) and describe how you'd adapt a foundation model to your task without full fine-tuning.",
+            "Freeze a pretrained backbone and train only a linear probe on top; compare its accuracy to full fine-tuning."
+          ],
           "masteryGate": "Explain data, latency, and transfer tradeoffs from evidence.",
           "conceptChunks": [
             [
@@ -2501,10 +2401,7 @@
             [
               "Linear probing"
             ]
-          ],
-          "predictPrompt": "Predict whether a CNN or ViT will need more training data to reach the same accuracy on a small dataset.",
-          "breakScenario": "Train both a CNN and a ViT backbone on a deliberately small dataset with matched compute.",
-          "diagnosePrompt": "Which one degraded more with limited data, and does that match the architectural reason you'd expect?"
+          ]
         },
         {
           "id": "p14-vision-language-multimodal",
@@ -2521,7 +2418,11 @@
             "Open-vocabulary detection awareness",
             "Grounding and hallucination risks"
           ],
-          "handsOn": "Build a zero-shot or retrieval baseline and evaluate prompt variants.",
+          "handsOn": [
+            "Use a CLIP-style model to zero-shot classify a set of images against a list of text labels.",
+            "Test how sensitive zero-shot accuracy is to prompt wording, and build a small image-text retrieval baseline.",
+            "Find a case where the model hallucinates or misgrounds a description, and characterize when that happens."
+          ],
           "masteryGate": "Separate semantic usefulness from calibrated confidence and deployment safety.",
           "conceptChunks": [
             [
@@ -2537,10 +2438,7 @@
             [
               "Grounding and hallucination risks"
             ]
-          ],
-          "predictPrompt": "Predict whether changing the wording of a zero-shot prompt will change the classification result.",
-          "breakScenario": "Run the same zero-shot classification with three differently-worded prompts for the same class.",
-          "diagnosePrompt": "How much did the prediction change with wording alone? That's the model's real prompt sensitivity, not a one-off fluke."
+          ]
         },
         {
           "id": "p14-video-tracking",
@@ -2558,7 +2456,11 @@
             "MOTA, IDF1, HOTA awareness",
             "Occlusion and identity switches"
           ],
-          "handsOn": "Track objects in video and build an identity-switch error reel.",
+          "handsOn": [
+            "Sample frames from a video at different rates and run a detector per-frame as a tracking-by-detection baseline.",
+            "Add a Kalman-filter-based motion model and Hungarian matching to associate detections across frames (or reimplement a SORT-style tracker).",
+            "Measure identity switches on a short clip, compute a tracking metric (e.g. IDF1), and build an error reel of the worst switches."
+          ],
           "masteryGate": "Measure detection, association, and system latency separately.",
           "conceptChunks": [
             [
@@ -2575,11 +2477,7 @@
               "MOTA, IDF1, HOTA awareness",
               "Occlusion and identity switches"
             ]
-          ],
-          "predictPrompt": "Predict whether an occluded object will keep its track ID or get a new one when it reappears.",
-          "breakScenario": "Track an object through a brief full occlusion (e.g. walking behind another object).",
-          "diagnosePrompt": "Did the ID switch happen at the occlusion or the reappearance? That tells you whether it's a prediction gap or a re-association failure.",
-          "curveballTask": "Given an unfamiliar video with camera motion (not just object motion), diagnose why track quality degrades differently than in the static-camera case."
+          ]
         },
         {
           "id": "p14-ocr-documents-visual-search",
@@ -2596,7 +2494,11 @@
             "Nearest-neighbor search",
             "Duplicate and similarity detection"
           ],
-          "handsOn": "Build an OCR or image-search pipeline with condition-specific tests.",
+          "handsOn": [
+            "Run text detection and recognition on a scanned document with layout analysis and preprocessing (deskew, binarize).",
+            "Measure OCR accuracy with a proper metric (e.g. character error rate), then build an image embedding + nearest-neighbor search index.",
+            "Use that search index to find near-duplicate or similar images in a small collection."
+          ],
           "masteryGate": "Errors are traced to detection, recognition, layout, or retrieval.",
           "conceptChunks": [
             [
@@ -2612,10 +2514,7 @@
             [
               "Duplicate and similarity detection"
             ]
-          ],
-          "predictPrompt": "Predict whether OCR accuracy will drop more from blur or from low contrast before testing both.",
-          "breakScenario": "Run OCR on the same text image with heavy compression artifacts added.",
-          "diagnosePrompt": "Is the failure in text detection (missed the region) or recognition (wrong characters)? Separate the two."
+          ]
         },
         {
           "id": "p14-depth-3d-camera-geometry",
@@ -2633,7 +2532,11 @@
             "PnP and pose estimation awareness",
             "3D evaluation and uncertainty"
           ],
-          "handsOn": "Calibrate a camera or use known parameters to estimate simple geometry.",
+          "handsOn": [
+            "Calibrate a camera (or use known intrinsics) and project a known 3D point into image coordinates using the pinhole model.",
+            "Estimate depth from a stereo pair and build a simple point cloud from the disparity map.",
+            "Read about PnP pose estimation and estimate the uncertainty of one of your 3D measurements."
+          ],
           "masteryGate": "State coordinate frames, units, assumptions, and uncertainty correctly.",
           "conceptChunks": [
             [
@@ -2650,11 +2553,7 @@
               "PnP and pose estimation awareness",
               "3D evaluation and uncertainty"
             ]
-          ],
-          "predictPrompt": "Predict where a known 3D point will land in image coordinates before running the projection.",
-          "breakScenario": "Use slightly wrong extrinsics (e.g. a few degrees off) and project the same point.",
-          "diagnosePrompt": "How far off was the projected point, and does that error grow or shrink with distance from the camera?",
-          "curveballTask": "Given calibration parameters for an unfamiliar camera setup, project a full set of 3D points and sanity-check the result visually."
+          ]
         }
       ],
       "boss": null,
@@ -2700,7 +2599,11 @@
             "Reproducible environments",
             "CI basics"
           ],
-          "handsOn": "Refactor one project into a clean package with automated checks.",
+          "handsOn": [
+            "Refactor one messy project into separated config/data/train/eval/inference modules with type hints and a linter passing.",
+            "Move hardcoded config into a config file/object and make sure no secrets are hardcoded; pin a reproducible environment (lockfile/Docker).",
+            "Set up a basic CI pipeline (e.g. GitHub Actions) that runs your tests and lints on every push."
+          ],
           "masteryGate": "A clean checkout can run tests, train a small sample, and perform inference.",
           "conceptChunks": [
             [
@@ -2716,10 +2619,7 @@
             [
               "CI basics"
             ]
-          ],
-          "predictPrompt": "Predict which edge case your predict() function will fail on before writing the test for it.",
-          "breakScenario": "Feed the predict() function an empty input or an out-of-range value.",
-          "diagnosePrompt": "Did it fail loudly or silently return a bad value? Silent failures are the ones worth a permanent test."
+          ]
         },
         {
           "id": "p15-experiment-data-model-management",
@@ -2736,7 +2636,11 @@
             "Reproducible seeds and environments",
             "Promotion criteria"
           ],
-          "handsOn": "Reproduce a selected model from its recorded configuration and data version.",
+          "handsOn": [
+            "Track a handful of training runs (config, metrics, artifacts) using an experiment tracker.",
+            "Version the data and model for one experiment, and reproduce a chosen run from its recorded configuration and seed.",
+            "Define and apply promotion criteria for moving a model from 'experiment' to 'candidate for production' in a simple registry."
+          ],
           "masteryGate": "The exact model decision can be audited from inputs to metrics.",
           "conceptChunks": [
             [
@@ -2752,10 +2656,7 @@
             [
               "Promotion criteria"
             ]
-          ],
-          "predictPrompt": "Predict whether you can reproduce a run's exact metric from its logged config alone, before trying.",
-          "breakScenario": "Try to reproduce a past run using only what got logged, no memory of what you did.",
-          "diagnosePrompt": "What's missing from the log that you had to guess? That's the actual reproducibility gap."
+          ]
         },
         {
           "id": "p15-serving-apis",
@@ -2773,7 +2674,11 @@
             "Latency percentiles",
             "Load testing"
           ],
-          "handsOn": "Expose a model behind a tested API and benchmark it.",
+          "handsOn": [
+            "Expose a trained model behind a REST API with request validation, supporting both a batch-style and an online-style endpoint.",
+            "Implement the preprocess-predict-postprocess contract cleanly, add basic concurrency/batching, and handle timeouts/errors gracefully.",
+            "Load test the API and report latency percentiles (p50/p95/p99), not just averages."
+          ],
           "masteryGate": "The service handles invalid inputs, timeouts, and concurrent requests predictably.",
           "conceptChunks": [
             [
@@ -2790,10 +2695,7 @@
               "Latency percentiles",
               "Load testing"
             ]
-          ],
-          "predictPrompt": "Predict what the API will return when sent malformed or missing-field input before testing it.",
-          "breakScenario": "Send the API a request missing a required field or with the wrong data type.",
-          "diagnosePrompt": "Did it return a clear 4xx error or crash the process? A crash means validation is missing, not just error handling."
+          ]
         },
         {
           "id": "p15-containers-cloud-orchestration",
@@ -2810,7 +2712,11 @@
             "Autoscaling and orchestration awareness",
             "Cost controls"
           ],
-          "handsOn": "Containerize training or inference and run it from documented commands.",
+          "handsOn": [
+            "Containerize your training or inference code with Docker, wiring up volumes, ports, and environment configuration correctly.",
+            "Run the container as a cloud batch job vs a long-running service, and describe what autoscaling/orchestration would add.",
+            "Estimate the cost of running this in the cloud and identify one concrete cost control (spot instances, autoscale-to-zero, etc.)."
+          ],
           "masteryGate": "The container is minimal, repeatable, and contains no embedded secrets.",
           "conceptChunks": [
             [
@@ -2826,10 +2732,7 @@
             [
               "Cost controls"
             ]
-          ],
-          "predictPrompt": "Predict whether the container will still work if you delete it and rebuild from a clean checkout.",
-          "breakScenario": "Delete the image and rebuild purely from the Dockerfile and repo, no cached state.",
-          "diagnosePrompt": "If the rebuild failed, what implicit local state was the Dockerfile secretly depending on?"
+          ]
         },
         {
           "id": "p15-monitoring-retraining",
@@ -2848,7 +2751,11 @@
             "Retraining triggers",
             "Incident response"
           ],
-          "handsOn": "Simulate distribution shift and design detection plus response.",
+          "handsOn": [
+            "Instrument service health and simulate input/prediction drift on your serving pipeline, adding data-quality checks that catch it.",
+            "Design an alerting scheme for performance monitoring when labels arrive late, and describe a shadow or canary release plan.",
+            "Write a rollback procedure and define concrete retraining triggers, then draft a short incident-response runbook."
+          ],
           "masteryGate": "Alerts map to an owner, action, and rollback or investigation path.",
           "conceptChunks": [
             [
@@ -2866,11 +2773,7 @@
               "Retraining triggers",
               "Incident response"
             ]
-          ],
-          "predictPrompt": "Predict whether a shift in one input feature's distribution would actually trigger any alert you've built.",
-          "breakScenario": "Simulate a distribution shift on one feature and see if your monitoring notices it.",
-          "diagnosePrompt": "If nothing fired, is it because there's no drift check, or because the check's threshold is too loose?",
-          "curveballTask": "Given an unfamiliar service's monitoring dashboard, decide within 5 minutes whether an alert is real or noise, and what action it should trigger."
+          ]
         }
       ],
       "boss": null,
@@ -2918,7 +2821,11 @@
             "Mixed precision",
             "Accuracy-latency-size tradeoffs"
           ],
-          "handsOn": "Profile and optimize one model while tracking quality changes.",
+          "handsOn": [
+            "Profile a trained model's inference to find the actual bottleneck before touching anything, then export it to ONNX.",
+            "Quantize the model and measure the accuracy vs speed/size tradeoff; read about pruning as an alternative lever.",
+            "Add batching and mixed precision, and produce a single table of accuracy/latency/size tradeoffs across your optimization steps."
+          ],
           "masteryGate": "Meet a declared latency target without hiding accuracy regressions.",
           "conceptChunks": [
             [
@@ -2936,11 +2843,7 @@
               "Mixed precision",
               "Accuracy-latency-size tradeoffs"
             ]
-          ],
-          "predictPrompt": "Predict how much latency will drop from quantizing to INT8 before measuring it.",
-          "breakScenario": "Quantize the model and compare accuracy on a batch of known-hard examples, not just the average metric.",
-          "diagnosePrompt": "Did accuracy drop uniformly or concentrate on specific hard cases? That tells you if the tradeoff is actually safe.",
-          "curveballTask": "Given an unfamiliar model and a declared latency target, decide which optimization (quantization, pruning, or export format) to try first and justify it before running anything."
+          ]
         },
         {
           "id": "p16-streaming-realtime-pipelines",
@@ -2957,7 +2860,11 @@
             "Resource monitoring",
             "Graceful degradation"
           ],
-          "handsOn": "Build an instrumented streaming pipeline with bounded queues.",
+          "handsOn": [
+            "Build a staged streaming pipeline (capture → decode → preprocess → infer → postprocess → emit) with bounded queues between stages.",
+            "Instrument throughput and end-to-end latency separately, and add resource monitoring (CPU/GPU/memory) alongside stage synchronization.",
+            "Simulate an overloaded input rate and add graceful degradation (frame dropping/sampling) so the pipeline stays responsive."
+          ],
           "masteryGate": "The system remains stable when input rate exceeds processing rate.",
           "conceptChunks": [
             [
@@ -2973,11 +2880,7 @@
             [
               "Graceful degradation"
             ]
-          ],
-          "predictPrompt": "Predict what happens to the pipeline when input arrives faster than it can process, before testing it.",
-          "breakScenario": "Feed the pipeline input faster than its processing rate and watch the queue.",
-          "diagnosePrompt": "Did it degrade gracefully (drop frames, backpressure) or crash/hang? That's the real reliability signal.",
-          "curveballTask": "Given an unfamiliar streaming pipeline under load, identify the bottleneck stage without being told which stage it is."
+          ]
         },
         {
           "id": "p16-edge-deployment",
@@ -2995,7 +2898,11 @@
             "Power and thermal awareness",
             "Fleet versioning"
           ],
-          "handsOn": "Create an edge deployment plan and run on the closest available constrained target.",
+          "handsOn": [
+            "Write an edge deployment plan for a real constrained target (or the closest available), covering compute/memory tradeoffs and offline operation.",
+            "Add a remote update mechanism, health checks, and basic telemetry to the deployed model.",
+            "Note the power/thermal constraints of your target device and describe how you'd version models across a fleet of devices."
+          ],
           "masteryGate": "The plan covers upgrade, rollback, offline behavior, and device observability.",
           "conceptChunks": [
             [
@@ -3012,10 +2919,7 @@
               "Power and thermal awareness",
               "Fleet versioning"
             ]
-          ],
-          "predictPrompt": "Predict whether your model will even fit in the target device's memory before trying to run it there.",
-          "breakScenario": "Run the deployment plan's model on the actual constrained target, not just your dev machine.",
-          "diagnosePrompt": "What broke first \u2014 memory, latency, or power? That's the actual binding constraint for this device."
+          ]
         },
         {
           "id": "p16-cv-safety-privacy-responsible-deployment",
@@ -3034,7 +2938,11 @@
             "Security and adversarial awareness",
             "Documentation and governance"
           ],
-          "handsOn": "Perform a pre-deployment risk review and define unacceptable failure conditions.",
+          "handsOn": [
+            "Write a privacy-by-design review for a CV system handling faces or biometric data, covering retention and access controls.",
+            "Slice model performance by demographic/condition group and write down the real-world harm of a false positive vs a false negative for this use case.",
+            "Define an abstention/fail-safe behavior for uncertain cases and document the system (governance-style) for a pre-deployment review."
+          ],
           "masteryGate": "The system has explicit use limits, escalation paths, and privacy controls.",
           "conceptChunks": [
             [
@@ -3052,10 +2960,7 @@
               "Security and adversarial awareness",
               "Documentation and governance"
             ]
-          ],
-          "predictPrompt": "Predict which failure mode (false positive or false negative) is more costly for your specific use case before analyzing it.",
-          "breakScenario": "Deliberately test the system on a condition/demographic slice it wasn't tuned for.",
-          "diagnosePrompt": "Did performance degrade evenly or concentrate on one slice? Name the slice and the concrete harm if deployed as-is."
+          ]
         }
       ],
       "boss": null,
@@ -3103,7 +3008,11 @@
             "Tradeoff narrative",
             "Clean repository history"
           ],
-          "handsOn": "Turn one project into a five-minute demo and two-page technical case study.",
+          "handsOn": [
+            "Pick your single strongest project, write a one-paragraph problem/user framing for it, and draw its architecture diagram.",
+            "Write a data card and model card for it, and make sure setup is reproducible with a working test suite and a runnable demo.",
+            "Write up its metrics, a real failure case, and the key tradeoff you made — then clean up its git history so it reads well."
+          ],
           "masteryGate": "A reviewer can understand, run, and critique the work without a private explanation.",
           "conceptChunks": [
             [
@@ -3121,10 +3030,7 @@
               "Tradeoff narrative",
               "Clean repository history"
             ]
-          ],
-          "predictPrompt": "Predict what a reviewer with no context will misunderstand about your project before they read it.",
-          "breakScenario": "Hand the README to someone (or reread it cold yourself after a break) with zero prior context.",
-          "diagnosePrompt": "What question did they ask that the README should have already answered? Fix that gap specifically."
+          ]
         },
         {
           "id": "p17-ml-cv-system-design",
@@ -3143,7 +3049,11 @@
             "Privacy and safety",
             "Capacity estimates"
           ],
-          "handsOn": "Design three systems: batch ML, online prediction, and real-time video perception.",
+          "handsOn": [
+            "Design a batch ML system end to end: clarify requirements, plan data acquisition/labeling, and define offline vs online evaluation.",
+            "Design an online prediction system's architecture and interfaces, with explicit latency/throughput/cost targets and failure modes.",
+            "Design a real-time video perception system's monitoring, rollback, privacy/safety handling, and back-of-envelope capacity estimates."
+          ],
           "masteryGate": "Tradeoffs are quantified and the design connects metrics to user outcomes.",
           "conceptChunks": [
             [
@@ -3161,11 +3071,7 @@
               "Privacy and safety",
               "Capacity estimates"
             ]
-          ],
-          "predictPrompt": "Predict the biggest bottleneck in your system design before working through the numbers.",
-          "breakScenario": "Push one requirement to an extreme (10x the traffic, 1/10th the latency budget) and redesign.",
-          "diagnosePrompt": "Which component broke first under the extreme, and does your original design even mention that limit?",
-          "curveballTask": "Design a system for a CV use case you haven't seen before (e.g. wildlife monitoring, not traffic) with the same rigor, in one sitting."
+          ]
         },
         {
           "id": "p17-technical-interviews-communication",
@@ -3184,7 +3090,11 @@
             "Project storytelling",
             "Unknown-question protocol"
           ],
-          "handsOn": "Run weekly mock interviews with no source open, followed by reconstruction and targeted repair.",
+          "handsOn": [
+            "Run a timed mock interview covering Python/data structures, SQL, and ML theory/metrics questions with no source open.",
+            "Run a mock interview on deep learning, CV concepts, and a live debugging problem, closed-book.",
+            "Do a coding-from-requirements exercise and practice telling your project's story out loud, including a protocol for when you don't know an answer."
+          ],
           "masteryGate": "Explain core topics clearly, reason through unfamiliar questions, and correct mistakes without collapse.",
           "conceptChunks": [
             [
@@ -3202,11 +3112,7 @@
               "Project storytelling",
               "Unknown-question protocol"
             ]
-          ],
-          "predictPrompt": "Predict which question you'll fumble before the mock interview starts.",
-          "breakScenario": "Take a mock question with the source closed and a hard time limit.",
-          "diagnosePrompt": "Was the stumble a knowledge gap or a communication gap? Those need different fixes \u2014 name which.",
-          "curveballTask": "Answer a question phrased in a way you haven't rehearsed, on a topic you know well, and notice if you reach for a script."
+          ]
         },
         {
           "id": "p17-job-search-operating-system",
@@ -3224,7 +3130,11 @@
             "Weekly output goals",
             "Protecting study depth during search"
           ],
-          "handsOn": "Map 20 target roles to demonstrated and missing evidence.",
+          "handsOn": [
+            "Map 20 target roles against a skills-evidence matrix and rewrite three resume bullets to show measurable impact.",
+            "Set up an application tracker, reach out for two referrals, and build a feedback loop from your last interview into your next prep.",
+            "Set concrete weekly output goals for the job search and decide explicitly how you'll protect study depth from being crowded out."
+          ],
           "masteryGate": "Applications are tailored around evidence, and interview gaps feed the curriculum without triggering a full restart.",
           "conceptChunks": [
             [
@@ -3241,10 +3151,7 @@
               "Weekly output goals",
               "Protecting study depth during search"
             ]
-          ],
-          "predictPrompt": "Predict how many of your 20 target roles you actually have strong evidence for before mapping them.",
-          "breakScenario": "Pick the role with the weakest evidence match and try to write tailored bullets for it anyway.",
-          "diagnosePrompt": "Is the gap a missing skill, or just missing documentation of a skill you already have? Those need different fixes."
+          ]
         }
       ],
       "boss": null,
