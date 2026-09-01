@@ -665,7 +665,6 @@
     <div class="topbar-actions">
       <button class="app-tab active" id="tab-today" onclick="showAppView('today')">Today</button>
       <button class="app-tab" id="tab-learn" onclick="openLearnView()">Learn</button>
-      <button class="app-tab" id="review-button" onclick="openReviewView()">Review (0)</button>
       <button class="app-tab" id="tab-projects" onclick="showAppView('projects')">Projects</button>
       <button class="app-tab" id="tab-roadmap" onclick="showAppView('roadmap')">Roadmap</button>
     </div>
@@ -697,7 +696,7 @@
         <button class="filter-btn active" onclick="setStatusFilter('all',this)">All</button>
         <button class="filter-btn" onclick="setStatusFilter('todo',this)">Not started</button>
         <button class="filter-btn" onclick="setStatusFilter('progress',this)">In progress</button>
-        <button class="filter-btn" onclick="setStatusFilter('mastered',this)">Can defend live</button>
+        <button class="filter-btn" onclick="setStatusFilter('mastered',this)">Complete</button>
       </div>
       <div class="filter-row" id="core-filter-row">
         <span class="filter-label">Scope:</span>
@@ -735,9 +734,9 @@
 
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">topics tracked</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">can explain</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">can implement</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">can diagnose</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-defined">0</div><div class="stat-label">started</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-explain">0</div><div class="stat-label">hands-on done</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-mastered">0</div><div class="stat-label">complete</div></div>
     </div>
     <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
     <div class="readiness-line" id="readiness-line"></div>
@@ -785,16 +784,6 @@
     <div class="topic-modal-footer">
       <button class="pomo-btn" onclick="closeTopicModal()">Close for now</button>
     </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="review-modal-overlay">
-  <div class="modal-box review-modal-box">
-    <div class="modal-header">
-      <h3>Review</h3>
-      <button class="modal-close" onclick="closeReviewFlow()">&times;</button>
-    </div>
-    <div id="review-flow-root"></div>
   </div>
 </div>
 
@@ -906,7 +895,7 @@ async function initCurriculumData(){
         phaseOrder: phase.order,
         moduleOrder: moduleOrder,
         title: m.title,
-        desc: m.handsOn || '',
+        desc: Array.isArray(m.handsOn) ? m.handsOn.join(' ') : (m.handsOn || ''),
         tradeoff: m.masteryGate ? ('Mastery gate: ' + m.masteryGate) : '',
         example: m.firstAction ? ('First action: ' + m.firstAction) : '',
         skill: depthLabel(m.depth),
@@ -916,11 +905,7 @@ async function initCurriculumData(){
         firstAction: m.firstAction || '',
         handsOn: m.handsOn || '',
         masteryGate: m.masteryGate || '',
-        conceptChunks: m.conceptChunks || [],
-        predictPrompt: m.predictPrompt || '',
-        breakScenario: m.breakScenario || '',
-        diagnosePrompt: m.diagnosePrompt || '',
-        curveballTask: m.curveballTask || ''
+        conceptChunks: m.conceptChunks || []
       });
     });
   });
@@ -944,18 +929,15 @@ function toggleCoreOnly(){
   applyFilters();
 }
 
-// ===== Evidence-based progress model =====
-// Replaces the old state[topicId]=0-3 direct-set model entirely.
-// masteryLevel is NEVER written directly — it's always the output of
-// computeMasteryLevel(), a pure function over recorded evidence. One record
-// per topic, stored at localStorage key `progress:{topicId}`.
-// getTopicProgress()/recordEvidence()/patchLatestPrediction() form the
-// storage boundary, following the same swappable-boundary pattern as
-// loadCurriculum() from Step 1 — pointing this at Firestore later means
-// rewriting these storage functions rather than the UI.
+// ===== Progress model =====
+// One record per topic, stored at localStorage key `progress:{topicId}`.
+// A topic is a flat checklist: read each concept chunk, do its hands-on
+// project. No grading — the app trusts the checkbox. getTopicProgress()/
+// saveProgressRecord() form the storage boundary, following the same
+// swappable-boundary pattern as loadCurriculum() from Step 1 — pointing
+// this at Firestore later means rewriting these storage functions rather
+// than the UI.
 
-const REVIEW_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30];
-const MAX_DAILY_REVIEWS = 5;
 const APP_STATE_KEY = 'appState';
 const XP_EVENTS_KEY = 'xpEvents';
 let appState = {lastActiveTopicId:null, lastActiveAt:null, xpTotal:0, currentRank:null};
@@ -966,25 +948,23 @@ function defaultProgressRecord(topicId, depth){
   return {
     topicId: topicId,
     depth: depth || 'core',
-    masteryLevel: 0,
-    masteryLevelLastComputedAt: null,
-    evidence: {
-      learn: { done:false, timestamp:null },
-      recall: [],
-      predict: [],
-      build: [],
-      break: [],
-      diagnose: [],
-      curveball: [],
-      resumeNote: null
-    },
-    helpLevels: { highestUsedEver: 0, log: [] },
-    rebuild: { required:false, reason:null, completedAt:null },
-    attemptCounts: { independent:0, assisted:0 },
-    stuckAttempts: [],
-    review: { nextDueAt:null, history:[], currentRung:0 },
-    lastStudiedAt: null
+    chunksRead: [],
+    handsOnDone: [],
+    completedAt: null,
+    lastStudiedAt: null,
+    activityDates: []
   };
+}
+
+// A topic is complete when every chunk is read and every chunk's hands-on
+// project is marked done. No partial credit, no quality bar — that
+// verification now happens in conversation with an AI TA, not in this app.
+function isTopicComplete(record, topic){
+  const t = topic || TOPICS_BY_ID.get(record.topicId);
+  const n = t && Array.isArray(t.conceptChunks) ? t.conceptChunks.length : 0;
+  if(!n) return false;
+  return record.chunksRead.length === n && record.chunksRead.every(Boolean) &&
+    record.handsOnDone.length === n && record.handsOnDone.every(Boolean);
 }
 
 // ===== Projects and boss progress =====
@@ -1070,7 +1050,7 @@ function isProjectAvailable(project, topics, progressById){
   const phaseTopics = phaseTopicsFor(project.phaseId, topics);
   return phaseTopics.length > 0 && phaseTopics.every(topic=>{
     const progress = progressById[topic.id];
-    return progress && progress.masteryLevel >= 2;
+    return progress && isTopicComplete(progress, topic);
   });
 }
 
@@ -1078,7 +1058,7 @@ function isBossAvailable(boss, topics, progressById){
   const phaseTopics = phaseTopicsFor(boss.phaseId, topics);
   return phaseTopics.length > 0 && phaseTopics.every(topic=>{
     const progress = progressById[topic.id];
-    return progress && progress.masteryLevel >= 2;
+    return progress && isTopicComplete(progress, topic);
   });
 }
 
@@ -1086,23 +1066,15 @@ function phaseTopicsAtTargetMastery(phaseId, topics, progressById){
   const phaseTopics = phaseTopicsFor(phaseId, topics);
   return phaseTopics.length > 0 && phaseTopics.every(topic=>{
     const progress = progressById[topic.id];
-    return progress && progress.masteryLevel >= targetMasteryForTopic(topic);
+    return progress && isTopicComplete(progress, topic);
   });
 }
 
 function remainingPhaseModules(phaseId, topics, progressById){
   return phaseTopicsFor(phaseId, topics).filter(topic=>{
     const progress = progressById[topic.id];
-    return !progress || progress.masteryLevel < 2;
+    return !progress || !isTopicComplete(progress, topic);
   });
-}
-
-function containsLegacyLadderEvidence(record){
-  try{
-    return JSON.stringify((record && record.evidence) || {}).toLowerCase().includes('mastery ladder');
-  } catch(e){
-    return false;
-  }
 }
 
 function getTopicProgress(topicId){
@@ -1112,36 +1084,31 @@ function getTopicProgress(topicId){
     if(raw) record = JSON.parse(raw);
   } catch(e){ record = null; }
   const t = TOPICS_BY_ID.get(topicId);
-  if(record && containsLegacyLadderEvidence(record)){
-    // Step 2's clickable ladder deliberately wrote synthetic placeholder
-    // evidence. It cannot count once mastery is earned only through this loop.
+  const chunkCount = t && Array.isArray(t.conceptChunks) ? t.conceptChunks.length : 0;
+  if(record && (record.evidence || Number.isInteger(record.masteryLevel))){
+    // Legacy mastery-loop record from before the loop was removed. A topic
+    // that had reached Assisted mastery (masteryLevel >= 2) or higher is
+    // carried forward as fully complete; anything less is reset to fresh —
+    // partial loop evidence has no clean mapping onto per-chunk checkboxes.
+    const wasSolid = Number(record.masteryLevel) >= 2;
     record = defaultProgressRecord(topicId, t ? t.depth : record.depth);
+    if(wasSolid){
+      record.chunksRead = new Array(chunkCount).fill(true);
+      record.handsOnDone = new Array(chunkCount).fill(true);
+      record.completedAt = new Date().toISOString();
+    }
     saveProgressRecord(record);
   }
   if(!record){
     record = defaultProgressRecord(topicId, t ? t.depth : 'core');
   }
-  const fallback = defaultProgressRecord(topicId, t ? t.depth : record.depth);
-  record.evidence = Object.assign({}, fallback.evidence, record.evidence || {});
-  ['recall','predict','build','break','diagnose','curveball'].forEach(kind=>{
-    if(!Array.isArray(record.evidence[kind])) record.evidence[kind] = [];
-  });
-  record.helpLevels = Object.assign({}, fallback.helpLevels, record.helpLevels || {});
-  if(!Array.isArray(record.helpLevels.log)) record.helpLevels.log = [];
-  record.rebuild = Object.assign({}, fallback.rebuild, record.rebuild || {});
-  record.attemptCounts = Object.assign({}, fallback.attemptCounts, record.attemptCounts || {});
-  if(!Array.isArray(record.stuckAttempts)) record.stuckAttempts = [];
-  record.review = Object.assign({}, fallback.review, record.review || {});
-  if(!Array.isArray(record.review.history)) record.review.history = [];
-  if(!Number.isInteger(record.review.currentRung)) record.review.currentRung = 0;
-  record.review.currentRung = Math.max(0, Math.min(REVIEW_INTERVAL_DAYS.length - 1, record.review.currentRung));
-  if(record.masteryLevel >= 2 && !record.review.nextDueAt){
-    // Upgrade path for level 2+ evidence earned before the Review Engine
-    // existed. New crossings are scheduled directly inside recordEvidence.
-    // Same tomorrow-not-today reasoning as there — see that comment.
-    record.review.nextDueAt = reviewDueAtEndOfDay(new Date(), 1);
-    saveProgressRecord(record);
-  }
+  if(!Array.isArray(record.chunksRead)) record.chunksRead = [];
+  if(!Array.isArray(record.handsOnDone)) record.handsOnDone = [];
+  if(!Array.isArray(record.activityDates)) record.activityDates = [];
+  while(record.chunksRead.length < chunkCount) record.chunksRead.push(false);
+  while(record.handsOnDone.length < chunkCount) record.handsOnDone.push(false);
+  record.chunksRead.length = chunkCount;
+  record.handsOnDone.length = chunkCount;
   return record;
 }
 
@@ -1173,38 +1140,25 @@ function saveAppState(){
 }
 
 const XP_TABLE_LABELS = {
-  'focus-block':'Start and protect one focus block',
-  'closed-source-recall':'Closed-source recall',
-  'prediction':'Prediction before execution',
-  'independent-build':'Independent build',
-  'break-and-diagnose':'Intentional break plus diagnosis',
-  'curveball':'Curveball solved',
-  'project-milestone':'Project milestone shipped',
-  'boss':'Boss battle passed',
-  'resume-note':'Resume note'
+  'focus-block':'Focus block completed',
+  'chunk-read':'Chunk read',
+  'handson-done':'Hands-on completed',
+  'topic-complete':'Topic completed',
+  'quiz-passed':'Quiz passed',
+  'project-milestone':'Project milestone',
+  'boss':'Capstone passed'
 };
 const FIXED_XP_AMOUNTS = {
-  'retrieval-review':5,
-  'solved-while-stuck':20,
-  'rebuild-after-help':25,
   'comeback':30
 };
-const DAILY_TOPIC_XP_ACTIONS = new Set([
-  'closed-source-recall','prediction','independent-build','break-and-diagnose'
-]);
 const XP_DISPLAY_LABELS = {
   'focus-block':'Focus block',
-  'closed-source-recall':'Closed-source recall',
-  'prediction':'Prediction',
-  'independent-build':'Independent build',
-  'break-and-diagnose':'Break and diagnose',
-  'curveball':'Curveball solved',
+  'chunk-read':'Chunk read',
+  'handson-done':'Hands-on completed',
+  'topic-complete':'Topic completed',
+  'quiz-passed':'Quiz passed',
   'project-milestone':'Project milestone',
-  'boss':'Boss passed',
-  'resume-note':'Resume note',
-  'retrieval-review':'Retrieval review',
-  'solved-while-stuck':'Solved while stuck',
-  'rebuild-after-help':'Rebuilt after help'
+  'boss':'Capstone passed'
 };
 
 function getXPEvents(){
@@ -1260,8 +1214,10 @@ function queueXPToast(event, rankUpName){
   }, 60);
 }
 
-// The only XP write boundary. Ledger entries are append-only, idempotent on
-// refId, and daily loop-step limits are enforced here rather than in the UI.
+// The only XP write boundary. Ledger entries are append-only and idempotent
+// on refId — each caller passes a refId unique to the thing being rewarded
+// (a specific chunk, hands-on, topic, quiz, etc.) so re-toggling never
+// double-grants.
 function grantXP(action, refId, options){
   options = options || {};
   const reference = String(refId || '').trim();
@@ -1269,11 +1225,6 @@ function grantXP(action, refId, options){
   const events = getXPEvents();
   if(events.some(event=>event.refId === reference)) return null;
   const timestamp = options.timestamp || new Date().toISOString();
-  if(DAILY_TOPIC_XP_ACTIONS.has(action) && options.topicId){
-    const day = localDayKey(timestamp);
-    const alreadyGranted = events.some(event=>event.action === action && event.topicId === options.topicId && localDayKey(event.timestamp) === day);
-    if(alreadyGranted) return null;
-  }
   const xp = xpAmountForAction(action);
   if(!Number.isFinite(xp)) throw new Error('Unknown XP action: ' + action);
   const previousRank = rankForXP(events.reduce((sum,event)=>sum + (Number(event.xp) || 0), 0)).name;
@@ -1326,318 +1277,18 @@ function initializeComebackState(now){
   }
 }
 
-// Pure function: same (record, depth) in, same masteryLevel out, always.
-// Exposed standalone (not buried inside recordEvidence) so a future
-// test/debug view can call it directly. Follows promotionRules in
-// progress-schema.json exactly.
-function computeMasteryLevel(record, depth){
-  const ev = (record && record.evidence) || {};
-  const learnDone = !!(ev.learn && ev.learn.done);
-  if(!learnDone) return 0;
-
-  const hasBuild = !!(ev.build && ev.build.length);
-  const hasRecall = !!(ev.recall && ev.recall.length);
-  if(!(hasBuild && hasRecall)) return 0; // level0 Exposed only
-
-  const rebuildBlocking = !!(record.rebuild && record.rebuild.required);
-  if(rebuildBlocking) return 1; // capped at Assisted no matter what else exists
-
-  const recallPassed = (ev.recall||[]).some(r=>r && r.passed===true);
-  const predictExists = !!(ev.predict && ev.predict.length);
-  const buildIndependent = (ev.build||[]).some(b=>b && b.independent===true);
-  const breakExists = !!(ev.break && ev.break.length);
-  const diagnoseValid = (ev.diagnose||[]).some(d=>d && d.rootCause && String(d.rootCause).trim()!=='');
-
-  const level2Met = recallPassed && predictExists && buildIndependent && breakExists && diagnoseValid;
-  if(!level2Met) return 1; // Assisted
-
-  // Level 3: deep topics require a passed curveball; core topics don't
-  // require one but are still granted Level 3 if a passed curveball exists.
-  const curveballPassed = (ev.curveball||[]).some(c=>c && c.passed===true);
-  return curveballPassed ? 3 : 2;
-}
-
-function reviewDueAtEndOfDay(dateValue, daysAfter){
-  const due = new Date(dateValue);
-  if(Number.isNaN(due.getTime())) throw new Error('Invalid review date');
-  due.setDate(due.getDate() + daysAfter);
-  due.setHours(23, 59, 59, 999);
-  return due.toISOString();
-}
-
-// Pure scheduling function: its date anchor comes from the last supplied
-// history entry, so it never reads the clock or mutates storage.
-function computeNextReview(history, currentRung, result, confidence){
-  if(result !== 'pass' && result !== 'fail') throw new Error('Review result must be pass or fail');
-  if(!['high','medium','low'].includes(confidence)) throw new Error('Review confidence must be high, medium, or low');
-  if(!Array.isArray(history) || !history.length || !history[history.length - 1].date){
-    throw new Error('Review history must include the current attempt date');
-  }
-  const rung = Math.max(0, Math.min(
-    REVIEW_INTERVAL_DAYS.length - 1,
-    Number.isInteger(currentRung) ? currentRung : 0
-  ));
-  let nextRung;
-  if(result === 'fail') nextRung = 1;
-  else if(confidence === 'low') nextRung = rung;
-  else nextRung = Math.min(rung + 1, REVIEW_INTERVAL_DAYS.length - 1);
-  return {
-    nextRung: nextRung,
-    nextDueAt: reviewDueAtEndOfDay(history[history.length - 1].date, REVIEW_INTERVAL_DAYS[nextRung])
-  };
-}
-
-function reviewDayRange(today){
-  let day;
-  if(typeof today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(today)){
-    const parts = today.split('-').map(Number);
-    day = new Date(parts[0], parts[1] - 1, parts[2]);
-  } else {
-    day = today == null ? new Date() : new Date(today);
-  }
-  if(Number.isNaN(day.getTime())) throw new Error('Invalid due-review date');
-  const start = new Date(day);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(day);
-  end.setHours(23, 59, 59, 999);
-  return {start:start, end:end};
-}
-
-function reviewedWithinRange(history, range){
-  return (history || []).some(entry=>{
-    const when = new Date(entry && entry.date);
-    return !Number.isNaN(when.getTime()) && when >= range.start && when <= range.end;
-  });
-}
-
-function getDueReviewCandidates(today){
-  const range = reviewDayRange(today);
-  return TOPICS.map(topic=>({topic:topic, progress:getTopicProgress(topic.id)}))
-    .filter(item=>{
-      if(item.progress.masteryLevel < 2 || !item.progress.review.nextDueAt) return false;
-      const due = new Date(item.progress.review.nextDueAt);
-      if(Number.isNaN(due.getTime()) || due > range.end) return false;
-      // A daily queue contains at most one attempt per topic. A rung-0 low
-      // confidence result can remain date-due without looping in one sitting.
-      return !reviewedWithinRange(item.progress.review.history, range);
-    })
-    .sort((a,b)=>{
-      const dueDiff = new Date(a.progress.review.nextDueAt) - new Date(b.progress.review.nextDueAt);
-      if(dueDiff) return dueDiff;
-      const depthDiff = Number(b.topic.depth === 'deep') - Number(a.topic.depth === 'deep');
-      if(depthDiff) return depthDiff;
-      const aStudied = a.progress.lastStudiedAt ? new Date(a.progress.lastStudiedAt).getTime() : 0;
-      const bStudied = b.progress.lastStudiedAt ? new Date(b.progress.lastStudiedAt).getTime() : 0;
-      if(aStudied !== bStudied) return aStudied - bStudied;
-      return a.topic.id.localeCompare(b.topic.id);
-    });
-}
-
-function reviewAttemptsInRange(range){
-  return TOPICS.reduce((total, topic)=>{
-    const history = getTopicProgress(topic.id).review.history || [];
-    return total + history.filter(entry=>{
-      const when = new Date(entry && entry.date);
-      return !Number.isNaN(when.getTime()) && when >= range.start && when <= range.end;
-    }).length;
-  }, 0);
-}
-
-function getDueReviews(today){
-  const remainingCapacity = Math.max(0, MAX_DAILY_REVIEWS - reviewAttemptsInRange(reviewDayRange(today)));
-  return getDueReviewCandidates(today).slice(0, remainingCapacity).map(item=>item.topic.id);
-}
-
-function recordReviewAttempt(topicId, result, confidence){
-  if(result !== 'pass' && result !== 'fail') throw new Error('Review result must be pass or fail');
-  if(!['high','medium','low'].includes(confidence)) throw new Error('Review confidence must be high, medium, or low');
-  const record = getTopicProgress(topicId);
-  if(record.masteryLevel < 2) throw new Error('Only independently mastered topics can be reviewed');
-  const attempt = {
-    date: new Date().toISOString(),
-    result: result,
-    confidence: confidence,
-    intervalDaysAfter: null
-  };
-  const historyWithAttempt = record.review.history.concat(attempt);
-  const schedule = computeNextReview(historyWithAttempt, record.review.currentRung, result, confidence);
-  attempt.intervalDaysAfter = REVIEW_INTERVAL_DAYS[schedule.nextRung];
-  record.review.history.push(attempt);
-  record.review.currentRung = schedule.nextRung;
-  record.review.nextDueAt = schedule.nextDueAt;
-  markAppActivity(topicId, attempt.date);
-  saveProgressRecord(record);
-  grantXP('retrieval-review', topicId + ':review:' + attempt.date, {
-    timestamp:attempt.date, refType:'review', topicId:topicId
-  });
-  grantComebackXPIfPending(attempt.date);
-  pushCloudState();
-  updateReviewButton();
-  renderTodayDashboard();
-  return record;
-}
-
-// entry may include helpLevelUsed (0-5, per curriculum.json meta.helpLadder).
-// A 5 (full solution) on ANY activity flags rebuild.required=true; the next
-// independent build (helpLevelUsed<=1) recorded afterward clears it. This
-// lives here, not in the UI, so nothing can bypass it.
-function recordEvidence(topicId, activityType, entry){
-  const t = TOPICS_BY_ID.get(topicId);
-  const record = getTopicProgress(topicId);
-  const previousMasteryLevel = Number(record.masteryLevel) || 0;
-  const rebuildWasRequired = !!record.rebuild.required;
-  const now = new Date().toISOString();
-  entry = entry || {};
-  let evidenceEntry;
-
-  if(activityType === 'build' && typeof entry.helpLevelUsed === 'number'){
-    entry.independent = entry.helpLevelUsed <= 1;
-  }
-
-  if(activityType === 'learn' || activityType === 'resumeNote'){
-    evidenceEntry = Object.assign({timestamp: now}, entry);
-    record.evidence[activityType] = evidenceEntry;
-  } else {
-    if(!Array.isArray(record.evidence[activityType])) record.evidence[activityType] = [];
-    evidenceEntry = Object.assign({timestamp: now}, entry);
-    record.evidence[activityType].push(evidenceEntry);
-  }
-
-  record.lastStudiedAt = now;
-
-  if(typeof entry.helpLevelUsed === 'number'){
-    record.helpLevels.log.push({timestamp: now, activityType, level: entry.helpLevelUsed});
-    if(entry.helpLevelUsed > record.helpLevels.highestUsedEver){
-      record.helpLevels.highestUsedEver = entry.helpLevelUsed;
-    }
-    if(entry.helpLevelUsed === 5){
-      record.rebuild.required = true;
-      record.rebuild.reason = `Full solution used on ${activityType} attempt (${now})`;
-    }
-    if(activityType === 'build' && entry.helpLevelUsed <= 1 && record.rebuild.required){
-      record.rebuild.completedAt = now;
-      record.rebuild.required = false;
-    }
-  }
-
-  if(activityType === 'build'){
-    if(entry.helpLevelUsed <= 1) record.attemptCounts.independent = (record.attemptCounts.independent||0) + 1;
-    else record.attemptCounts.assisted = (record.attemptCounts.assisted||0) + 1;
-  }
-
-  const depth = record.depth || (t ? t.depth : 'core');
-  record.masteryLevel = computeMasteryLevel(record, depth);
-  record.masteryLevelLastComputedAt = now;
-  if(previousMasteryLevel < 2 && record.masteryLevel >= 2 && !record.review.nextDueAt){
-    record.review.currentRung = 0;
-    // Due tomorrow, not today: scheduling it same-day means a topic you
-    // just finished immediately jumps the review queue ahead of anything
-    // new, and reviewing something seconds after learning it has ~zero
-    // spacing benefit anyway. Rung 0's actual 0-day interval still applies
-    // normally to every review *after* this first one.
-    record.review.nextDueAt = reviewDueAtEndOfDay(now, 1);
-  }
-
-  markAppActivity(topicId, now);
-  saveProgressRecord(record);
-  grantEvidenceXP(topicId, activityType, evidenceEntry, record);
-  if(rebuildWasRequired && activityType === 'build' && evidenceEntry.independent === true && record.rebuild.completedAt === now){
-    grantXP('rebuild-after-help', topicId + ':rebuild:' + now, {timestamp:now,refType:'rebuild',topicId:topicId});
-  }
-  grantComebackXPIfPending(now);
-  pushCloudState();
-  updateReviewButton();
-  renderTodayDashboard();
-  return record;
-}
-
-function grantEvidenceXP(topicId, activityType, evidenceEntry, record){
-  if(!evidenceEntry) return null;
-  const timestamp = evidenceEntry.timestamp;
-  const options = {timestamp:timestamp,refType:'evidence',topicId:topicId};
-  if(activityType === 'recall'){
-    return grantXP('closed-source-recall', topicId + ':recall:' + timestamp, options);
-  }
-  if(activityType === 'predict' && String(evidenceEntry.predictionText || '').trim()){
-    return grantXP('prediction', topicId + ':predict:' + timestamp, options);
-  }
-  if(activityType === 'build' && evidenceEntry.independent === true){
-    return grantXP('independent-build', topicId + ':build:' + timestamp, options);
-  }
-  if(activityType === 'diagnose' && String(evidenceEntry.rootCause || '').trim() && record.evidence.break.length){
-    return grantXP('break-and-diagnose', topicId + ':diagnose:' + timestamp, options);
-  }
-  if(activityType === 'curveball' && evidenceEntry.passed === true){
-    return grantXP('curveball', topicId + ':curveball:' + timestamp, options);
-  }
-  if(activityType === 'resumeNote' && String(evidenceEntry.nextAction || '').trim()){
-    return grantXP('resume-note', topicId + ':resumeNote:' + timestamp, options);
-  }
-  return null;
-}
-
-function recordStuckAttempt(topicId, entry){
-  const record = getTopicProgress(topicId);
-  const attempt = Object.assign({timestamp:new Date().toISOString(),resolvedWithoutHelp:false}, entry || {});
-  record.stuckAttempts.push(attempt);
-  record.lastStudiedAt = attempt.timestamp;
-  saveProgressRecord(record);
-  if(attempt.resolvedWithoutHelp === true){
-    grantXP('solved-while-stuck', topicId + ':stuck:' + attempt.timestamp, {
-      timestamp:attempt.timestamp,refType:'stuck-attempt',topicId:topicId
-    });
-  }
-  pushCloudState();
-  return record;
-}
-
-// One prediction belongs to one predict/build cycle. Build completes that
-// pending entry in place instead of manufacturing a second prediction.
-function patchLatestPrediction(topicId, actualOutcome, wasCorrect){
-  const t = TOPICS_BY_ID.get(topicId);
-  const record = getTopicProgress(topicId);
-  const predictions = record.evidence.predict;
-  if(!predictions.length) return false;
-  const pending = [...predictions].reverse().find(p=>p && p.actualOutcome == null);
-  if(!pending) return false;
-  pending.actualOutcome = actualOutcome;
-  pending.wasCorrect = wasCorrect;
-  const now = new Date().toISOString();
-  record.lastStudiedAt = now;
-  record.masteryLevel = computeMasteryLevel(record, record.depth || (t ? t.depth : 'core'));
-  record.masteryLevelLastComputedAt = now;
-  saveProgressRecord(record);
-  pushCloudState();
-  return true;
-}
-
 function levelOf(id){
-  return getTopicProgress(id).masteryLevel;
+  const t = TOPICS_BY_ID.get(id);
+  const record = getTopicProgress(id);
+  if(isTopicComplete(record, t)) return 3;
+  const anyDone = record.chunksRead.some(Boolean) || record.handsOnDone.some(Boolean);
+  return anyDone ? 1 : 0;
 }
 
 function progressSnapshot(){
   const snapshot = {};
   TOPICS.forEach(topic=>{ snapshot[topic.id] = getTopicProgress(topic.id); });
   return snapshot;
-}
-
-function persistedLoopStepComplete(step, evidence){
-  const ev = evidence || {};
-  if(step === 'orient') return !!(ev.learn && ev.learn.done);
-  if(step === 'learn') return !!(ev.learn && ev.learn.done);
-  if(step === 'reflect') return !!(ev.resumeNote && String(ev.resumeNote.nextAction || '').trim());
-  if(step === 'resumeNote') return !!(ev.resumeNote && String(ev.resumeNote.nextAction || '').trim());
-  return Array.isArray(ev[step]) && ev[step].length > 0;
-}
-
-function topicLoopState(topic, record, depthLoopMap){
-  const sequence = (depthLoopMap && depthLoopMap[topic.depth]) || [];
-  const evidence = (record && record.evidence) || {};
-  const hasEvidence = !!(evidence.learn && evidence.learn.done) ||
-    ['recall','predict','build','break','diagnose','curveball'].some(key=>Array.isArray(evidence[key]) && evidence[key].length) ||
-    !!evidence.resumeNote;
-  const nextStep = sequence.find(step=>!persistedLoopStepComplete(step, evidence)) || null;
-  return {hasEvidence:hasEvidence, complete:sequence.length > 0 && nextStep === null, nextStep:nextStep};
 }
 
 function phasePrerequisitesSatisfied(topic, topics, progressById){
@@ -1647,24 +1298,16 @@ function phasePrerequisitesSatisfied(topic, topics, progressById){
   const previousOrder = Math.max.apply(null, priorOrders);
   const previousTopics = topics.filter(item=>item.phaseOrder === previousOrder);
   if(!previousTopics.length) return false;
-  const independentCount = previousTopics.filter(item=>{
+  const completeCount = previousTopics.filter(item=>{
     const progress = progressById[item.id];
-    return progress && progress.masteryLevel >= 2;
+    return progress && isTopicComplete(progress, item);
   }).length;
-  return independentCount / previousTopics.length >= 0.5;
-}
-
-function targetMasteryForTopic(topic){
-  return topic.depth === 'deep' ? 3 : 2;
-}
-
-function loopStepDisplayName(step){
-  return String(step || '').replace(/([a-z])([A-Z])/g,'$1 $2').toLowerCase();
+  return completeCount / previousTopics.length >= 0.5;
 }
 
 // Pure next-item engine. Each rule returns null when it does not match, so
 // future project and boss rules can be inserted before the final rule.
-function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds, projects, projectProgressById, bosses, bossProgressByPhaseId){
+function pickNextAction(topics, progressById, projects, projectProgressById, bosses, bossProgressByPhaseId){
   const orderedTopics = [...topics].sort((a,b)=>
     a.phaseOrder - b.phaseOrder || a.moduleOrder - b.moduleOrder || a.id.localeCompare(b.id)
   );
@@ -1673,22 +1316,27 @@ function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds, project
   const projectState = projectProgressById || {};
   const bossState = bossProgressByPhaseId || {};
   const rules = [
-    function resumeMidLoop(){
+    function resumeInProgressTopic(){
       const candidates = orderedTopics.map(topic=>{
         const progress = progressById[topic.id] || defaultProgressRecord(topic.id, topic.depth);
-        return {topic:topic, progress:progress, loop:topicLoopState(topic, progress, depthLoopMap)};
-      }).filter(item=>item.loop.hasEvidence && !item.loop.complete)
-        .sort((a,b)=>{
-          const aTime = a.progress.lastStudiedAt ? new Date(a.progress.lastStudiedAt).getTime() : 0;
-          const bTime = b.progress.lastStudiedAt ? new Date(b.progress.lastStudiedAt).getTime() : 0;
-          return bTime - aTime;
-        });
+        return {topic:topic, progress:progress};
+      }).filter(item=>{
+        const anyDone = item.progress.chunksRead.some(Boolean) || item.progress.handsOnDone.some(Boolean);
+        return anyDone && !isTopicComplete(item.progress, item.topic);
+      }).sort((a,b)=>{
+        const aTime = a.progress.lastStudiedAt ? new Date(a.progress.lastStudiedAt).getTime() : 0;
+        const bTime = b.progress.lastStudiedAt ? new Date(b.progress.lastStudiedAt).getTime() : 0;
+        return bTime - aTime;
+      });
       if(!candidates.length) return null;
       const chosen = candidates[0];
-      const note = chosen.progress.evidence && chosen.progress.evidence.resumeNote;
-      const sublabel = note && String(note.nextAction || '').trim()
-        ? note.nextAction
-        : 'Next: ' + loopStepDisplayName(chosen.loop.nextStep);
+      const unreadChunk = chosen.progress.chunksRead.findIndex(v=>!v);
+      const unfinishedHandsOn = chosen.progress.handsOnDone.findIndex(v=>!v);
+      const sublabel = unreadChunk !== -1
+        ? 'Next: read chunk ' + (unreadChunk + 1)
+        : unfinishedHandsOn !== -1
+          ? 'Next: hands-on for chunk ' + (unfinishedHandsOn + 1)
+          : 'Pick up where you left off';
       return {
         type:'resume',
         topicId:chosen.topic.id,
@@ -1696,20 +1344,10 @@ function pickNextAction(topics, progressById, depthLoopMap, dueTopicIds, project
         sublabel:sublabel
       };
     },
-    function overdueReviewFirst(){
-      const dueCount = Array.isArray(dueTopicIds) ? dueTopicIds.length : 0;
-      if(!dueCount) return null;
-      return {
-        type:'review',
-        topicId:null,
-        label:'Quick retrieval first',
-        sublabel:dueCount + ' short review' + (dueCount === 1 ? '' : 's') + ' due — a few minutes'
-      };
-    },
     function nextTopicInSequence(){
       const topic = orderedTopics.find(item=>{
         const progress = progressById[item.id] || defaultProgressRecord(item.id, item.depth);
-        return progress.masteryLevel < targetMasteryForTopic(item) &&
+        return !isTopicComplete(progress, item) &&
           phasePrerequisitesSatisfied(item, orderedTopics, progressById);
       });
       if(!topic) return null;
@@ -1788,22 +1426,7 @@ function deriveActiveDayKeys(topics, progressById){
   topics.forEach(topic=>{
     const progress = progressById[topic.id];
     if(!progress) return;
-    const evidence = progress.evidence || {};
-    Object.values(evidence).forEach(value=>{
-      if(Array.isArray(value)){
-        value.forEach(entry=>{
-          const key = localDayKey(entry && entry.timestamp);
-          if(key) days.add(key);
-        });
-      } else {
-        const key = localDayKey(value && value.timestamp);
-        if(key) days.add(key);
-      }
-    });
-    ((progress.review && progress.review.history) || []).forEach(entry=>{
-      const key = localDayKey(entry && entry.date);
-      if(key) days.add(key);
-    });
+    (progress.activityDates || []).forEach(key=>{ if(key) days.add(key); });
   });
   return days;
 }
@@ -1820,17 +1443,6 @@ function lastSevenDayKeys(referenceDate){
   return keys;
 }
 
-function mostRecentResumeContext(topics, progressById){
-  const notes = topics.map(topic=>{
-    const progress = progressById[topic.id];
-    const note = progress && progress.evidence && progress.evidence.resumeNote;
-    return note ? {topic:topic,note:note} : null;
-  }).filter(Boolean).sort((a,b)=>
-    new Date(b.note.timestamp || 0).getTime() - new Date(a.note.timestamp || 0).getTime()
-  );
-  return notes[0] || null;
-}
-
 function mostRecentlyStudiedTopic(topics, progressById){
   return topics.map(topic=>({topic:topic,progress:progressById[topic.id]}))
     .filter(item=>item.progress && item.progress.lastStudiedAt)
@@ -1845,8 +1457,6 @@ function setNavigationActive(name){
     const el = document.getElementById('tab-' + tab);
     if(el) el.classList.toggle('active', tab === name);
   });
-  const review = document.getElementById('review-button');
-  if(review) review.classList.toggle('active', name === 'review');
 }
 
 function showAppView(name){
@@ -1864,29 +1474,7 @@ function showAppView(name){
 
 function buildTodayAction(){
   const snapshot = progressSnapshot();
-  return pickNextAction(
-    TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()),
-    PROJECTS, projectProgressSnapshot(), PHASE_BOSSES, bossProgressSnapshot()
-  );
-}
-
-function renderResumeContext(context){
-  if(!context) return '';
-  const note = context.note;
-  const fields = [
-    ['Where you stopped', note.stoppedAt],
-    ['What currently works', note.whatWorks],
-    ['What you are confused about', note.confusedAbout],
-    ['Exact next action', note.nextAction]
-  ];
-  return '<div class="resume-context">' +
-    '<div class="tcard-title">Where you left off</div>' +
-    '<div class="resume-fields">' +
-      fields.map(field=>
-        '<div class="resume-field"><div class="resume-field-label">' + escapeHtml(field[0]) + '</div>' +
-        '<div class="resume-field-value">' + escapeHtml(field[1] == null ? '' : field[1]) + '</div></div>'
-      ).join('') +
-    '</div></div>';
+  return pickNextAction(TOPICS, snapshot, PROJECTS, projectProgressSnapshot(), PHASE_BOSSES, bossProgressSnapshot());
 }
 
 function renderTodayXPLine(){
@@ -1908,22 +1496,9 @@ function renderTodayDashboard(){
   const container = document.getElementById('today-content');
   if(!container || !TOPICS.length) return;
   const snapshot = progressSnapshot();
-  const resumeContext = mostRecentResumeContext(TOPICS, snapshot);
   const projectsState = projectProgressSnapshot();
-  let action = pickNextAction(
-    TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()),
-    PROJECTS, projectsState, PHASE_BOSSES, bossProgressSnapshot()
-  );
-  if(comebackPending && resumeContext && String(resumeContext.note.nextAction || '').trim()){
-    action = {
-      type:'resume',
-      topicId:resumeContext.topic.id,
-      label:'Continue: ' + resumeContext.topic.title,
-      sublabel:resumeContext.note.nextAction
-    };
-  }
+  const action = pickNextAction(TOPICS, snapshot, PROJECTS, projectsState, PHASE_BOSSES, bossProgressSnapshot());
   currentTodayAction = action;
-  const dueCount = getDueReviews(todayStr()).length;
   const activeDays = deriveActiveDayKeys(TOPICS, snapshot);
   sessionActiveDayKeys().forEach(key=>activeDays.add(key)); // completed focus blocks count too
   const momentum = lastSevenDayKeys(new Date()).map(key=>
@@ -1932,19 +1507,10 @@ function renderTodayDashboard(){
   ).join('');
   let html = '';
   if(comebackPending){
-    html += '<div class="comeback-banner">Welcome back.</div>';
-    html += renderResumeContext(resumeContext);
     const recent = mostRecentlyStudiedTopic(TOPICS, snapshot);
-    if(recent){
-      html += '<div class="warmup-card"><div class="loop-title">Quick 2-minute warm-up?</div>' +
-        '<div class="loop-copy">Try one short reconstruction before continuing.</div>' +
-        '<div class="loop-actions" style="margin-top:12px">' +
-          '<button class="pomo-btn primary" onclick="openComebackWarmup(\'' + escapeHtml(recent.topic.id) + '\')">Start warm-up</button>' +
-          '<button class="pomo-btn" onclick="skipComebackWarmup()">Skip</button>' +
-        '</div></div>';
-    } else {
-      html += '<div class="loop-actions"><button class="pomo-btn" onclick="skipComebackWarmup()">Continue</button></div>';
-    }
+    html += '<div class="comeback-banner">Welcome back' +
+      (recent ? ' — you were last on "' + escapeHtml(recent.topic.title) + '"' : '') + '.</div>';
+    html += '<div class="loop-actions"><button class="pomo-btn" onclick="skipComebackWarmup()">Continue</button></div>';
   }
   const focusable = action.topicId || (action.type !== 'done' && focusBoundTopicId());
   html += '<div class="today-primary">' +
@@ -1956,13 +1522,6 @@ function renderTodayDashboard(){
       (focusable ? '<button class="pomo-btn" onclick="startFocusFromToday()">Start a focus block</button>' : '') +
     '</div>' +
   '</div>';
-  if(dueCount){
-    html += '<button class="today-review-card" onclick="openReviewFlow()">' +
-      '<div class="tcard-title">Due reviews</div>' +
-      '<div class="loop-title">' + dueCount + ' short review' + (dueCount === 1 ? '' : 's') + '</div>' +
-      '<div class="today-sublabel">One at a time, a few minutes.</div>' +
-    '</button>';
-  }
   html += '<div class="momentum-card">' +
     '<div class="tcard-title">Momentum</div>' +
     '<div class="momentum-dots" aria-label="Activity over the last seven days">' + momentum + '</div>' +
@@ -1990,9 +1549,7 @@ function renderTodayDashboard(){
 function handleTodayContinue(){
   if(!currentTodayAction) currentTodayAction = buildTodayAction();
   comebackPending = false;
-  if(currentTodayAction.type === 'review'){
-    openReviewFlow();
-  } else if(currentTodayAction.type === 'project'){
+  if(currentTodayAction.type === 'project'){
     openProjectDetail(currentTodayAction.projectId);
   } else if(currentTodayAction.type === 'boss'){
     if(currentTodayAction.bossKind === 'project') openProjectDetail(currentTodayAction.projectId);
@@ -2007,26 +1564,14 @@ function handleTodayContinue(){
 function openLearnView(){
   setNavigationActive('learn');
   const snapshot = progressSnapshot();
-  let action = pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, getDueReviews(todayStr()));
-  if(action.type === 'review'){
-    action = pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, []);
-  }
+  const action = pickNextAction(TOPICS, snapshot, PROJECTS, projectProgressSnapshot(), PHASE_BOSSES, bossProgressSnapshot());
   if(action.topicId) openTopicModal(action.topicId);
   else showAppView('roadmap');
-}
-
-function openReviewView(){
-  setNavigationActive('review');
-  openReviewFlow();
 }
 
 function skipComebackWarmup(){
   comebackPending = false;
   renderTodayDashboard();
-}
-
-function openComebackWarmup(topicId){
-  startReviewFlow([topicId], {mode:'warmup',hasMore:false});
 }
 
 let currentProjectDetail = null; // {kind:'project'|'phase-boss', id:string}
@@ -2132,26 +1677,6 @@ function recordProjectBossAttempt(projectId, passed, notes, timestamp){
   }
   refreshProjectSurfaces();
   return record;
-}
-
-function applyProjectCurveballEvidence(projectId, topicIds){
-  const project = PROJECTS_BY_ID.get(projectId);
-  const record = getProjectProgress(projectId);
-  if(!project || !record || !record.boss.passed) throw new Error('Pass the project boss first.');
-  const allowed = new Set(phaseTopicsFor(project.phaseId, TOPICS).filter(topic=>topic.depth === 'deep').map(topic=>topic.id));
-  const note = 'via ' + project.title + ' boss challenge';
-  const recorded = [];
-  [...new Set(topicIds || [])].forEach(topicId=>{
-    if(!allowed.has(topicId)) return;
-    const progress = getTopicProgress(topicId);
-    const exists = progress.evidence.curveball.some(entry=>entry && entry.passed === true && entry.notes === note);
-    if(!exists){
-      recordEvidence(topicId, 'curveball', {passed:true, notes:note});
-      recorded.push(topicId);
-    }
-  });
-  refreshProjectSurfaces();
-  return recorded;
 }
 
 function completeProjectPostmortem(projectId, postmortem){
@@ -2330,18 +1855,7 @@ function renderProjectCompletionFlow(project, record){
       '<button class="pomo-btn primary" onclick="submitProjectBoss()">Record attempt</button><div class="loop-error" id="project-error"></div></div>';
     return html;
   }
-  const deepTopics = phaseTopicsFor(project.phaseId, TOPICS).filter(topic=>topic.depth === 'deep');
-  const evidenceNote = 'via ' + project.title + ' boss challenge';
-  html += '<div class="project-milestone current"><div class="loop-eyebrow">Adaptive evidence</div>' +
-    '<div class="loop-copy">Which of these did this project genuinely exercise under unfamiliar conditions?</div>' +
-    '<div class="project-deep-list">' + deepTopics.map(topic=>{
-      const checked = getTopicProgress(topic.id).evidence.curveball.some(entry=>entry && entry.passed && entry.notes === evidenceNote);
-      return '<label class="project-deep-option"><input type="checkbox" name="project-curveball-topic" value="' +
-        escapeHtml(topic.id) + '" ' + (checked ? 'checked' : '') + '> ' + escapeHtml(topic.title) + '</label>';
-    }).join('') + '</div>' +
-    (deepTopics.length ? '<button class="pomo-btn" onclick="saveProjectCurveballs()">Save selected evidence</button>' : '<div class="project-card-copy">This phase has no deep modules.</div>') +
-    '</div>' +
-    '<div class="project-milestone current"><div class="loop-eyebrow">Postmortem</div>' +
+  html += '<div class="project-milestone current"><div class="loop-eyebrow">Postmortem</div>' +
     '<div class="loop-copy">What failed, what changed, and what remains?</div>' +
     '<textarea class="loop-input" id="project-postmortem">' + escapeHtml(record.postmortem || '') + '</textarea>' +
     '<button class="pomo-btn primary" onclick="submitProjectPostmortem()">Complete project</button><div class="loop-error" id="project-error"></div></div>';
@@ -2377,13 +1891,6 @@ function submitProjectBoss(){
   if(!gate || !gate.checked){ projectError('Confirm the pass-gate self-check first.'); return; }
   if(!selected){ projectError('Record whether the challenge passed.'); return; }
   try{ recordProjectBossAttempt(currentProjectDetail.id, selected.value === 'pass', document.getElementById('project-boss-notes').value); }
-  catch(error){ projectError(error.message); }
-}
-
-function saveProjectCurveballs(){
-  if(!currentProjectDetail || currentProjectDetail.kind !== 'project') return;
-  const ids = [...document.querySelectorAll('input[name="project-curveball-topic"]:checked')].map(input=>input.value);
-  try{ applyProjectCurveballEvidence(currentProjectDetail.id, ids); }
   catch(error){ projectError(error.message); }
 }
 
@@ -2429,17 +1936,17 @@ function submitPhaseBoss(){
 
 function updateStats(){
   const total = TOPICS.length;
-  let defined=0, explain=0, mastered=0;
+  let started=0, handsOnDone=0, complete=0;
   TOPICS.forEach(t=>{
     const l = levelOf(t.id);
-    if(l>=1) defined++;
-    if(l>=2) explain++;
-    if(l>=3) mastered++;
+    if(l>=1) started++;
+    if(l===3) complete++;
+    handsOnDone += getTopicProgress(t.id).handsOnDone.filter(Boolean).length;
   });
   document.getElementById('s-total').textContent = total;
-  document.getElementById('s-defined').textContent = defined;
-  document.getElementById('s-explain').textContent = explain;
-  document.getElementById('s-mastered').textContent = mastered;
+  document.getElementById('s-defined').textContent = started;
+  document.getElementById('s-explain').textContent = handsOnDone;
+  document.getElementById('s-mastered').textContent = complete;
 
   const coreTopics = TOPICS.filter(t=>!t.secondary);
   const extendedTopics = TOPICS.filter(t=>t.secondary);
@@ -2503,65 +2010,16 @@ function setStatusFilter(val, btn){
 }
 
 let currentModalTopicId = null;
-let loopSession = null;
-
-// In-progress loop state (which concept chunk you're on, orient/reflect
-// draft) used to live only in `loopSession` and vanished on modal close or
-// reload — you had to finish the whole topic loop in one sitting for
-// anything to hit localStorage. This mirrors it to a small per-topic
-// draft key so a chunk you've already read stays read.
-function loopDraftKey(topicId){ return 'loopDraft:'+topicId; }
-
-function loadLoopDraft(topicId){
-  try{
-    const raw = localStorage.getItem(loopDraftKey(topicId));
-    if(raw) return JSON.parse(raw);
-  } catch(e){}
-  return null;
-}
-
-function saveLoopDraft(){
-  if(!loopSession) return;
-  try{
-    localStorage.setItem(loopDraftKey(loopSession.topicId), JSON.stringify({
-      orientDone: loopSession.orientDone,
-      learnChunkIndex: loopSession.learnChunkIndex,
-      recallAnswer: loopSession.recallAnswer,
-      reflectDone: loopSession.reflectDone,
-      reflectText: loopSession.reflectText
-    }));
-  } catch(e){}
-}
-
-function clearLoopDraft(topicId){
-  try{ localStorage.removeItem(loopDraftKey(topicId)); } catch(e){}
-}
-
-function freshLoopSession(topicId){
-  const draft = loadLoopDraft(topicId) || {};
-  return {
-    topicId: topicId,
-    orientDone: !!draft.orientDone,
-    learnChunkIndex: Number.isInteger(draft.learnChunkIndex) ? draft.learnChunkIndex : 0,
-    recallAnswer: draft.recallAnswer || null,
-    reflectDone: !!draft.reflectDone,
-    reflectText: draft.reflectText || '',
-    redoStep: null,
-    redoChain: null
-  };
-}
-
 function openTopicModal(id){
   currentModalTopicId = id;
   const t = TOPICS_BY_ID.get(id);
   if(!t) return;
-  loopSession = freshLoopSession(id);
   document.getElementById('modal-topic-title').textContent = t.title;
   const qtag = t.q ? '<span class="qtag">' + escapeHtml(t.q) + '</span>' : '';
   const skilltag = t.skill ? '<span class="skilltag">' + escapeHtml(t.skill) + '</span>' : '';
   const extTag = t.secondary ? '<span class="extended-tag">Extended — come back to this after the core path</span>' : '';
   document.getElementById('modal-topic-tags').innerHTML = qtag + skilltag + extTag;
-  renderLearningLoop();
+  renderTopicChecklist();
   renderFocusUI();
   document.getElementById('topic-modal-overlay').classList.add('open');
 }
@@ -2575,238 +2033,6 @@ function escapeHtml(value){
     .replace(/'/g,'&#039;');
 }
 
-const LOOP_STEP_LABELS = {
-  orient:'Orient',
-  learn:'Learn',
-  recall:'Recall',
-  predict:'Predict',
-  build:'Build',
-  break:'Break',
-  diagnose:'Diagnose',
-  curveball:'Curveball',
-  reflect:'Reflect',
-  resumeNote:'Resume note'
-};
-
-function topicLoopSequence(t){
-  const map = CURRICULUM_META.depthLoopMap || {};
-  return Array.isArray(map[t.depth]) ? map[t.depth] : [];
-}
-
-function hasEvidenceEntry(value){
-  return Array.isArray(value) ? value.length > 0 : !!value;
-}
-
-function isLoopStepComplete(t, step, progress){
-  const ev = progress.evidence || {};
-  if(step === 'orient'){
-    return !!(loopSession && loopSession.topicId === t.id && loopSession.orientDone) ||
-      !!(ev.learn && ev.learn.done);
-  }
-  if(step === 'learn') return !!(ev.learn && ev.learn.done);
-  if(step === 'resumeNote') return !!(ev.resumeNote && String(ev.resumeNote.nextAction || '').trim());
-  if(step === 'reflect'){
-    return !!(loopSession && loopSession.topicId === t.id && loopSession.reflectDone) ||
-      isLoopStepComplete(t, 'resumeNote', progress);
-  }
-  return hasEvidenceEntry(ev[step]);
-}
-
-function firstIncompleteLoopStep(t, progress){
-  const sequence = topicLoopSequence(t);
-  return sequence.find(step=>!isLoopStepComplete(t, step, progress)) || null;
-}
-
-// Normally the loop only ever shows the first step with zero recorded
-// entries. That's correct for first-time progression, but it means a
-// "complete" loop (every step attempted, at least once) has no way back in
-// even when an attempt didn't clear the independent bar for mastery — see
-// loopCompletionGaps(). redoStep is a deliberate, explicit override the
-// student opts into (via a "Try again" button), never automatic.
-function effectiveCurrentStep(t, progress){
-  if(loopSession && loopSession.topicId === t.id && loopSession.redoStep){
-    return loopSession.redoStep;
-  }
-  return firstIncompleteLoopStep(t, progress);
-}
-
-function isLoopStepUnlocked(t, step, progress){
-  const sequence = topicLoopSequence(t);
-  const index = sequence.indexOf(step);
-  if(index < 0) return false;
-  return sequence.slice(0, index).every(prior=>isLoopStepComplete(t, prior, progress));
-}
-
-function currentLoopContext(expectedStep){
-  const t = TOPICS_BY_ID.get(currentModalTopicId);
-  if(!t || !loopSession || loopSession.topicId !== t.id) return null;
-  const progress = getTopicProgress(t.id);
-  const current = effectiveCurrentStep(t, progress);
-  const redoing = loopSession.redoStep === expectedStep;
-  if(current !== expectedStep || (!redoing && !isLoopStepUnlocked(t, expectedStep, progress))){
-    showToast('Complete the current step first');
-    return null;
-  }
-  return {topic:t, progress:progress};
-}
-
-function renderLoopStepNav(t, progress, current){
-  const sequence = topicLoopSequence(t);
-  const redoing = loopSession && loopSession.topicId === t.id ? loopSession.redoStep : null;
-  return sequence.map(step=>{
-    let status = 'locked';
-    if(step === redoing) status = 'current';
-    else if(isLoopStepComplete(t, step, progress)) status = 'done';
-    else if(step === current && isLoopStepUnlocked(t, step, progress)) status = 'current';
-    const marker = status === 'done' ? ' ✓' : '';
-    return '<span class="loop-step ' + status + '">' +
-      escapeHtml(LOOP_STEP_LABELS[step] || step) + marker + '</span>';
-  }).join('');
-}
-
-function loopHeader(title, copy){
-  return '<div class="loop-eyebrow">Current step</div>' +
-    '<div class="loop-title">' + escapeHtml(title) + '</div>' +
-    (copy ? '<div class="loop-copy">' + escapeHtml(copy) + '</div>' : '');
-}
-
-function renderLearningLoop(){
-  const container = document.getElementById('modal-loop');
-  const t = TOPICS_BY_ID.get(currentModalTopicId);
-  if(!container || !t) return;
-  if(!loopSession || loopSession.topicId !== t.id){
-    loopSession = freshLoopSession(t.id);
-  }
-  const progress = getTopicProgress(t.id);
-  const sequence = topicLoopSequence(t);
-  const current = effectiveCurrentStep(t, progress);
-  if(!sequence.length){
-    container.innerHTML = '<div class="loop-panel"><div class="loop-error">No loop sequence is configured for this topic depth.</div></div>';
-    return;
-  }
-  const firstIncomplete = firstIncompleteLoopStep(t, progress);
-  const currentIndex = firstIncomplete ? sequence.indexOf(firstIncomplete) : sequence.length;
-  container.innerHTML =
-    '<div class="loop-shell">' +
-      '<div class="loop-status">' +
-        '<div class="loop-mastery">Mastery level ' + progress.masteryLevel + ' · ' + escapeHtml(t.depth) + '</div>' +
-        '<div class="loop-step-count">' + currentIndex + ' of ' + sequence.length + ' steps complete</div>' +
-      '</div>' +
-      '<div class="loop-steps">' + renderLoopStepNav(t, progress, current) + '</div>' +
-      '<div class="loop-panel">' + renderLoopStepPanel(t, current, progress) + '</div>' +
-    '</div>';
-}
-
-// Every loop step being "done" (has at least one entry) does not mean
-// mastery reached this topic's target — recall/build/diagnose/curveball
-// each have a quality bar (passed/independent/real rootCause) that a
-// single attempt can miss. This surfaces exactly which bar wasn't cleared,
-// so "loop complete but still Assisted" isn't a silent mystery.
-function loopCompletionGaps(t, progress){
-  const target = targetMasteryForTopic(t);
-  if(progress.masteryLevel >= target) return [];
-  const ev = progress.evidence || {};
-  const gaps = [];
-  if(progress.rebuild && progress.rebuild.required){
-    gaps.push({
-      step:'build', label:'Rebuild needed',
-      reason:'A full solution was used before — mastery is capped at Assisted until you build this independently.',
-      redoLabel:'Attempt an independent build'
-    });
-    return gaps; // rebuild blocks promotion outright — nothing else to list yet
-  }
-  if(!(ev.recall||[]).some(r=>r && r.passed===true)){
-    gaps.push({step:'recall', label:'Recall', reason:'No recall attempt has been rated "Solid" yet.', redoLabel:'Try recall again'});
-  }
-  if(!(ev.build||[]).some(b=>b && b.independent===true)){
-    gaps.push({step:'build', label:'Build', reason:'No build attempt was independent (help level 0-1) yet.', redoLabel:'Try build again'});
-  }
-  if(!(ev.diagnose||[]).some(d=>d && d.rootCause && String(d.rootCause).trim()!=='')){
-    gaps.push({step:'diagnose', label:'Diagnose', reason:'No diagnosis recorded a real root cause yet.', redoLabel:'Try diagnose again'});
-  }
-  if(t.depth === 'deep' && !(ev.curveball||[]).some(c=>c && c.passed===true)){
-    gaps.push({step:'curveball', label:'Curveball', reason:'No curveball passed yet — required for Adaptive on a deep topic.', redoLabel:'Try curveball again'});
-  }
-  return gaps;
-}
-
-function redoLoopStep(step){
-  if(!loopSession || loopSession.topicId !== currentModalTopicId) return;
-  if(step === 'build'){
-    // submitBuild() always resolves the most recent UNRESOLVED predict
-    // entry (actualOutcome still null) — an old, already-resolved
-    // prediction has nothing pending to attach to. Route through a fresh
-    // predict first, then chain into build once that's recorded — this is
-    // also just the correct sequence pedagogically (predict, then build).
-    loopSession.redoStep = 'predict';
-    loopSession.redoChain = 'build';
-  } else {
-    loopSession.redoStep = step;
-    loopSession.redoChain = null;
-  }
-  if(step === 'recall') loopSession.recallAnswer = null; // re-enter closed-book, don't show the stale comparison
-  renderLearningLoop();
-}
-
-function continueFromLoopComplete(){
-  closeTopicModal();
-  showAppView('today');
-}
-
-function renderLoopStepPanel(t, step, progress){
-  if(!step){
-    const gaps = loopCompletionGaps(t, progress);
-    const gapsHtml = gaps.length
-      ? '<div class="loop-gaps"><div class="loop-gaps-title">Not yet at target mastery</div>' +
-          gaps.map(g=>
-            '<div class="loop-gap-row">' +
-              '<div class="loop-gap-reason"><b>' + escapeHtml(g.label) + '.</b> ' + escapeHtml(g.reason) + '</div>' +
-              '<button class="pomo-btn" onclick="redoLoopStep(\'' + g.step + '\')">' + escapeHtml(g.redoLabel) + '</button>' +
-            '</div>'
-          ).join('') +
-        '</div>'
-      : '';
-    return '<div class="loop-complete">' +
-      '<div class="ring" data-lvl="' + progress.masteryLevel + '">' + (progress.masteryLevel === 3 ? '✓' : progress.masteryLevel) + '</div>' +
-      '<div class="loop-title">Loop complete</div>' +
-      '<div class="loop-copy">Your evidence is saved. Mastery is derived from what you recorded, including independence and curveball results.</div>' +
-      gapsHtml +
-      '<div class="loop-actions" style="margin-top:16px;justify-content:center">' +
-        '<button class="pomo-btn primary" onclick="continueFromLoopComplete()">Continue</button>' +
-      '</div>' +
-    '</div>';
-  }
-  if(!isLoopStepUnlocked(t, step, progress)){
-    return loopHeader('Locked', 'Complete the prior recorded evidence before this step becomes available.');
-  }
-  if(step === 'orient') return renderOrientStep(t);
-  if(step === 'learn') return renderLearnStep(t);
-  if(step === 'recall') return renderRecallStep(t);
-  if(step === 'predict') return renderPredictStep(t);
-  if(step === 'build') return renderBuildStep(t);
-  if(step === 'break') return renderBreakStep(t);
-  if(step === 'diagnose') return renderDiagnoseStep(t);
-  if(step === 'curveball') return renderCurveballStep(t);
-  if(step === 'reflect') return renderReflectStep(t);
-  if(step === 'resumeNote') return renderResumeNoteStep(t);
-  return loopHeader('Unknown step', 'This curriculum step does not have a renderer yet.');
-}
-
-function renderPrerequisites(value){
-  if(Array.isArray(value)){
-    if(!value.length) return '<div class="loop-copy">No prerequisites.</div>';
-    return '<ul class="loop-source-list">' + value.map(item=>'<li>' + escapeHtml(item) + '</li>').join('') + '</ul>';
-  }
-  return '<div class="loop-copy">' + escapeHtml(value || 'No prerequisites.') + '</div>';
-}
-
-function renderOrientStep(t){
-  return loopHeader('Orient', 'Name what you need and make the smallest first move before opening the material.') +
-    '<div class="loop-prompt"><strong>Prerequisites</strong><br>' + renderPrerequisites(t.prerequisites) + '</div>' +
-    '<div class="loop-prompt"><strong>First action</strong><br>' + escapeHtml(t.firstAction) + '</div>' +
-    '<div class="loop-actions"><button class="pomo-btn primary" onclick="completeOrient()">Start</button></div>';
-}
-
 function conceptChunkHtml(chunk){
   const items = Array.isArray(chunk) ? chunk : [chunk];
   return '<div class="loop-chunk"><ul>' +
@@ -2814,658 +2040,116 @@ function conceptChunkHtml(chunk){
     '</ul></div>';
 }
 
-function renderLearnStep(t){
+// Every checkbox writes straight to localStorage the moment it's toggled —
+// no in-memory draft/session layer, so there's nothing to lose by closing
+// the modal or reloading mid-topic.
+function renderTopicChecklist(){
+  const container = document.getElementById('modal-loop');
+  const t = TOPICS_BY_ID.get(currentModalTopicId);
+  if(!container || !t) return;
+  const progress = getTopicProgress(t.id);
   const chunks = Array.isArray(t.conceptChunks) && t.conceptChunks.length ? t.conceptChunks : [[]];
-  const index = Math.min(loopSession.learnChunkIndex, chunks.length - 1);
-  const last = index === chunks.length - 1;
-  return loopHeader('Learn', 'Read one bounded chunk. When you advance, this chunk is hidden.') +
-    '<div class="loop-step-count">Chunk ' + (index + 1) + ' of ' + chunks.length + '</div>' +
-    conceptChunkHtml(chunks[index]) +
-    '<div class="loop-actions"><button class="pomo-btn primary" onclick="advanceLearnChunk()">' +
-      (last ? 'Close source and recall' : 'Got it, next chunk') +
-    '</button></div>';
-}
+  const handsOn = Array.isArray(t.handsOn) ? t.handsOn : [];
+  const complete = isTopicComplete(progress, t);
+  const chunksDone = progress.chunksRead.filter(Boolean).length;
+  const handsOnDone = progress.handsOnDone.filter(Boolean).length;
 
-function allConceptChunksHtml(t){
-  return (t.conceptChunks || []).map((chunk, index)=>
-    '<div><strong>Chunk ' + (index + 1) + '</strong>' +
-      '<ul class="loop-source-list">' +
-        (Array.isArray(chunk) ? chunk : [chunk]).map(item=>'<li>' + escapeHtml(item) + '</li>').join('') +
-      '</ul></div>'
-  ).join('');
-}
-
-function renderRecallStep(t){
-  if(loopSession.recallAnswer == null){
-    return loopHeader('Recall — source closed', 'The learning chunks are hidden. Explain the idea before you compare.') +
-      '<div class="loop-form">' +
-        '<div class="loop-field"><label for="loop-recall-text">Explain this from memory — the core idea and any details you remember.</label>' +
-          '<textarea class="loop-input" id="loop-recall-text"></textarea></div>' +
-        '<div class="loop-error" id="loop-error"></div>' +
-        '<div class="loop-actions"><button class="pomo-btn primary" onclick="revealRecallComparison()">Submit recall and compare</button></div>' +
-      '</div>';
+  let html = '<div class="loop-shell">';
+  if(t.firstAction){
+    html += '<div class="loop-panel"><div class="tcard-title">First move</div><div class="loop-copy">' +
+      escapeHtml(t.firstAction) + '</div></div>';
   }
-  return loopHeader('Recall — compare', 'Now compare your closed-book answer with the original source and rate it honestly.') +
-    '<div class="loop-compare">' +
-      '<div class="loop-compare-card"><h4>Your recall</h4><div class="loop-copy">' + escapeHtml(loopSession.recallAnswer) + '</div></div>' +
-      '<div class="loop-compare-card"><h4>Original chunks</h4>' + allConceptChunksHtml(t) + '</div>' +
-    '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-coverage">Coverage estimate (optional, 0–100)</label>' +
-        '<input class="loop-input" id="loop-coverage" type="number" min="0" max="100" inputmode="numeric"></div>' +
-      '<div class="loop-field-label">How did recall feel?</div>' +
-      '<div class="loop-actions">' +
-        '<button class="pomo-btn primary" onclick="submitRecallRating(\'solid\')">Solid</button>' +
-        '<button class="pomo-btn" onclick="submitRecallRating(\'shaky\')">Shaky</button>' +
-        '<button class="pomo-btn" onclick="submitRecallRating(\'blank\')">I blanked</button>' +
-      '</div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-    '</div>';
-}
+  html += '<div class="loop-status">' +
+    '<div class="loop-step-count">' + chunksDone + '/' + chunks.length + ' chunks read &middot; ' +
+      handsOnDone + '/' + chunks.length + ' hands-on done</div>' +
+  '</div>';
 
-function renderPredictStep(t){
-  return loopHeader('Predict', 'Commit to an outcome before the task or example is visible.') +
-    '<div class="loop-prompt">' + escapeHtml(t.predictPrompt) + '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-prediction">Your prediction</label>' +
-        '<textarea class="loop-input" id="loop-prediction"></textarea></div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitPrediction()">Lock prediction</button></div>' +
-    '</div>';
-}
-
-function helpPickerHtml(id){
-  const ladder = Array.isArray(CURRICULUM_META.helpLadder) ? CURRICULUM_META.helpLadder : [];
-  return '<select class="loop-select" id="' + id + '">' +
-    ladder.map(item=>'<option value="' + item.level + '">' +
-      escapeHtml(item.level + ' — ' + item.name + ': ' + item.gives) +
-    '</option>').join('') +
-  '</select>';
-}
-
-function renderBuildStep(t){
-  return loopHeader('Build', 'Do the task outside this tracker, then report what happened and how much help you used.') +
-    '<div class="loop-prompt"><strong>Task</strong><br>' + escapeHtml(t.handsOn) + '</div>' +
-    '<div class="loop-prompt"><strong>First action</strong><br>' + escapeHtml(t.firstAction) + '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-build-help">Help level used</label>' + helpPickerHtml('loop-build-help') + '</div>' +
-      '<div class="loop-field"><label for="loop-build-notes">What did you build? (optional notes)</label>' +
-        '<textarea class="loop-input" id="loop-build-notes"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-actual-outcome">Did your prediction hold? What actually happened?</label>' +
-        '<textarea class="loop-input" id="loop-actual-outcome"></textarea></div>' +
-      '<div class="loop-field-label">Was your prediction correct?</div>' +
-      '<div class="loop-radio-row">' +
-        '<label class="loop-radio"><input type="radio" name="loop-prediction-correct" value="true"> Yes</label>' +
-        '<label class="loop-radio"><input type="radio" name="loop-prediction-correct" value="false"> No</label>' +
-      '</div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitBuild()">Record build</button></div>' +
-    '</div>';
-}
-
-function renderBreakStep(t){
-  return loopHeader('Break it', 'Make the failure happen intentionally, then record the observed result.') +
-    '<div class="loop-prompt">' + escapeHtml(t.breakScenario) + '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-what-broke">What did you do, and what broke?</label>' +
-        '<textarea class="loop-input" id="loop-what-broke"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-break-notes">Notes (optional)</label>' +
-        '<textarea class="loop-input" id="loop-break-notes"></textarea></div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitBreakEvidence()">Record break</button></div>' +
-    '</div>';
-}
-
-function renderDiagnoseStep(t){
-  return loopHeader('Diagnose', 'Separate the root cause from the evidence that supports it.') +
-    '<div class="loop-prompt">' + escapeHtml(t.diagnosePrompt) + '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-root-cause">Root cause</label>' +
-        '<textarea class="loop-input" id="loop-root-cause"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-diagnose-evidence">Evidence — what specifically shows this is the cause?</label>' +
-        '<textarea class="loop-input" id="loop-diagnose-evidence"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-diagnose-help">Help level used</label>' + helpPickerHtml('loop-diagnose-help') + '</div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitDiagnosis()">Record diagnosis</button></div>' +
-    '</div>';
-}
-
-function renderCurveballStep(t){
-  return loopHeader('Curveball', 'Attempt the unfamiliar variation before marking the result.') +
-    '<div class="loop-prompt">' + escapeHtml(t.curveballTask) + '</div>' +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-curveball-notes">Notes (optional)</label>' +
-        '<textarea class="loop-input" id="loop-curveball-notes"></textarea></div>' +
-      '<div class="loop-field-label">Result</div>' +
-      '<div class="loop-actions">' +
-        '<button class="pomo-btn primary" onclick="submitCurveball(true)">Pass</button>' +
-        '<button class="pomo-btn" onclick="submitCurveball(false)">Not yet</button>' +
-      '</div>' +
-    '</div>';
-}
-
-function renderReflectStep(){
-  return loopHeader('Reflect', 'What changed in your understanding since you started this topic?') +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-reflection">Your reflection</label>' +
-        '<textarea class="loop-input" id="loop-reflection"></textarea></div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitReflection()">Continue to resume note</button></div>' +
-    '</div>';
-}
-
-function renderResumeNoteStep(){
-  const reflection = loopSession.reflectText || '';
-  return loopHeader('Resume note', 'Leave a precise handoff so the next session resumes instead of restarts.') +
-    '<div class="loop-form">' +
-      '<div class="loop-field"><label for="loop-stopped-at">Where you stopped</label>' +
-        '<textarea class="loop-input" id="loop-stopped-at"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-what-works">What currently works</label>' +
-        '<textarea class="loop-input" id="loop-what-works">' + escapeHtml(reflection) + '</textarea></div>' +
-      '<div class="loop-field"><label for="loop-confused">What you are confused about</label>' +
-        '<textarea class="loop-input" id="loop-confused"></textarea></div>' +
-      '<div class="loop-field"><label for="loop-next-action">Exact next action (required)</label>' +
-        '<textarea class="loop-input" id="loop-next-action"></textarea></div>' +
-      '<div class="loop-error" id="loop-error"></div>' +
-      '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitResumeNote()">Finish loop</button></div>' +
-    '</div>';
-}
-
-function fieldValue(id){
-  const input = document.getElementById(id);
-  return input ? input.value.trim() : '';
-}
-
-function setLoopError(message){
-  const el = document.getElementById('loop-error');
-  if(el) el.textContent = message;
-}
-
-function refreshLoopAfterEvidence(message){
-  if(loopSession){
-    if(loopSession.redoChain){
-      // e.g. predict->build: advance into the chained step instead of
-      // falling back to "loop complete" mid-chain.
-      loopSession.redoStep = loopSession.redoChain;
-      loopSession.redoChain = null;
-    } else {
-      loopSession.redoStep = null; // one-shot: clear once the redo attempt is actually recorded
+  chunks.forEach((chunk, i)=>{
+    html += '<div class="loop-panel">' +
+      '<div class="loop-step-count">Chunk ' + (i + 1) + ' of ' + chunks.length + '</div>' +
+      conceptChunkHtml(chunk) +
+      '<label class="verify-check"><input type="checkbox" ' + (progress.chunksRead[i] ? 'checked' : '') +
+        ' onchange="toggleChunkRead(\'' + t.id + '\',' + i + ',this.checked)"> Read and understood</label>';
+    if(handsOn[i]){
+      html += '<div class="loop-chunk"><div class="tcard-title">Hands-on</div><div class="loop-copy">' +
+          escapeHtml(handsOn[i]) + '</div></div>' +
+        '<label class="verify-check"><input type="checkbox" ' + (progress.handsOnDone[i] ? 'checked' : '') +
+          ' onchange="toggleHandsOnDone(\'' + t.id + '\',' + i + ',this.checked)"> Hands-on done</label>';
     }
+    html += '</div>';
+  });
+
+  if(t.masteryGate){
+    html += '<div class="loop-panel"><div class="tcard-title">You will know it has sunk in when</div>' +
+      '<div class="loop-copy">' + escapeHtml(t.masteryGate) + '</div></div>';
   }
-  renderTopicCard(currentModalTopicId);
+  if(complete){
+    html += '<div class="loop-panel"><div class="loop-title">Topic complete</div>' +
+      '<div class="loop-copy">Nice. Talk it through with your AI TA if you want it verified for real.</div></div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function toggleChunkRead(topicId, index, checked){
+  const t = TOPICS_BY_ID.get(topicId);
+  const record = getTopicProgress(topicId);
+  const wasComplete = isTopicComplete(record, t);
+  record.chunksRead[index] = checked;
+  const now = new Date().toISOString();
+  record.lastStudiedAt = now;
+  const day = localDayKey(now);
+  if(day && !record.activityDates.includes(day)) record.activityDates.push(day);
+  saveProgressRecord(record);
+  if(checked) grantXP('chunk-read', topicId + ':chunk:' + index, {timestamp:now, topicId:topicId});
+  markAppActivity(topicId, now);
+  finalizeTopicProgressChange(topicId, wasComplete);
+}
+
+function toggleHandsOnDone(topicId, index, checked){
+  const t = TOPICS_BY_ID.get(topicId);
+  const record = getTopicProgress(topicId);
+  const wasComplete = isTopicComplete(record, t);
+  record.handsOnDone[index] = checked;
+  const now = new Date().toISOString();
+  record.lastStudiedAt = now;
+  const day = localDayKey(now);
+  if(day && !record.activityDates.includes(day)) record.activityDates.push(day);
+  saveProgressRecord(record);
+  if(checked) grantXP('handson-done', topicId + ':handson:' + index, {timestamp:now, topicId:topicId});
+  markAppActivity(topicId, now);
+  finalizeTopicProgressChange(topicId, wasComplete);
+}
+
+function finalizeTopicProgressChange(topicId, wasComplete){
+  const t = TOPICS_BY_ID.get(topicId);
+  const record = getTopicProgress(topicId);
+  const nowComplete = isTopicComplete(record, t);
+  if(nowComplete && !wasComplete){
+    record.completedAt = new Date().toISOString();
+    saveProgressRecord(record);
+    grantXP('topic-complete', topicId + ':complete', {timestamp:record.completedAt, topicId:topicId});
+    grantComebackXPIfPending(record.completedAt);
+  } else if(!nowComplete && wasComplete){
+    record.completedAt = null;
+    saveProgressRecord(record);
+  }
+  if(currentModalTopicId === topicId) renderTopicChecklist();
+  renderTopicCard(topicId);
   updateStats();
   applyFilters();
-  renderLearningLoop();
-  if(message) showToast(message);
-}
-
-function completeOrient(){
-  if(!currentLoopContext('orient')) return;
-  loopSession.orientDone = true;
-  saveLoopDraft();
-  renderLearningLoop();
-}
-
-function advanceLearnChunk(){
-  const ctx = currentLoopContext('learn');
-  if(!ctx) return;
-  const chunks = Array.isArray(ctx.topic.conceptChunks) && ctx.topic.conceptChunks.length ? ctx.topic.conceptChunks : [[]];
-  if(loopSession.learnChunkIndex < chunks.length - 1){
-    loopSession.learnChunkIndex += 1;
-    saveLoopDraft();
-    renderLearningLoop();
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'learn', {done:true});
-  loopSession.recallAnswer = null;
-  saveLoopDraft();
-  refreshLoopAfterEvidence('Learning chunks complete');
-}
-
-function revealRecallComparison(){
-  if(!currentLoopContext('recall')) return;
-  const answer = fieldValue('loop-recall-text');
-  if(!answer){
-    setLoopError('Write your closed-book explanation before revealing the source.');
-    return;
-  }
-  loopSession.recallAnswer = answer;
-  saveLoopDraft();
-  renderLearningLoop();
-}
-
-function submitRecallRating(rating){
-  const ctx = currentLoopContext('recall');
-  if(!ctx || loopSession.recallAnswer == null) return;
-  const rawCoverage = fieldValue('loop-coverage');
-  let coveragePct = null;
-  if(rawCoverage !== ''){
-    coveragePct = Number(rawCoverage);
-    if(!Number.isInteger(coveragePct) || coveragePct < 0 || coveragePct > 100){
-      setLoopError('Coverage must be a whole number from 0 to 100.');
-      return;
-    }
-  }
-  recordEvidence(ctx.topic.id, 'recall', {
-    coveragePct: coveragePct,
-    helpLevel: 0,
-    passed: rating === 'solid'
-  });
-  refreshLoopAfterEvidence('Recall recorded');
-}
-
-function submitPrediction(){
-  const ctx = currentLoopContext('predict');
-  if(!ctx) return;
-  const predictionText = fieldValue('loop-prediction');
-  if(!predictionText){
-    setLoopError('Enter a real prediction before continuing.');
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'predict', {
-    predictionText: predictionText,
-    actualOutcome: null,
-    wasCorrect: null
-  });
-  refreshLoopAfterEvidence('Prediction locked');
-}
-
-function submitBuild(){
-  const ctx = currentLoopContext('build');
-  if(!ctx) return;
-  const helpLevelUsed = Number(fieldValue('loop-build-help'));
-  const notes = fieldValue('loop-build-notes');
-  const actualOutcome = fieldValue('loop-actual-outcome');
-  const selected = document.querySelector('input[name="loop-prediction-correct"]:checked');
-  if(!actualOutcome){
-    setLoopError('Describe what actually happened before continuing.');
-    return;
-  }
-  if(!selected){
-    setLoopError('Mark whether your prediction was correct.');
-    return;
-  }
-  if(!patchLatestPrediction(ctx.topic.id, actualOutcome, selected.value === 'true')){
-    setLoopError('The pending prediction could not be found. Reopen the topic and try again.');
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'build', {
-    helpLevelUsed: helpLevelUsed,
-    independent: helpLevelUsed <= 1,
-    notes: notes
-  });
-  refreshLoopAfterEvidence('Build evidence recorded');
-}
-
-function submitBreakEvidence(){
-  const ctx = currentLoopContext('break');
-  if(!ctx) return;
-  const whatBroke = fieldValue('loop-what-broke');
-  if(!whatBroke){
-    setLoopError('Record what you did and what broke.');
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'break', {
-    whatBroke: whatBroke,
-    notes: fieldValue('loop-break-notes')
-  });
-  refreshLoopAfterEvidence('Break evidence recorded');
-}
-
-function isPlaceholderAnswer(value){
-  const normalized = value.trim().toLowerCase().replace(/[’']/g,'').replace(/[.!]/g,'');
-  return ['idk','i dont know','dont know','n/a','na','?','placeholder'].includes(normalized);
-}
-
-function submitDiagnosis(){
-  const ctx = currentLoopContext('diagnose');
-  if(!ctx) return;
-  const rootCause = fieldValue('loop-root-cause');
-  const evidenceText = fieldValue('loop-diagnose-evidence');
-  if(!rootCause || !evidenceText || isPlaceholderAnswer(rootCause) || isPlaceholderAnswer(evidenceText)){
-    setLoopError('Enter a real root cause and specific evidence; placeholders such as “idk” do not count.');
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'diagnose', {
-    rootCause: rootCause,
-    evidenceText: evidenceText,
-    helpLevelUsed: Number(fieldValue('loop-diagnose-help'))
-  });
-  refreshLoopAfterEvidence('Diagnosis recorded');
-}
-
-function submitCurveball(passed){
-  const ctx = currentLoopContext('curveball');
-  if(!ctx) return;
-  recordEvidence(ctx.topic.id, 'curveball', {
-    passed: passed === true,
-    notes: fieldValue('loop-curveball-notes')
-  });
-  refreshLoopAfterEvidence('Curveball result recorded');
-}
-
-function submitReflection(){
-  if(!currentLoopContext('reflect')) return;
-  const reflection = fieldValue('loop-reflection');
-  if(!reflection){
-    setLoopError('Write a short reflection before continuing.');
-    return;
-  }
-  loopSession.reflectText = reflection;
-  loopSession.reflectDone = true;
-  saveLoopDraft();
-  renderLearningLoop();
-}
-
-function submitResumeNote(){
-  const ctx = currentLoopContext('resumeNote');
-  if(!ctx) return;
-  const nextAction = fieldValue('loop-next-action');
-  if(!nextAction){
-    setLoopError('Enter an exact next action before finishing.');
-    return;
-  }
-  recordEvidence(ctx.topic.id, 'resumeNote', {
-    stoppedAt: fieldValue('loop-stopped-at'),
-    whatWorks: fieldValue('loop-what-works'),
-    confusedAbout: fieldValue('loop-confused'),
-    nextAction: nextAction
-  });
-  refreshLoopAfterEvidence('Learning loop complete');
-}
-
-// ===== Review flow (reusable by this modal and the future Today view) =====
-let reviewFlowState = null;
-
-function updateReviewButton(){
-  const button = document.getElementById('review-button');
-  if(!button || !TOPICS.length) return;
-  button.textContent = 'Review (' + getDueReviews(todayStr()).length + ')';
-}
-
-function openReviewFlow(){
-  const due = getDueReviewCandidates(todayStr());
-  const cappedTopicIds = getDueReviews(todayStr());
-  startReviewFlow(cappedTopicIds, {
-    mode:'daily',
-    hasMore:due.length > cappedTopicIds.length
-  });
-}
-
-function startReviewFlow(topicIds, options){
-  options = options || {};
-  reviewFlowState = {
-    topicIds: Array.isArray(topicIds) ? topicIds.slice() : [],
-    index: 0,
-    hasMore: !!options.hasMore,
-    mode: options.mode || 'daily',
-    reconstruction: null,
-    blanked: false,
-    attemptRecorded: false,
-    result: null,
-    confidence: null,
-    intervalDaysAfter: null
-  };
-  document.getElementById('review-modal-overlay').classList.add('open');
-  renderReviewFlow(document.getElementById('review-flow-root'));
-}
-
-function closeReviewFlow(){
-  const wasWarmup = reviewFlowState && reviewFlowState.mode === 'warmup';
-  document.getElementById('review-modal-overlay').classList.remove('open');
-  reviewFlowState = null;
-  if(wasWarmup){
-    comebackPending = false;
-    showAppView('today');
-  } else {
-    setNavigationActive(activeAppView);
-  }
-}
-
-function resetCurrentReviewAttempt(){
-  reviewFlowState.reconstruction = null;
-  reviewFlowState.blanked = false;
-  reviewFlowState.attemptRecorded = false;
-  reviewFlowState.result = null;
-  reviewFlowState.confidence = null;
-  reviewFlowState.intervalDaysAfter = null;
-}
-
-function currentReviewTopic(){
-  if(!reviewFlowState) return null;
-  return TOPICS_BY_ID.get(reviewFlowState.topicIds[reviewFlowState.index]) || null;
-}
-
-function renderReviewFlow(container){
-  if(!container || !reviewFlowState) return;
-  if(reviewFlowState.index >= reviewFlowState.topicIds.length){
-    if(reviewFlowState.mode === 'warmup'){
-      container.innerHTML =
-        '<div class="review-done">' +
-          '<div class="loop-title">Warm-up complete</div>' +
-          '<div class="loop-copy">Your normal next action is ready.</div>' +
-          '<div class="loop-actions" style="justify-content:center;margin-top:18px">' +
-            '<button class="pomo-btn primary" onclick="finishComebackWarmup()">Continue</button>' +
-          '</div>' +
-        '</div>';
-      return;
-    }
-    container.innerHTML =
-      '<div class="review-done">' +
-        '<div class="loop-title">Done for today</div>' +
-        '<div class="loop-copy">' +
-          (reviewFlowState.hasMore ? 'You completed today’s review set. More tomorrow.' : 'Today’s review set is complete.') +
-        '</div>' +
-        '<div class="loop-actions" style="justify-content:center;margin-top:18px">' +
-          '<button class="pomo-btn" onclick="closeReviewFlow()">Close</button>' +
-        '</div>' +
-      '</div>';
-    return;
-  }
-  const topic = currentReviewTopic();
-  if(!topic){
-    reviewFlowState.index += 1;
-    renderReviewFlow(container);
-    return;
-  }
-  const position = reviewFlowState.index + 1;
-  const total = reviewFlowState.topicIds.length;
-  let body =
-    '<div class="review-progress">Review ' + position + ' of ' + total + '</div>' +
-    '<div class="loop-title">' + escapeHtml(topic.title) + '</div>' +
-    '<div class="loop-prompt">' + escapeHtml(topic.masteryGate) + '</div>';
-
-  if(reviewFlowState.reconstruction == null){
-    body +=
-      '<div class="loop-copy">Source closed. Reconstruct before comparing.</div>' +
-      '<div class="loop-form">' +
-        '<div class="loop-field"><label for="review-reconstruction">Reconstruct this from memory — core idea, how it works, and one tradeoff or failure mode.</label>' +
-          '<textarea class="loop-input" id="review-reconstruction"></textarea></div>' +
-        '<div class="loop-error" id="review-error"></div>' +
-        '<div class="loop-actions">' +
-          '<button class="pomo-btn primary" onclick="commitReviewReconstruction()">Submit and compare</button>' +
-          '<button class="pomo-btn" onclick="blankReviewAndReveal()">I blanked — show me</button>' +
-        '</div>' +
-      '</div>';
-  } else {
-    body +=
-      '<div class="loop-compare">' +
-        '<div class="loop-compare-card"><h4>Your reconstruction</h4><div class="loop-copy">' +
-          escapeHtml(reviewFlowState.reconstruction) +
-        '</div></div>' +
-        '<div class="loop-compare-card"><h4>Original chunks</h4>' + allConceptChunksHtml(topic) + '</div>' +
-      '</div>';
-    if(!reviewFlowState.attemptRecorded){
-      body +=
-        '<div class="loop-form">' +
-          '<div class="loop-field-label">Did you get it?</div>' +
-          '<div class="loop-radio-row">' +
-            '<label class="loop-radio"><input type="radio" name="review-result" value="pass"> Pass</label>' +
-            '<label class="loop-radio"><input type="radio" name="review-result" value="fail"> Not yet</label>' +
-          '</div>' +
-          '<div class="loop-field-label">How did it feel?</div>' +
-          '<div class="loop-radio-row">' +
-            '<label class="loop-radio"><input type="radio" name="review-confidence" value="high"> High confidence</label>' +
-            '<label class="loop-radio"><input type="radio" name="review-confidence" value="medium"> Medium</label>' +
-            '<label class="loop-radio"><input type="radio" name="review-confidence" value="low"> Low</label>' +
-          '</div>' +
-          '<div class="loop-error" id="review-error"></div>' +
-          '<div class="loop-actions"><button class="pomo-btn primary" onclick="submitReviewRating()">Record review</button></div>' +
-        '</div>';
-    } else {
-      const message = reviewFlowState.mode === 'warmup'
-        ? 'Warm-up complete.'
-        : (reviewFlowState.result === 'fail'
-          ? 'Scheduled again for tomorrow.'
-          : reviewPassMessage(reviewFlowState.intervalDaysAfter));
-      body +=
-        '<div class="review-result">' + escapeHtml(message) + '</div>' +
-        '<div class="loop-actions" style="margin-top:14px">' +
-          '<button class="pomo-btn primary" onclick="advanceReviewFlow()">' +
-            (position === total ? 'Finish' : 'Next review') +
-          '</button>' +
-        '</div>';
-    }
-  }
-  container.innerHTML = body;
-}
-
-function reviewPassMessage(intervalDays){
-  if(intervalDays === 0) return 'Saved. This will get another short review.';
-  if(intervalDays === 1) return 'Next review scheduled for tomorrow.';
-  return 'Next review scheduled in ' + intervalDays + ' days.';
-}
-
-function setReviewError(message){
-  const error = document.getElementById('review-error');
-  if(error) error.textContent = message;
-}
-
-function commitReviewReconstruction(){
-  if(!reviewFlowState || !currentReviewTopic()) return;
-  const reconstruction = fieldValue('review-reconstruction');
-  if(!reconstruction){
-    setReviewError('Write a reconstruction, or use “I blanked — show me.”');
-    return;
-  }
-  reviewFlowState.reconstruction = reconstruction;
-  renderReviewFlow(document.getElementById('review-flow-root'));
-}
-
-function blankReviewAndReveal(){
-  const topic = currentReviewTopic();
-  if(!topic || !reviewFlowState || reviewFlowState.reconstruction != null) return;
-  const latest = recordReviewFlowAttempt(topic, 'fail', 'low');
-  reviewFlowState.reconstruction = 'I blanked on this review.';
-  reviewFlowState.blanked = true;
-  reviewFlowState.attemptRecorded = true;
-  reviewFlowState.result = 'fail';
-  reviewFlowState.confidence = 'low';
-  reviewFlowState.intervalDaysAfter = latest.intervalDaysAfter;
-  renderReviewFlow(document.getElementById('review-flow-root'));
-}
-
-function submitReviewRating(){
-  const topic = currentReviewTopic();
-  if(!topic || !reviewFlowState || reviewFlowState.reconstruction == null || reviewFlowState.attemptRecorded) return;
-  const resultInput = document.querySelector('input[name="review-result"]:checked');
-  const confidenceInput = document.querySelector('input[name="review-confidence"]:checked');
-  if(!resultInput || !confidenceInput){
-    setReviewError('Choose both a result and confidence.');
-    return;
-  }
-  const latest = recordReviewFlowAttempt(topic, resultInput.value, confidenceInput.value);
-  reviewFlowState.attemptRecorded = true;
-  reviewFlowState.result = resultInput.value;
-  reviewFlowState.confidence = confidenceInput.value;
-  reviewFlowState.intervalDaysAfter = latest.intervalDaysAfter;
-  renderReviewFlow(document.getElementById('review-flow-root'));
-}
-
-function advanceReviewFlow(){
-  if(!reviewFlowState || !reviewFlowState.attemptRecorded) return;
-  reviewFlowState.index += 1;
-  resetCurrentReviewAttempt();
-  renderReviewFlow(document.getElementById('review-flow-root'));
-}
-
-function recordReviewFlowAttempt(topic, result, confidence){
-  const progress = getTopicProgress(topic.id);
-  if(reviewFlowState && reviewFlowState.mode === 'warmup' && progress.masteryLevel < 2){
-    return {result:result,confidence:confidence,intervalDaysAfter:null};
-  }
-  const record = recordReviewAttempt(topic.id, result, confidence);
-  return record.review.history[record.review.history.length - 1];
-}
-
-function finishComebackWarmup(){
-  document.getElementById('review-modal-overlay').classList.remove('open');
-  reviewFlowState = null;
-  comebackPending = false;
-  showAppView('today');
-}
-
-// ===== Explain / Code / Diagnose verification =====
-// Self-graded on purpose — this is a static page with no backend, so there's
-// no honest way to auto-grade free text or code. The "reveal, then check the
-// box yourself" pattern is deliberate: it only works if you're honest with it.
-let verifiedState = {};
-function saveVerified(){ localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); pushCloudState(); }
-
-function toggleVerifyCheck(id, kind, checked){
-  if(!verifiedState[id]) verifiedState[id] = {};
-  verifiedState[id][kind] = checked;
-  saveVerified();
-  renderTopicCard(id);
-}
-
-function isFullyVerified(id){
-  const v = verifiedState[id];
-  return !!(v && v.explain && v.code && v.diagnose);
-}
-
-function revealVerifyKey(btn){
-  btn.style.display = 'none';
-  btn.nextElementSibling.style.display = 'block';
-}
-
-function renderVerifySection(t){
-  const container = document.getElementById('modal-verify-section');
-  if(!t.verify){ container.innerHTML = ''; return; }
-  const vstate = verifiedState[t.id] || {};
-  const kinds = [
-    {key:'explain', label:'EXPLAIN', prompt:t.verify.explain, keyText:t.verify.explainKey},
-    {key:'code', label:'CODE', prompt:t.verify.code, keyText:t.verify.codeKey},
-    {key:'diagnose', label:'DIAGNOSE', prompt:t.verify.diagnose, keyText:t.verify.diagnoseKey}
-  ];
-  container.innerHTML = `<div class="verify-title">Prove it — before you call this mastered</div>` +
-    kinds.map(k => `
-      <div class="verify-card">
-        <div class="vk-label">${k.label}</div>
-        <div class="vk-prompt">${k.prompt}</div>
-        <button class="pomo-btn" onclick="revealVerifyKey(this)">Reveal what to check for</button>
-        <div class="vk-key" style="display:none">${k.keyText}</div>
-        <label class="verify-check">
-          <input type="checkbox" ${vstate[k.key] ? 'checked' : ''} onchange="toggleVerifyCheck('${t.id}','${k.key}',this.checked)">
-          I worked through this honestly
-        </label>
-      </div>`).join('');
+  if(activeAppView === 'today') renderTodayDashboard();
+  pushCloudState();
 }
 
 function closeTopicModal(){
-  if(currentModalTopicId){
-    const t = TOPICS_BY_ID.get(currentModalTopicId);
-    if(t && !firstIncompleteLoopStep(t, getTopicProgress(t.id))) clearLoopDraft(t.id);
-  }
   document.getElementById('topic-modal-overlay').classList.remove('open');
   currentModalTopicId = null;
-  loopSession = null;
   setNavigationActive(activeAppView);
   if(activeAppView === 'today') renderTodayDashboard();
 }
 
 function renderTopicCard(id){
-  const t = TOPICS_BY_ID.get(id);
   const lvl = levelOf(id);
   const ring = document.getElementById('ring'+id);
   const titleEl = document.getElementById('title'+id);
@@ -3474,8 +2158,6 @@ function renderTopicCard(id){
   ring.textContent = lvl>=1 ? (lvl===3?'✓':lvl) : '';
   titleEl.classList.toggle('mastered', lvl===3);
   card.classList.toggle('mastered', lvl===3);
-  const badge = document.getElementById('verified'+id);
-  if(badge) badge.style.display = (t.verify && isFullyVerified(id)) ? 'inline-block' : 'none';
 }
 
 function render(){
@@ -3519,7 +2201,6 @@ function render(){
           <div class="ring" id="ring${t.id}" data-lvl="0"></div>
           <div class="topic-title" id="title${t.id}">${t.title}</div>
           ${qtag}${skilltag}${extTag}
-          <span class="verified-badge" id="verified${t.id}">&#10003; Verified</span>
           <span class="chev">&#8250;</span>
         </div>`;
       group.appendChild(card);
@@ -3529,7 +2210,6 @@ function render(){
   TOPICS.forEach(t=>renderTopicCard(t.id));
   updateStats();
   applyFilters();
-  updateReviewButton();
 }
 
 function applyFilters(){
@@ -3701,12 +2381,7 @@ let driftAckTimer = null;
 function focusBoundTopicId(){
   if(currentModalTopicId) return currentModalTopicId;
   if(!currentTodayAction) currentTodayAction = buildTodayAction();
-  if(currentTodayAction.topicId) return currentTodayAction.topicId;
-  // CONTINUE card points at a review batch (no single topic) — bind the
-  // next actual topic instead, same fallback openLearnView uses.
-  const snapshot = progressSnapshot();
-  const action = pickNextAction(TOPICS, snapshot, CURRICULUM_META.depthLoopMap || {}, []);
-  return action.topicId || null;
+  return currentTodayAction.topicId || null;
 }
 
 function startFocusSession(topicId){
@@ -3828,46 +2503,12 @@ function skipFocusOutcome(){
   advanceFocusEndFlow();
 }
 
-// Offer the standard resume note only when the bound topic's loop is still
-// incomplete AND this session didn't already capture one (never two).
-function focusNeedsResumeNote(){
-  if(!focusEndFlow) return false;
-  const topic = TOPICS_BY_ID.get(focusEndFlow.topicId);
-  if(!topic) return false;
-  const progress = getTopicProgress(topic.id);
-  const loop = topicLoopState(topic, progress, CURRICULUM_META.depthLoopMap || {});
-  if(loop.complete) return false;
-  const note = progress.evidence && progress.evidence.resumeNote;
-  if(note && note.timestamp && new Date(note.timestamp) >= new Date(focusEndFlow.startedAt)) return false;
-  return true;
-}
-
 function advanceFocusEndFlow(){
   if(!focusEndFlow) return;
   if(focusEndFlow.step === 'outcome'){
-    focusEndFlow.step = focusNeedsResumeNote() ? 'resume' : 'break';
-  } else if(focusEndFlow.step === 'resume'){
     focusEndFlow.step = 'break';
   }
   renderFocusUI();
-}
-
-function submitFocusResumeNote(){
-  if(!focusEndFlow) return;
-  const nextAction = (document.getElementById('focus-rn-next') || {value:''}).value.trim();
-  if(!nextAction){
-    const err = document.getElementById('focus-rn-error');
-    if(err) err.textContent = 'Enter an exact next action, or skip.';
-    return;
-  }
-  recordEvidence(focusEndFlow.topicId, 'resumeNote', {
-    stoppedAt: (document.getElementById('focus-rn-stopped') || {value:''}).value.trim(),
-    whatWorks: (document.getElementById('focus-rn-works') || {value:''}).value.trim(),
-    confusedAbout: (document.getElementById('focus-rn-confused') || {value:''}).value.trim(),
-    nextAction: nextAction
-  });
-  if(currentModalTopicId === focusEndFlow.topicId) renderLearningLoop();
-  advanceFocusEndFlow();
 }
 
 function startFocusBreak(){
@@ -3983,22 +2624,6 @@ function renderFocusCardHTML(surface){
         '<div class="focus-actions">' +
           '<button class="pomo-btn primary" onclick="submitFocusOutcome()">Save</button>' +
           '<button class="pomo-btn" onclick="skipFocusOutcome()">Skip</button>' +
-        '</div>';
-    } else if(focusEndFlow.step === 'resume'){
-      body += '<div class="focus-end-form">' +
-        '<label for="focus-rn-stopped">Where you stopped</label>' +
-        '<textarea class="focus-input" id="focus-rn-stopped"></textarea>' +
-        '<label for="focus-rn-works">What currently works</label>' +
-        '<textarea class="focus-input" id="focus-rn-works"></textarea>' +
-        '<label for="focus-rn-confused">What you are confused about</label>' +
-        '<textarea class="focus-input" id="focus-rn-confused"></textarea>' +
-        '<label for="focus-rn-next">Exact next action</label>' +
-        '<textarea class="focus-input" id="focus-rn-next"></textarea>' +
-        '<div class="loop-error" id="focus-rn-error"></div>' +
-        '</div>' +
-        '<div class="focus-actions">' +
-          '<button class="pomo-btn primary" onclick="submitFocusResumeNote()">Save note</button>' +
-          '<button class="pomo-btn" onclick="advanceFocusEndFlow()">Skip</button>' +
         '</div>';
     } else {
       body += '<div class="focus-actions">' +
@@ -4149,8 +2774,10 @@ function submitQuiz(){
   document.getElementById('quiz-result-box').innerHTML =
     `<div class="quiz-result ${pass?'pass':'fail'}">${score}/${total} correct — ${pass?'Passed! 🎉':'Not quite — review and retry.'}</div>`;
   if(currentQuizPhase && pass){
+    const wasAlreadyPassed = !!(quizResults[currentQuizPhase] && quizResults[currentQuizPhase].passed);
     quizResults[currentQuizPhase] = {passed:true, score, total};
     saveQuizResults();
+    if(!wasAlreadyPassed) grantXP('quiz-passed', currentQuizPhase + ':quiz-pass', {refType:'quiz'});
     const btn = document.getElementById(quizBtnId(currentQuizPhase));
     if(btn){ btn.classList.add('passed'); btn.textContent='Phase check ✓ passed'; }
     showToast('Phase check passed!');
@@ -4192,7 +2819,6 @@ function init(){
   // reads each topic's own `progress:{topicId}` key on demand.
   try{ const v = localStorage.getItem('fnd-daily-log:'+todayStr()); if(v) dailyLog = JSON.parse(v); }catch(e){}
   try{ const v = localStorage.getItem('fnd-quiz-results'); if(v) quizResults = JSON.parse(v); }catch(e){}
-  try{ const v = localStorage.getItem('fnd-verified'); if(v) verifiedState = JSON.parse(v); }catch(e){}
   render();
   markPassedQuizButtons();
   drawRings();
@@ -4248,7 +2874,7 @@ function pushCloudState(){
   });
   window.__cloudSync.push({
     progress, projectProgress, bossProgress, xpEvents:getXPEvents(),
-    quizResults, verifiedState, appState, sessions:getSessions(), focusPrefs
+    quizResults, appState, sessions:getSessions(), focusPrefs
   });
 }
 
@@ -4280,7 +2906,6 @@ function applyCloudState(data){
     changed = true;
   }
   if(data.quizResults){ quizResults = data.quizResults; localStorage.setItem('fnd-quiz-results', JSON.stringify(quizResults)); changed = true; }
-  if(data.verifiedState){ verifiedState = data.verifiedState; localStorage.setItem('fnd-verified', JSON.stringify(verifiedState)); changed = true; }
   if(data.appState){
     appState = {
       lastActiveTopicId: typeof data.appState.lastActiveTopicId === 'string' ? data.appState.lastActiveTopicId : null,
@@ -4312,7 +2937,7 @@ function applyCloudState(data){
   render();
   markPassedQuizButtons();
   if(currentModalTopicId !== null){
-    renderLearningLoop();
+    renderTopicChecklist();
   }
   if(activeAppView === 'today') renderTodayDashboard();
   if(activeAppView === 'projects') renderProjectsView();

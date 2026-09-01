@@ -4,8 +4,12 @@
     "version": "1.0",
     "pace": "3-5 focused hours/day",
     "duration": "9-12+ months; mastery decides, not calendar",
-    "method": "Learn -> Recall -> Predict -> Build -> Break -> Diagnose -> Curveball -> Resume",
+    "method": "Read each chunk -> do its hands-on project -> mark the topic complete -> capstone per phase",
     "xpTable": [
+      {
+        "action": "Focus block completed",
+        "xp": 8
+      },
       {
         "action": "Chunk read",
         "xp": 5
